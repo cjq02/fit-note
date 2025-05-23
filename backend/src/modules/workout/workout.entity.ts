@@ -15,8 +15,6 @@ export class WorkoutGroup {
 
 @Schema({ timestamps: true })
 export class Workout {
-    _id: Types.ObjectId;
-
     @Prop({ required: true })
     date: string;
 

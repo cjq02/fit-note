@@ -1,23 +1,50 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Project, ProjectDocument } from './project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { WorkoutService } from '../workout/workout.service';
+import { Workout } from '../workout/workout.entity';
+import { getTodayString } from '../../shared/utils/date.utils.js';
+
+// 扩展 Workout 类型，添加 id 字段
+type WorkoutWithId = Workout & { id: string };
 
 @Injectable()
 export class ProjectService {
     constructor(
         @InjectModel(Project.name)
         private projectModel: Model<ProjectDocument>,
+        @Inject(forwardRef(() => WorkoutService))
+        private workoutService: WorkoutService,
     ) { }
 
     // 获取所有训练项目
-    async findAll(): Promise<Project[]> {
-        // 获取所有项目，不包含当天的训练记录ID
-        // 当天的训练记录ID 将在前端通过 API 获取
-        return this.projectModel.find().sort({ createdAt: -1 }).exec();
+    // @returns {Promise<Project[]>} 返回所有训练项目，每个项目包含当天的训练记录ID（如果存在）
+    async findAll(): Promise<(Project & { todayWorkoutId?: string })[]> {
+        // 获取所有项目
+        const projects = await this.projectModel.find().sort({ createdAt: -1 }).exec();
+
+        // 获取今天的日期字符串
+        const today = getTodayString();
+
+        // 为每个项目查询今天的训练记录
+        const projectsWithWorkout = await Promise.all(
+            projects.map(async (project) => {
+                const todayWorkout = await this.workoutService.findByDateAndProject(
+                    today,
+                    project.id
+                ) as WorkoutWithId | null;
+                return {
+                    ...project.toObject(),
+                    todayWorkoutId: todayWorkout?.id,
+                };
+            })
+        );
+
+        return projectsWithWorkout;
     }
 
     // 获取单个训练项目

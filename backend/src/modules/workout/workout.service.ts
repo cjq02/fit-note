@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -12,6 +12,7 @@ export class WorkoutService {
     constructor(
         @InjectModel(Workout.name)
         private workoutModel: Model<WorkoutDocument>,
+        @Inject(forwardRef(() => ProjectService))
         private projectService: ProjectService,
     ) { }
 
@@ -63,8 +64,8 @@ export class WorkoutService {
 
     // 删除训练记录
     async remove(id: string): Promise<void> {
-        const result = await this.workoutModel.deleteOne({ _id: id }).exec();
-        if (result.deletedCount === 0) {
+        const result = await this.workoutModel.findByIdAndDelete(id).exec();
+        if (!result) {
             throw new NotFoundException('训练记录不存在');
         }
     }

@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { mongooseConfig } from './config/mongoose.config';
 import { ProjectModule } from './modules/project/project.module';
-import { AuthModule } from './modules/auth/auth.module';
 import { WorkoutModule } from './modules/workout/workout.module';
-import { globalSchemaOptions } from './config/mongoose.config';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
     imports: [
@@ -17,25 +17,17 @@ import { globalSchemaOptions } from './config/mongoose.config';
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
-                uri: configService.get<string>('MONGODB_URI', 'mongodb://localhost:27017/fit_note'),
-                user: configService.get<string>('MONGODB_USER', 'admin'),
-                pass: configService.get<string>('MONGODB_PASS', 'password123'),
-                authSource: configService.get<string>('MONGODB_AUTH_SOURCE', 'admin'),
-                connectionFactory: (connection) => {
-                    // 应用全局 Schema 配置
-                    connection.plugin((schema) => {
-                        schema.set('timestamps', globalSchemaOptions.timestamps);
-                        schema.set('toJSON', globalSchemaOptions.toJSON);
-                    });
-                    return connection;
-                },
+                uri: configService.get<string>('MONGODB_URI', mongooseConfig.uri),
+                user: configService.get<string>('MONGODB_USER', mongooseConfig.user),
+                pass: configService.get<string>('MONGODB_PASS', mongooseConfig.pass),
+                authSource: configService.get<string>('MONGODB_AUTH_SOURCE', mongooseConfig.authSource),
             }),
             inject: [ConfigService],
         }),
         // 业务模块
-        AuthModule,
         ProjectModule,
         WorkoutModule,
+        AuthModule,
     ],
 })
 export class AppModule { } 

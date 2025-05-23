@@ -18,7 +18,9 @@ const responseInterceptor = (req: Request, res: Response, next: NextFunction) =>
 };
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        logger: ['error', 'warn', 'debug', 'log', 'verbose'],
+    });
 
     // 全局管道
     app.useGlobalPipes(new ValidationPipe({

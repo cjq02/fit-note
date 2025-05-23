@@ -3,10 +3,7 @@ import { Document } from 'mongoose';
 
 export type ProjectDocument = Project & Document;
 
-@Schema({
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
-})
+@Schema()
 export class Project {
     @Prop({ required: true, unique: true })
     name: string;
@@ -14,13 +11,8 @@ export class Project {
     @Prop()
     description?: string;
 
-    // 虚拟字段：当天的训练记录ID
+    // 当天的训练记录ID，由 service 层处理
     todayWorkoutId?: string;
 }
 
-export const ProjectSchema = SchemaFactory.createForClass(Project);
-
-// 添加虚拟字段
-ProjectSchema.virtual('todayWorkoutId').get(function () {
-    return this.todayWorkoutId;
-}); 
+export const ProjectSchema = SchemaFactory.createForClass(Project); 
