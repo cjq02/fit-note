@@ -1,24 +1,20 @@
+import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 import {
+  Button,
+  DatePicker,
   Form,
   Input,
-  DatePicker,
-  Button,
-  Space,
-  Card,
-  Toast,
-  Stepper,
-  List,
   Radio,
+  Space,
+  Toast
 } from 'antd-mobile';
-import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 
-import { NavHeader } from '../../components/NavHeader';
-import { createWorkout, getWorkout, updateWorkout } from '../../api/workout';
 import type { ApiResponse, CreateWorkoutRequest, Workout, WorkoutGroup } from '../../api/types';
+import { createWorkout, getWorkout, updateWorkout } from '../../api/workout';
+import { NavHeader } from '../../components/NavHeader';
 
 const UNIT_OPTIONS = [
   { label: 'kg', value: 'kg' },

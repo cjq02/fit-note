@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query } from '@nestjs/common';
 
 import { WorkoutService } from './workout.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
@@ -12,6 +12,14 @@ export class WorkoutController {
     @Get()
     findAll(): Promise<Workout[]> {
         return this.workoutService.findAll();
+    }
+
+    @Get('find')
+    findByDateAndProject(
+        @Query('date') date: string,
+        @Query('projectId') projectId: string,
+    ): Promise<Workout | null> {
+        return this.workoutService.findByDateAndProject(date, projectId);
     }
 
     @Get(':id')

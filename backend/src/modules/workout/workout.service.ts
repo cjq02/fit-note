@@ -68,4 +68,12 @@ export class WorkoutService {
             throw new NotFoundException('训练记录不存在');
         }
     }
+
+    // 根据日期和项目ID查询训练记录
+    async findByDateAndProject(date: string, projectId: string): Promise<Workout | null> {
+        return this.workoutModel.findOne({
+            date,
+            projectId,
+        }).exec();
+    }
 } 

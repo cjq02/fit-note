@@ -1,12 +1,14 @@
-import { Button, Card, Dialog, Empty, List, NavBar, Popup, Radio, Space, Toast } from 'antd-mobile';
-import { AddOutline, DeleteOutline, EditSOutline } from 'antd-mobile-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Card, Dialog, Empty, Popup, Toast } from 'antd-mobile';
+import { AddOutline, DeleteOutline, EditSOutline } from 'antd-mobile-icons';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { NavHeader } from '../../components/NavHeader';
 import { createProject, deleteProject, getProjects, updateProject } from '../../api/project';
 import type { CreateProjectRequest, Project } from '../../api/types';
+import { findByDateAndProject } from '../../api/workout';
+import { NavHeader } from '../../components/NavHeader';
+import * as DateUtils from '@/utils/date.utils';
 import { ProjectForm } from './ProjectForm';
 
 export const ProjectList = () => {
@@ -83,8 +85,28 @@ export const ProjectList = () => {
     };
 
     // 处理点击项目卡片
-    const handleCardClick = (project: Project) => {
-        navigate(`/workout/new?projectId=${project.id}&projectName=${encodeURIComponent(project.name)}`);
+    const handleCardClick = async (project: Project) => {
+        try {
+            // 获取当前日期（格式：YYYY-MM-DD）
+            const today = DateUtils.formatDate(new Date(), 'YYYY-MM-DD');
+
+            // 查询今天的训练记录
+            const response = await findByDateAndProject(today, project.id);
+            const workout = response.data;
+
+            if (workout) {
+                // 如果存在训练记录，进入编辑页面
+                navigate(`/workout/${workout.id}`);
+            } else {
+                // 如果不存在训练记录，进入新增页面
+                navigate(`/workout/new?projectId=${project.id}&projectName=${encodeURIComponent(project.name)}`);
+            }
+        } catch (error) {
+            Toast.show({
+                icon: 'fail',
+                content: '查询失败',
+            });
+        }
     };
 
     return (

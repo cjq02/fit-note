@@ -24,4 +24,11 @@ export const updateWorkout = async (data: UpdateWorkoutRequest): Promise<ApiResp
 // 删除训练记录
 export const deleteWorkout = async (id: string): Promise<ApiResponse<void>> => {
     return http.delete(`/api/workouts/${id}`);
+};
+
+// 根据日期和项目ID查询训练记录
+export const findByDateAndProject = async (date: string, projectId: string) => {
+    return http.get<ApiResponse<Workout | null>>('/api/workouts/find', {
+        params: { date, projectId },
+    });
 }; 
