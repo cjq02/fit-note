@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import { Navbar } from './components/Navbar';
 import { Home } from './pages/home/Home';
+import { Profile } from './pages/profile/Profile';
 import { Workout } from './pages/workout/Workout';
 import { WorkoutForm } from './pages/workout/WorkoutForm';
-import { Profile } from './pages/profile/Profile';
-import { Navbar } from './components/Navbar';
 
 function App() {
   return (
