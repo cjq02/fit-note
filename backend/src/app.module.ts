@@ -16,8 +16,8 @@ import { WorkoutModule } from './modules/workout/workout.module';
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
                 uri: configService.get('MONGODB_URI', 'mongodb://localhost:27017/fit_note'),
-                user: configService.get('MONGODB_USER', 'root'),
-                pass: configService.get('MONGODB_PASS', 'root'),
+                user: configService.get('MONGODB_USER', 'admin'),
+                pass: configService.get('MONGODB_PASS', 'password123'),
                 authSource: configService.get('MONGODB_AUTH_SOURCE', 'admin'),
             }),
             inject: [ConfigService],
