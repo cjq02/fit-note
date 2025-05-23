@@ -1,25 +1,24 @@
-import { Layout } from 'antd';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/home/Home';
 import { Workout } from './pages/workout/Workout';
-import { WorkoutForm } from './pages/workout/new';
+import { WorkoutForm } from './pages/workout/WorkoutForm';
+import { Profile } from './pages/profile/Profile';
 import { Navbar } from './components/Navbar';
-
-const { Content } = Layout;
 
 function App() {
   return (
     <Router>
-      <Layout className="min-h-screen">
-        <Navbar />
-        <Content className="p-6">
+      <div className="min-h-screen">
+        <div className="pb-20">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/workout" element={<Workout />} />
             <Route path="/workout/new" element={<WorkoutForm />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
-        </Content>
-      </Layout>
+        </div>
+        <Navbar />
+      </div>
     </Router>
   );
 }

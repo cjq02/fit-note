@@ -1,6 +1,5 @@
-import { Table, Tag, Space, Button } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import { Card, List, Tag, Button, Space, SwipeAction, Dialog, Toast } from 'antd-mobile';
+import { EditSOutline, DeleteOutline, ClockCircleOutline } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 
 interface Workout {
@@ -10,46 +9,6 @@ interface Workout {
     duration: number;
     exercises: string[];
 }
-
-const columns: ColumnsType<Workout> = [
-    {
-        title: '日期',
-        dataIndex: 'date',
-        key: 'date',
-    },
-    {
-        title: '训练类型',
-        dataIndex: 'type',
-        key: 'type',
-    },
-    {
-        title: '时长(分钟)',
-        dataIndex: 'duration',
-        key: 'duration',
-    },
-    {
-        title: '训练项目',
-        dataIndex: 'exercises',
-        key: 'exercises',
-        render: (exercises: string[]) => (
-            <>
-                {exercises.map((exercise) => (
-                    <Tag key={exercise}>{exercise}</Tag>
-                ))}
-            </>
-        ),
-    },
-    {
-        title: '操作',
-        key: 'action',
-        render: (_, record) => (
-            <Space size="middle">
-                <Button type="text" icon={<EditOutlined />} />
-                <Button type="text" danger icon={<DeleteOutlined />} />
-            </Space>
-        ),
-    },
-];
 
 const mockData: Workout[] = [
     {
@@ -71,15 +30,115 @@ const mockData: Workout[] = [
 export const Workout = () => {
     const navigate = useNavigate();
 
+    const handleDelete = (id: string) => {
+        Dialog.confirm({
+            content: '确定要删除这条训练记录吗？',
+            onConfirm: () => {
+                // TODO: 调用删除 API
+                Toast.show({
+                    icon: 'success',
+                    content: '删除成功',
+                });
+            },
+        });
+    };
+
+    const handleEdit = (id: string) => {
+        // TODO: 跳转到编辑页面
+        navigate(`/workout/edit/${id}`);
+    };
+
+    const rightActions = (id: string) => [
+        {
+            key: 'edit',
+            text: '编辑',
+            color: 'primary',
+            onClick: () => handleEdit(id),
+        },
+        {
+            key: 'delete',
+            text: '删除',
+            color: 'danger',
+            onClick: () => handleDelete(id),
+        },
+    ];
+
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">训练记录</h1>
-                <Button type="primary" onClick={() => navigate('/workout/new')}>
-                    新增训练
-                </Button>
+        <div className="p-4 pb-20 min-h-screen">
+            {/* 页面标题 */}
+            <div className="mb-6">
+                <h1 className="text-xl font-bold text-[var(--adm-color-text)]">训练记录</h1>
+                <p className="text-sm text-[var(--adm-color-text-light)] mt-1">记录你的每一次训练</p>
             </div>
-            <Table columns={columns} dataSource={mockData} rowKey="id" />
+
+            {/* 训练记录列表 */}
+            <List>
+                {mockData.map((workout) => (
+                    <SwipeAction
+                        key={workout.id}
+                        rightActions={rightActions(workout.id)}
+                    >
+                        <List.Item>
+                            <Card
+                                className="w-full"
+                                style={{
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                                    borderRadius: '12px',
+                                    backgroundColor: '#ffffff',
+                                    marginBottom: '16px',
+                                }}
+                            >
+                                <Space direction="vertical" style={{ width: '100%' }}>
+                                    {/* 日期和类型 */}
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <div className="font-medium text-[var(--adm-color-text)]">
+                                                {workout.type}
+                                            </div>
+                                            <div className="text-xs text-[var(--adm-color-text-light)] mt-1">
+                                                {workout.date}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center text-[var(--adm-color-primary)]">
+                                            <ClockCircleOutline className="mr-1" />
+                                            <span className="text-sm">{workout.duration}分钟</span>
+                                        </div>
+                                    </div>
+
+                                    {/* 训练项目标签 */}
+                                    <div className="flex gap-2 flex-wrap mt-2">
+                                        {workout.exercises.map((exercise) => (
+                                            <Tag
+                                                key={exercise}
+                                                color="primary"
+                                                fill="outline"
+                                                className="text-xs"
+                                            >
+                                                {exercise}
+                                            </Tag>
+                                        ))}
+                                    </div>
+                                </Space>
+                            </Card>
+                        </List.Item>
+                    </SwipeAction>
+                ))}
+            </List>
+
+            {/* 空状态 */}
+            {mockData.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12">
+                    <div className="text-[var(--adm-color-text-light)] mb-4">
+                        还没有训练记录
+                    </div>
+                    <Button
+                        color="primary"
+                        onClick={() => navigate('/workout/new')}
+                    >
+                        开始记录
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }; 

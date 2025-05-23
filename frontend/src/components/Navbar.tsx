@@ -1,10 +1,19 @@
 import { TabBar } from 'antd-mobile';
-import { AppOutline, UnorderedListOutline, AddOutline, UserOutline } from 'antd-mobile-icons';
+import { AppOutline, UnorderedListOutline, UserOutline } from 'antd-mobile-icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
+
+    // 获取当前激活的标签页
+    const getActiveKey = () => {
+        const path = location.pathname;
+        if (path === '/') return '/';
+        if (path.startsWith('/workout')) return '/workout';
+        if (path.startsWith('/profile')) return '/profile';
+        return '/';
+    };
 
     const tabs = [
         {
@@ -18,11 +27,6 @@ export const Navbar = () => {
             icon: <UnorderedListOutline />,
         },
         {
-            key: '/workout/new',
-            title: '新增训练',
-            icon: <AddOutline />,
-        },
-        {
             key: '/profile',
             title: '我的',
             icon: <UserOutline />,
@@ -31,7 +35,7 @@ export const Navbar = () => {
 
     return (
         <TabBar
-            activeKey={location.pathname}
+            activeKey={getActiveKey()}
             onChange={(key) => navigate(key)}
             style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', zIndex: 100, boxShadow: '0 -1px 6px #eee' }}
         >
