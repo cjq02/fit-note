@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@tanstack/react-query':
+        specifier: ^5.76.2
+        version: 5.76.2(react@18.3.1)
       antd-mobile:
         specifier: ^5.39.0
         version: 5.39.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -15,7 +18,7 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       axios:
-        specifier: ^1.6.7
+        specifier: ^1.9.0
         version: 1.9.0
       dayjs:
         specifier: ^1.11.10
@@ -605,6 +608,14 @@ packages:
     resolution: {integrity: sha512-EeHuaaYiCOD+XOGyB7LMNEx9OEByAa5lkgP+S3ZggjKJpmIO6iRWeoIYYDKo2F8uc3qXcVhTfC7pn7NddQiNtA==}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
+
+  '@tanstack/query-core@5.76.2':
+    resolution: {integrity: sha512-PFGwWh5ss9cJQ67l6bZ7hqXbisX2gy13G2jP+VGY1bgdbCfOMWh6UBVnN62QbFXro6CCoX9hYzTnZHr6Rz00YQ==}
+
+  '@tanstack/react-query@5.76.2':
+    resolution: {integrity: sha512-rGkWberCrFdIxMdvSAJM/UOKeu0O/JVTbMmfhQoJpiU9Uq0EDx2EMCadnNuJWbXR4smDA2t7DY3NKkYFmDVS5A==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tybys/wasm-util@0.9.0':
     resolution: {integrity: sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw==}
@@ -2707,6 +2718,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
       - typescript
+
+  '@tanstack/query-core@5.76.2': {}
+
+  '@tanstack/react-query@5.76.2(react@18.3.1)':
+    dependencies:
+      '@tanstack/query-core': 5.76.2
+      react: 18.3.1
 
   '@tybys/wasm-util@0.9.0':
     dependencies:

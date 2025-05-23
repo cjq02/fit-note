@@ -1,78 +1,82 @@
-import { Card, List, Button, Space } from 'antd-mobile';
-import { UserOutline, SetOutline, BellOutline, QuestionCircleOutline } from 'antd-mobile-icons';
-import { useNavigate } from 'react-router-dom';
+import { Avatar, Card, List, Space, Switch } from 'antd-mobile';
+import { SetOutline, UserOutline, BellOutline, LockOutline, RightOutline } from 'antd-mobile-icons';
+
+import { NavHeader } from '../../components/NavHeader';
 
 export const Profile = () => {
-  const navigate = useNavigate();
+  // 模拟数据
+  const userInfo = {
+    name: '健身达人',
+    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
+    level: 'Lv.3',
+    days: 30,
+  };
 
-  const menuItems = [
+  const settings = [
     {
       title: '个人信息',
       icon: <UserOutline />,
-      onClick: () => navigate('/profile/info'),
+      onClick: () => console.log('个人信息'),
     },
     {
-      title: '通知设置',
+      title: '训练提醒',
       icon: <BellOutline />,
-      onClick: () => navigate('/profile/notifications'),
+      right: <Switch defaultChecked />,
+    },
+    {
+      title: '隐私设置',
+      icon: <LockOutline />,
+      onClick: () => console.log('隐私设置'),
     },
     {
       title: '系统设置',
       icon: <SetOutline />,
-      onClick: () => navigate('/profile/settings'),
-    },
-    {
-      title: '帮助与反馈',
-      icon: <QuestionCircleOutline />,
-      onClick: () => navigate('/profile/help'),
+      onClick: () => console.log('系统设置'),
     },
   ];
 
   return (
-    <div className="p-4 pb-20 min-h-screen">
-      {/* 页面标题 */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-[var(--adm-color-text)]">我的</h1>
-        <p className="text-sm text-[var(--adm-color-text-light)] mt-1">管理你的个人信息和设置</p>
-      </div>
-
-      {/* 用户信息卡片 */}
-      <Card className="mb-4">
-        <Space direction="vertical" style={{ width: '100%' }}>
+    <div className="min-h-screen bg-[var(--adm-color-background)]">
+      <NavHeader title="我的" />
+      <div className="p-4">
+        {/* 用户信息卡片 */}
+        <Card className="mb-4">
           <div className="flex items-center">
-            <div className="w-16 h-16 rounded-full bg-[var(--adm-color-primary)] bg-opacity-10 flex items-center justify-center">
-              <UserOutline fontSize={32} className="text-[var(--adm-color-primary)]" />
-            </div>
+            <Avatar src={userInfo.avatar} className="w-16 h-16" />
             <div className="ml-4">
-              <div className="text-lg font-medium text-[var(--adm-color-text)]">健身达人</div>
-              <div className="text-sm text-[var(--adm-color-text-light)]">点击登录账号</div>
+              <div className="flex items-center">
+                <span className="text-lg font-medium">{userInfo.name}</span>
+                <span className="ml-2 px-2 py-0.5 bg-[var(--adm-color-primary)] text-white text-xs rounded-full">
+                  {userInfo.level}
+                </span>
+              </div>
+              <div className="text-sm text-[var(--adm-color-text-light)] mt-1">
+                已坚持训练 {userInfo.days} 天
+              </div>
             </div>
           </div>
-        </Space>
-      </Card>
+        </Card>
 
-      {/* 菜单列表 */}
-      <List>
-        {menuItems.map((item, index) => (
-          <List.Item key={index} prefix={item.icon} onClick={item.onClick} arrow={true}>
-            {item.title}
-          </List.Item>
-        ))}
-      </List>
+        {/* 设置列表 */}
+        <Card>
+          <List>
+            {settings.map(item => (
+              <List.Item
+                key={item.title}
+                prefix={item.icon}
+                onClick={item.onClick}
+                extra={item.right || <RightOutline />}
+              >
+                {item.title}
+              </List.Item>
+            ))}
+          </List>
+        </Card>
 
-      {/* 退出登录按钮 */}
-      <div className="mt-8">
-        <Button
-          block
-          color="danger"
-          fill="outline"
-          onClick={() => {
-            // TODO: 处理退出登录
-            console.log('退出登录');
-          }}
-        >
-          退出登录
-        </Button>
+        {/* 版本信息 */}
+        <div className="text-center text-xs text-[var(--adm-color-text-light)] mt-8">
+          Fit Note v1.0.0
+        </div>
       </div>
     </div>
   );

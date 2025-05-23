@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { NavHeader } from '../../components/NavHeader';
 
-interface Workout {
+interface WorkoutItem {
   id: string;
   date: string;
   type: string;
@@ -12,7 +12,7 @@ interface Workout {
   exercises: string[];
 }
 
-const mockData: Workout[] = [
+const mockData: WorkoutItem[] = [
   {
     id: '1',
     date: '2024-03-20',
@@ -32,7 +32,7 @@ const mockData: Workout[] = [
 export const Workout = () => {
   const navigate = useNavigate();
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (_id: string) => {
     Dialog.confirm({
       content: '确定要删除这条训练记录吗？',
       onConfirm: () => {
