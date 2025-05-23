@@ -53,4 +53,36 @@ export interface CreateProjectRequest {
 // 更新训练项目请求参数
 export interface UpdateProjectRequest extends CreateProjectRequest {
     id: string;
+}
+
+// 登录请求参数
+export interface LoginRequest {
+    username: string;
+    password: string;
+}
+
+// 注册请求参数
+export interface RegisterRequest {
+    username: string;
+    password: string;
+}
+
+// 登录响应
+export interface LoginResponse {
+    token: string;
+    user: {
+        id: string;
+        username: string;
+    };
+}
+
+// 用户信息
+export interface UserInfo {
+    id: string;
+    username: string;
+}
+
+// 获取用户信息响应
+export interface GetUserInfoResponse {
+    user: UserInfo;
 } 

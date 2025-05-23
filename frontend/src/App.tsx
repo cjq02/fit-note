@@ -1,12 +1,6 @@
 import { TabBar } from 'antd-mobile';
 import { AppOutline, UnorderedListOutline, UserOutline } from 'antd-mobile-icons';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-
-import { Home } from './pages/home/Home';
-import { Profile } from './pages/profile/Profile';
-import { ProjectList } from './pages/project/ProjectList';
-import { Workout } from './pages/workout/Workout';
-import { WorkoutForm } from './pages/workout/WorkoutForm';
+import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 const tabs = [
   {
@@ -30,17 +24,15 @@ export const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 在登录和注册页面不显示底部导航栏
+  if (location.pathname === '/login' || location.pathname === '/register') {
+    return <Outlet />;
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 pb-[var(--adm-tab-bar-height)]">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/workout" element={<Workout />} />
-          <Route path="/workout/new" element={<WorkoutForm />} />
-          <Route path="/workout/edit/:id" element={<WorkoutForm />} />
-          <Route path="/project" element={<ProjectList />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
+        <Outlet />
       </div>
       <TabBar
         activeKey={location.pathname}
