@@ -6,6 +6,11 @@ export const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // 在新增训练页面隐藏底部导航栏
+    if (location.pathname === '/workout/new') {
+        return null;
+    }
+
     // 获取当前激活的标签页
     const getActiveKey = () => {
         const path = location.pathname;
@@ -37,7 +42,15 @@ export const Navbar = () => {
         <TabBar
             activeKey={getActiveKey()}
             onChange={(key) => navigate(key)}
-            style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', zIndex: 100, boxShadow: '0 -1px 6px #eee' }}
+            style={{
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                zIndex: 100,
+                boxShadow: '0 -1px 6px #eee',
+                backgroundColor: '#fff',
+            }}
         >
             {tabs.map((item) => (
                 <TabBar.Item key={item.key} icon={item.icon} title={item.title} />
