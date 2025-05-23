@@ -1,23 +1,36 @@
-import { IsMongoId, IsNumber, IsOptional, IsString, Min, Max } from 'class-validator';
+import { IsMongoId, IsString, IsEnum, IsArray, ValidateNested, IsNumber, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateWorkoutDto {
-    @IsMongoId()
-    projectId: string;
-
-    @IsNumber()
-    @Type(() => Number)
-    @Min(0)
-    @Max(1000)
-    weight: number;
-
+// 训练组 DTO
+export class WorkoutGroupDto {
     @IsNumber()
     @Type(() => Number)
     @Min(1)
     @Max(1000)
     reps: number;
 
+    @IsNumber()
+    @Type(() => Number)
+    @Min(0)
+    @Max(1000)
+    weight: number;
+}
+
+export class CreateWorkoutDto {
     @IsString()
-    @IsOptional()
-    notes?: string;
+    date: string;
+
+    @IsString()
+    project: string;
+
+    @IsMongoId()
+    projectId: string;
+
+    @IsEnum(['kg', 'lb'])
+    unit: 'kg' | 'lb';
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => WorkoutGroupDto)
+    groups: WorkoutGroupDto[];
 } 

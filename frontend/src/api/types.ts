@@ -19,6 +19,7 @@ export interface WorkoutGroup {
 export interface CreateWorkoutRequest {
     date: string;
     project: string;
+    projectId?: string;
     unit: 'kg' | 'lb';
     groups: WorkoutGroup[];
 }

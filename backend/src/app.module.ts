@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { ProjectModule } from './modules/project/project.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { WorkoutModule } from './modules/workout/workout.module';
 import { globalSchemaOptions } from './config/mongoose.config';
 
 @Module({
@@ -34,6 +35,7 @@ import { globalSchemaOptions } from './config/mongoose.config';
         // 业务模块
         AuthModule,
         ProjectModule,
+        WorkoutModule,
     ],
 })
 export class AppModule { } 

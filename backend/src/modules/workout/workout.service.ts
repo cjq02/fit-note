@@ -15,21 +15,14 @@ export class WorkoutService {
         private projectService: ProjectService,
     ) { }
 
-    // 获取训练记录列表
+    // 获取所有训练记录
     async findAll(): Promise<Workout[]> {
-        return this.workoutModel
-            .find()
-            .populate('project')
-            .sort({ createdAt: -1 })
-            .exec();
+        return this.workoutModel.find().sort({ date: -1 }).exec();
     }
 
-    // 获取训练记录详情
+    // 获取单个训练记录
     async findOne(id: string): Promise<Workout> {
-        const workout = await this.workoutModel
-            .findById(id)
-            .populate('project')
-            .exec();
+        const workout = await this.workoutModel.findById(id).exec();
         if (!workout) {
             throw new NotFoundException('训练记录不存在');
         }
@@ -41,31 +34,37 @@ export class WorkoutService {
         // 验证训练项目是否存在
         await this.projectService.findOne(createWorkoutDto.projectId);
 
-        const workout = new this.workoutModel(createWorkoutDto);
+        const workout = new this.workoutModel({
+            ...createWorkoutDto,
+            projectId: createWorkoutDto.projectId,
+        });
         return await workout.save();
     }
 
     // 更新训练记录
     async update(id: string, updateWorkoutDto: UpdateWorkoutDto): Promise<Workout> {
-        // 如果更新了训练项目，验证新项目是否存在
         if (updateWorkoutDto.projectId) {
+            // 验证训练项目是否存在
             await this.projectService.findOne(updateWorkoutDto.projectId);
         }
 
-        const workout = await this.workoutModel
-            .findByIdAndUpdate(id, updateWorkoutDto, { new: true })
-            .populate('project')
-            .exec();
+        const workout = await this.workoutModel.findByIdAndUpdate(
+            id,
+            updateWorkoutDto,
+            { new: true }
+        ).exec();
+
         if (!workout) {
             throw new NotFoundException('训练记录不存在');
         }
+
         return workout;
     }
 
     // 删除训练记录
     async remove(id: string): Promise<void> {
-        const workout = await this.workoutModel.findByIdAndDelete(id).exec();
-        if (!workout) {
+        const result = await this.workoutModel.deleteOne({ _id: id }).exec();
+        if (result.deletedCount === 0) {
             throw new NotFoundException('训练记录不存在');
         }
     }

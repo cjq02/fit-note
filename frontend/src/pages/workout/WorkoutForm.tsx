@@ -7,24 +7,18 @@ import {
   Card,
   Toast,
   Stepper,
-  Picker,
   List,
   Radio,
 } from 'antd-mobile';
 import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 
 import { NavHeader } from '../../components/NavHeader';
 import { createWorkout, getWorkout, updateWorkout } from '../../api/workout';
 import type { ApiResponse, CreateWorkoutRequest, Workout, WorkoutGroup } from '../../api/types';
-
-const PROJECT_OPTIONS = [
-  { label: '俯卧撑', value: '俯卧撑' },
-  { label: '健腹轮', value: '健腹轮' },
-];
 
 const UNIT_OPTIONS = [
   { label: 'kg', value: 'kg' },
@@ -34,13 +28,15 @@ const UNIT_OPTIONS = [
 export const WorkoutForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const projectName = searchParams.get('projectName');
+  const projectId = searchParams.get('projectId');
+
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
   const [date, setDate] = useState<Date>(new Date());
-  const [project, setProject] = useState<string | undefined>(undefined);
   const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
   const [dateVisible, setDateVisible] = useState(false);
-  const [projectVisible, setProjectVisible] = useState(false);
 
   // 获取训练记录详情
   const { data: workoutData } = useQuery<ApiResponse<Workout>, Error>({
@@ -54,7 +50,6 @@ export const WorkoutForm = () => {
       if (res) {
         const workout = res.data;
         setDate(new Date(workout.date));
-        setProject(workout.project);
         setUnit(workout.unit);
         setGroups(workout.groups.map((g: WorkoutGroup) => ({
           reps: g.reps.toString(),
@@ -118,8 +113,8 @@ export const WorkoutForm = () => {
 
   // 提交表单
   const onFinish = async () => {
-    if (!project) {
-      Toast.show({ icon: 'fail', content: '请选择项目' });
+    if (!projectName && !id) {
+      Toast.show({ icon: 'fail', content: '项目名称不能为空' });
       return;
     }
     if (groups.some(g => !g.reps || !g.weight)) {
@@ -129,7 +124,8 @@ export const WorkoutForm = () => {
 
     const data: CreateWorkoutRequest = {
       date: dayjs(date).format('YYYY-MM-DD'),
-      project,
+      project: projectName || workoutData?.data.project || '',
+      projectId: projectId || undefined,
       unit,
       groups: groups.map(g => ({
         reps: parseInt(g.reps, 10),
@@ -173,22 +169,9 @@ export const WorkoutForm = () => {
               />
             </Form.Item>
             <Form.Item label="项目名称" style={{ flex: 1 }}>
-              <div
-                onClick={() => setProjectVisible(true)}
-                className="h-[32px] leading-[32px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white"
-              >
-                {project || '请选择项目'}
+              <div className="h-[32px] leading-[32px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
+                {decodeURIComponent(projectName || '') || workoutData?.data.project || '未选择项目'}
               </div>
-              <Picker
-                visible={projectVisible}
-                columns={[PROJECT_OPTIONS]}
-                value={project ? [project] : []}
-                onClose={() => setProjectVisible(false)}
-                onConfirm={val => {
-                  setProject((val as string[])[0]);
-                  setProjectVisible(false);
-                }}
-              />
             </Form.Item>
           </div>
           <Form.Item label="重量单位">

@@ -65,6 +65,14 @@ const routes = [
                 ),
             },
             {
+                path: 'workout/new/:projectName',
+                element: (
+                    <PrivateRoute>
+                        <WorkoutForm />
+                    </PrivateRoute>
+                ),
+            },
+            {
                 path: 'workout/edit/:id',
                 element: (
                     <PrivateRoute>

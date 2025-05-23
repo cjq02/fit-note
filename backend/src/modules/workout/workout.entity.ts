@@ -4,22 +4,31 @@ import { Project } from '../project/project.entity';
 
 export type WorkoutDocument = Workout & Document;
 
-@Schema({ timestamps: true })
-export class Workout {
-    @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
-    projectId: Types.ObjectId;
-
-    @Prop({ type: () => Project })
-    project: Project;
-
-    @Prop({ required: true, type: Number, min: 0, max: 1000 })
-    weight: number;
-
+// 训练组类型
+export class WorkoutGroup {
     @Prop({ required: true, type: Number, min: 1, max: 1000 })
     reps: number;
 
-    @Prop()
-    notes?: string;
+    @Prop({ required: true, type: Number, min: 0, max: 1000 })
+    weight: number;
+}
+
+@Schema({ timestamps: true })
+export class Workout {
+    @Prop({ required: true })
+    date: string;
+
+    @Prop({ required: true })
+    project: string;
+
+    @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
+    projectId: Types.ObjectId;
+
+    @Prop({ required: true, enum: ['kg', 'lb'] })
+    unit: 'kg' | 'lb';
+
+    @Prop({ type: [WorkoutGroup], required: true })
+    groups: WorkoutGroup[];
 }
 
 export const WorkoutSchema = SchemaFactory.createForClass(Workout); 
