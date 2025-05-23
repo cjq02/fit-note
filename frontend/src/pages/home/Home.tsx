@@ -15,7 +15,7 @@ export const Home = () => {
   ];
 
   const quickActions = [
-    { title: '开始训练', path: '/workout/new', color: 'primary' },
+    { title: '开始训练', path: '/project', color: 'primary' },
     { title: '训练记录', path: '/workout', color: 'success' },
     { title: '训练计划', path: '/plan', color: 'warning' },
     { title: '数据统计', path: '/stats', color: 'danger' },

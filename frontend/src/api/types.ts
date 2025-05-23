@@ -33,4 +33,24 @@ export interface ApiResponse<T> {
     code: number;
     data: T;
     message: string;
+}
+
+// 训练项目类型
+export interface Project {
+    id: number;
+    name: string;
+    description?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+// 创建训练项目请求参数
+export interface CreateProjectRequest {
+    name: string;
+    description?: string;
+}
+
+// 更新训练项目请求参数
+export interface UpdateProjectRequest extends CreateProjectRequest {
+    id: number;
 } 

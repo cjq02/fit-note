@@ -4,9 +4,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 interface NavHeaderProps {
   title: string;
   showBack?: boolean;
+  rightContent?: React.ReactNode;
 }
 
-export const NavHeader = ({ title, showBack = true }: NavHeaderProps) => {
+export const NavHeader = ({ title, showBack = true, rightContent }: NavHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,7 +18,8 @@ export const NavHeader = ({ title, showBack = true }: NavHeaderProps) => {
 
   return (
     <NavBar
-      onBack={() => navigate(-1)}
+      onBack={showBack ? () => navigate(-1) : undefined}
+      right={rightContent}
       style={{
         '--height': '48px',
         '--border-bottom': '1px solid var(--adm-color-border)',

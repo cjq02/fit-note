@@ -4,6 +4,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { Home } from './pages/home/Home';
 import { Profile } from './pages/profile/Profile';
+import { ProjectList } from './pages/project/ProjectList';
 import { Workout } from './pages/workout/Workout';
 import { WorkoutForm } from './pages/workout/WorkoutForm';
 
@@ -37,6 +38,7 @@ export const App = () => {
           <Route path="/workout" element={<Workout />} />
           <Route path="/workout/new" element={<WorkoutForm />} />
           <Route path="/workout/edit/:id" element={<WorkoutForm />} />
+          <Route path="/project" element={<ProjectList />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
