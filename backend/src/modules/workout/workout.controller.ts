@@ -16,10 +16,9 @@ export class WorkoutController {
 
     @Get('find')
     findByDateAndProject(
-        @Query('date') date: string,
-        @Query('projectId') projectId: string,
+        @Query('params') params: { date: string; projectId: string },
     ): Promise<Workout | null> {
-        return this.workoutService.findByDateAndProject(date, projectId);
+        return this.workoutService.findByDateAndProject(params.date, params.projectId);
     }
 
     @Get(':id')

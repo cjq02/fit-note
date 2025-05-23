@@ -6,9 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { createProject, deleteProject, getProjects, updateProject } from '../../api/project';
 import type { CreateProjectRequest, Project } from '../../api/types';
-import { findByDateAndProject } from '../../api/workout';
 import { NavHeader } from '../../components/NavHeader';
-import * as DateUtils from '@/utils/date.utils';
 import { ProjectForm } from './ProjectForm';
 
 export const ProjectList = () => {
@@ -85,27 +83,13 @@ export const ProjectList = () => {
     };
 
     // 处理点击项目卡片
-    const handleCardClick = async (project: Project) => {
-        try {
-            // 获取当前日期（格式：YYYY-MM-DD）
-            const today = DateUtils.formatDate(new Date(), 'YYYY-MM-DD');
-
-            // 查询今天的训练记录
-            const response = await findByDateAndProject(today, project.id);
-            const workout = response.data;
-
-            if (workout) {
-                // 如果存在训练记录，进入编辑页面
-                navigate(`/workout/${workout.id}`);
-            } else {
-                // 如果不存在训练记录，进入新增页面
-                navigate(`/workout/new?projectId=${project.id}&projectName=${encodeURIComponent(project.name)}`);
-            }
-        } catch (error) {
-            Toast.show({
-                icon: 'fail',
-                content: '查询失败',
-            });
+    const handleCardClick = (project: Project) => {
+        if (project.todayWorkoutId) {
+            // 如果存在当天的训练记录，进入编辑页面
+            navigate(`/workout/${project.todayWorkoutId}`);
+        } else {
+            // 如果不存在当天的训练记录，进入新增页面
+            navigate(`/workout/new?projectId=${project.id}&projectName=${encodeURIComponent(project.name)}`);
         }
     };
 
@@ -138,7 +122,7 @@ export const ProjectList = () => {
                     <div className="space-y-4">
                         {projects.map((project: Project) => (
                             <Card
-                                key={project.id || `project-${project.name}`}
+                                key={project.id}
                                 className="rounded-lg shadow-sm active:opacity-80 cursor-pointer"
                                 onClick={() => handleCardClick(project)}
                             >
@@ -152,22 +136,26 @@ export const ProjectList = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="flex gap-2 ml-4" onClick={e => e.stopPropagation()}>
+                                        <div className="flex gap-2">
                                             <Button
-                                                key={`${project.id || project.name}-edit`}
                                                 fill="none"
                                                 size="mini"
                                                 className="text-[var(--adm-color-primary)]"
-                                                onClick={() => handleEdit(project)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEdit(project);
+                                                }}
                                             >
                                                 <EditSOutline />
                                             </Button>
                                             <Button
-                                                key={`${project.id || project.name}-delete`}
                                                 fill="none"
                                                 size="mini"
                                                 className="text-[var(--adm-color-danger)]"
-                                                onClick={() => handleDelete(project)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(project);
+                                                }}
                                             >
                                                 <DeleteOutline />
                                             </Button>

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { Workout, WorkoutSchema } from './workout.entity';
@@ -11,7 +11,7 @@ import { ProjectModule } from '../project/project.module';
         MongooseModule.forFeature([
             { name: Workout.name, schema: WorkoutSchema }
         ]),
-        ProjectModule,
+        forwardRef(() => ProjectModule),
     ],
     controllers: [WorkoutController],
     providers: [WorkoutService],

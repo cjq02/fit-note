@@ -13,12 +13,14 @@ export class ProjectService {
         private projectModel: Model<ProjectDocument>,
     ) { }
 
-    // 获取训练项目列表
+    // 获取所有训练项目
     async findAll(): Promise<Project[]> {
+        // 获取所有项目，不包含当天的训练记录ID
+        // 当天的训练记录ID 将在前端通过 API 获取
         return this.projectModel.find().sort({ createdAt: -1 }).exec();
     }
 
-    // 获取训练项目详情
+    // 获取单个训练项目
     async findOne(id: string): Promise<Project> {
         const project = await this.projectModel.findById(id).exec();
         if (!project) {

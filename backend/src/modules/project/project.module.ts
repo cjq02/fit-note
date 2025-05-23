@@ -9,7 +9,7 @@ import { ProjectController } from './project.controller';
     imports: [
         MongooseModule.forFeature([
             { name: Project.name, schema: ProjectSchema }
-        ])
+        ]),
     ],
     controllers: [ProjectController],
     providers: [ProjectService],

@@ -3,8 +3,8 @@ import type { ApiResponse, CreateProjectRequest, Project, UpdateProjectRequest }
 
 // 获取训练项目列表
 export const getProjects = async (): Promise<ApiResponse<Project[]>> => {
-    const response = await http.get<Project[]>('/api/projects');
-    return response;
+    // 直接使用后端返回的数据，包含 todayWorkoutId 字段
+    return http.get<Project[]>('/api/projects');
 };
 
 // 获取训练项目详情
