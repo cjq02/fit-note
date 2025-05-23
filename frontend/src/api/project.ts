@@ -1,27 +1,32 @@
 import { http } from './http';
-import type { CreateProjectRequest, Project, UpdateProjectRequest } from './types';
+import type { ApiResponse, CreateProjectRequest, Project, UpdateProjectRequest } from './types';
 
 // 获取训练项目列表
-export const getProjects = () => {
-    return http.get<Project[]>('/api/projects');
+export const getProjects = async (): Promise<ApiResponse<Project[]>> => {
+    const response = await http.get<Project[]>('/api/projects');
+    return response;
 };
 
 // 获取训练项目详情
-export const getProject = (id: number) => {
-    return http.get<Project>(`/api/projects/${id}`);
+export const getProject = async (id: string): Promise<ApiResponse<Project>> => {
+    const response = await http.get<Project>(`/api/projects/${id}`);
+    return response;
 };
 
 // 创建训练项目
-export const createProject = (data: CreateProjectRequest) => {
-    return http.post<Project>('/api/projects', data);
+export const createProject = async (data: CreateProjectRequest): Promise<ApiResponse<Project>> => {
+    const response = await http.post<Project>('/api/projects', data);
+    return response;
 };
 
 // 更新训练项目
-export const updateProject = (data: UpdateProjectRequest) => {
-    return http.put<Project>(`/api/projects/${data.id}`, data);
+export const updateProject = async (data: UpdateProjectRequest): Promise<ApiResponse<Project>> => {
+    const response = await http.put<Project>(`/api/projects/${data.id}`, data);
+    return response;
 };
 
 // 删除训练项目
-export const deleteProject = (id: number) => {
-    return http.delete<void>(`/api/projects/${id}`);
+export const deleteProject = async (id: string): Promise<ApiResponse<void>> => {
+    const response = await http.delete<void>(`/api/projects/${id}`);
+    return response;
 }; 

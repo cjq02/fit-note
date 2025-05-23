@@ -26,7 +26,10 @@ export const ProjectList = () => {
 
     // 删除训练项目
     const deleteMutation = useMutation({
-        mutationFn: deleteProject,
+        mutationFn: async (id: string) => {
+            const response = await deleteProject(id);
+            return response.data;
+        },
         onSuccess: () => {
             Toast.show({
                 icon: 'success',
@@ -56,13 +59,13 @@ export const ProjectList = () => {
     const handleSubmit = async (data: CreateProjectRequest) => {
         try {
             if (editingProject) {
-                await updateProject({ ...data, id: editingProject.id });
+                const response = await updateProject({ ...data, id: editingProject.id });
                 Toast.show({
                     icon: 'success',
                     content: '更新成功',
                 });
             } else {
-                await createProject(data);
+                const response = await createProject(data);
                 Toast.show({
                     icon: 'success',
                     content: '创建成功',
@@ -77,6 +80,11 @@ export const ProjectList = () => {
                 content: '操作失败',
             });
         }
+    };
+
+    // 处理点击项目卡片
+    const handleCardClick = (project: Project) => {
+        navigate(`/workout/new?projectId=${project.id}&projectName=${encodeURIComponent(project.name)}`);
     };
 
     return (
@@ -105,40 +113,48 @@ export const ProjectList = () => {
                         className="py-8"
                     />
                 ) : (
-                    <List>
+                    <div className="space-y-4">
                         {projects.map((project: Project) => (
-                            <List.Item
-                                key={project.id}
-                                extra={
-                                    <Space>
-                                        <Button
-                                            fill="none"
-                                            className="text-[var(--adm-color-primary)]"
-                                            onClick={() => handleEdit(project)}
-                                        >
-                                            <EditSOutline />
-                                        </Button>
-                                        <Button
-                                            fill="none"
-                                            className="text-[var(--adm-color-danger)]"
-                                            onClick={() => handleDelete(project)}
-                                        >
-                                            <DeleteOutline />
-                                        </Button>
-                                    </Space>
-                                }
+                            <Card
+                                key={project.id || `project-${project.name}`}
+                                className="rounded-lg shadow-sm active:opacity-80 cursor-pointer"
+                                onClick={() => handleCardClick(project)}
                             >
-                                <div>
-                                    <div className="font-medium">{project.name}</div>
-                                    {project.description && (
-                                        <div className="text-sm text-[var(--adm-color-text-light)] mt-1">
-                                            {project.description}
+                                <div className="p-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex-1">
+                                            <div className="font-medium text-base">{project.name}</div>
+                                            {project.description && (
+                                                <div className="text-sm text-[var(--adm-color-text-light)] mt-1 line-clamp-1">
+                                                    {project.description}
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+                                        <div className="flex gap-2 ml-4" onClick={e => e.stopPropagation()}>
+                                            <Button
+                                                key={`${project.id || project.name}-edit`}
+                                                fill="none"
+                                                size="mini"
+                                                className="text-[var(--adm-color-primary)]"
+                                                onClick={() => handleEdit(project)}
+                                            >
+                                                <EditSOutline />
+                                            </Button>
+                                            <Button
+                                                key={`${project.id || project.name}-delete`}
+                                                fill="none"
+                                                size="mini"
+                                                className="text-[var(--adm-color-danger)]"
+                                                onClick={() => handleDelete(project)}
+                                            >
+                                                <DeleteOutline />
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </List.Item>
+                            </Card>
                         ))}
-                    </List>
+                    </div>
                 )}
             </div>
 
