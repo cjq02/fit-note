@@ -5,9 +5,16 @@ interface NavHeaderProps {
   title: string;
   showBack?: boolean;
   rightContent?: React.ReactNode;
+  onBack?: () => void;
 }
 
-export const NavHeader = ({ title, showBack = true, rightContent }: NavHeaderProps) => {
+/**
+ * 导航栏头部组件
+ *
+ * @param {NavHeaderProps} props - 组件属性
+ * @returns {JSX.Element | null} 导航栏头部组件
+ */
+export const NavHeader = ({ title, showBack = true, rightContent, onBack }: NavHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -18,7 +25,7 @@ export const NavHeader = ({ title, showBack = true, rightContent }: NavHeaderPro
 
   return (
     <NavBar
-      onBack={showBack ? () => navigate(-1) : undefined}
+      onBack={showBack ? onBack || (() => navigate(-1)) : undefined}
       right={rightContent}
       style={{
         '--height': '48px',

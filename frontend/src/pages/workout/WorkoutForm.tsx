@@ -23,11 +23,12 @@ export const WorkoutForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
+  const projectName = searchParams.get('projectName');
+  const urlProjectId = searchParams.get('projectId');
 
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
-  const queryDate = searchParams.get('date');
-  const [date, setDate] = useState<Date>(queryDate ? new Date(queryDate) : new Date());
+  const [date, setDate] = useState<Date>(new Date());
   const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
   const [dateVisible, setDateVisible] = useState(false);
 
@@ -42,8 +43,7 @@ export const WorkoutForm = () => {
   });
 
   // 根据当前页面类型获取 projectId
-  const projectId = id ? workoutData?.data?.projectId : searchParams.get('projectId');
-  const projectName = id ? workoutData?.data?.project : searchParams.get('projectName');
+  const projectId = id ? workoutData?.data?.projectId : urlProjectId;
 
   // 根据日期和项目ID查询训练记录
   const { data: dateWorkoutData, refetch: refetchDateWorkout } = useQuery<Workout | null, Error>({
@@ -152,7 +152,6 @@ export const WorkoutForm = () => {
     setGroups([...groups, { reps: '', weight: '', seqNo: newSeqNo }]);
   };
 
-  // 删除组
   /**
    * 删除训练组
    *
@@ -166,7 +165,6 @@ export const WorkoutForm = () => {
     setGroups(newGroups);
   };
 
-  // 处理日期变化
   /**
    * 处理日期变化
    *
@@ -193,6 +191,8 @@ export const WorkoutForm = () => {
           );
           // 重新加载新建页面的数据
           refetchDateWorkout();
+          // 清空组数据
+          setGroups([{ reps: '', weight: '', seqNo: 1 }]);
         }
       } catch (error) {
         Toast.show({ icon: 'fail', content: '查询失败' });
@@ -200,7 +200,6 @@ export const WorkoutForm = () => {
     }
   };
 
-  // 提交表单
   /**
    * 提交表单
    *
@@ -235,9 +234,16 @@ export const WorkoutForm = () => {
     }
   };
 
+  /**
+   * 返回到项目列表页面并刷新数据
+   */
+  const handleBack = () => {
+    navigate('/project');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[var(--adm-color-background)]">
-      <NavHeader title={id ? '编辑训练' : '记录训练'} />
+      <NavHeader title={id ? '编辑训练' : '记录训练'} showBack={true} onBack={handleBack} />
       <div className="flex-1 p-4 pb-24">
         <Form form={form} layout="vertical" footer={null}>
           {/* 日期和项目名称卡片 */}
@@ -398,12 +404,8 @@ export const WorkoutForm = () => {
         className="fixed left-0 right-0 bottom-0 bg-white flex gap-3 px-4 py-3 border-t border-gray-200 shadow-lg z-10"
         style={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
       >
-        <Button
-          onClick={() => navigate(-1)}
-          style={{ height: 48, borderRadius: 12 }}
-          className="flex-1"
-        >
-          取消
+        <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">
+          关闭
         </Button>
         <Button
           color="primary"
