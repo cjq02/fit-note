@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
-import { NavHeader } from '@/components/NavHeader';
 import { getUserInfo } from '@/api/auth.api';
 
 /**
@@ -145,7 +144,6 @@ export const Profile = () => {
 
   return (
     <div className="min-h-screen bg-[var(--adm-color-background)]">
-      <NavHeader title="我的" />
       <div className="p-4">
         {/* 用户信息卡片 */}
         <Card className="mb-4">

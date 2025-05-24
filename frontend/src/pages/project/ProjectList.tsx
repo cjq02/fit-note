@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
 import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
-import { NavHeader } from '@/components/NavHeader';
 import { ProjectForm } from './ProjectForm';
 
 /**
@@ -220,18 +219,6 @@ export const ProjectList = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <NavHeader
-        title="训练项目"
-        rightContent={
-          <Button
-            fill="none"
-            className="text-blue-500 hover:bg-blue-50 rounded-full"
-            onClick={() => setShowForm(true)}
-          >
-            <AddOutline />
-          </Button>
-        }
-      />
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="p-4 max-w-2xl mx-auto">
           {isLoading ? (

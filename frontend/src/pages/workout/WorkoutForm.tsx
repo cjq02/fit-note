@@ -12,7 +12,6 @@ import type {
   WorkoutGroup,
 } from '@/@typings/types.d.ts';
 import { createWorkout, getWorkout, updateWorkout, findByDateAndProject } from '@/api/workout.api';
-import { NavHeader } from '@/components/NavHeader';
 
 const UNIT_OPTIONS = [
   { label: 'kg', value: 'kg' },
@@ -257,7 +256,6 @@ export const WorkoutForm = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--adm-color-background)]">
-      <NavHeader title={id ? '编辑训练' : '新增训练'} showBack={true} onBack={handleBack} />
       <div className="flex-1 p-4 pb-24">
         <Form form={form} layout="vertical" footer={null}>
           {/* 日期和项目名称卡片 */}

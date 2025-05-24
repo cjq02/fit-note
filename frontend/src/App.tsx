@@ -1,4 +1,4 @@
-import { TabBar } from 'antd-mobile';
+import { TabBar, NavBar } from 'antd-mobile';
 import { AppOutline, UnorderedListOutline, UserOutline } from 'antd-mobile-icons';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 
@@ -20,6 +20,11 @@ const tabs = [
   },
 ];
 
+/**
+ * 应用主组件
+ *
+ * @returns {JSX.Element} 返回应用主界面
+ */
 export const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,8 +34,20 @@ export const App = () => {
     return <Outlet />;
   }
 
+  // 获取当前页面的标题
+  const getPageTitle = () => {
+    const currentTab = tabs.find(tab => tab.key === location.pathname);
+    return currentTab?.title || 'Fit Note';
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
+      <NavBar
+        className="bg-white border-b border-[var(--adm-color-border)]"
+        onBack={() => navigate(-1)}
+      >
+        {getPageTitle()}
+      </NavBar>
       <div className="flex-1 pb-[var(--adm-tab-bar-height)]">
         <Outlet />
       </div>

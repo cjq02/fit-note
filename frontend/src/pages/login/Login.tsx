@@ -2,7 +2,6 @@ import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 
-import { NavHeader } from '@/components/NavHeader';
 import { login } from '@/api/auth.api';
 
 /**
@@ -43,7 +42,6 @@ export const Login = () => {
 
   return (
     <div className="min-h-screen bg-[var(--adm-color-background)]">
-      <NavHeader title="登录" />
       <div className="flex flex-col items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">

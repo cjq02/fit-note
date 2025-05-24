@@ -3,6 +3,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, Query } from '@nestjs/
 import { WorkoutService } from './workout.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
+import { QueryWorkoutDto } from './dto/query-workout.dto';
 import { Workout } from './workout.entity';
 
 @Controller('workouts')
@@ -16,11 +17,12 @@ export class WorkoutController {
 
     /**
      * 获取按日期分组的训练记录列表
-     * @returns {Promise<Record<string, Workout[]>>} 按日期分组的训练记录
+     * @param {QueryWorkoutDto} query - 查询参数
+     * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
      */
     @Get('group-by-date')
-    findAllGroupByDate(): Promise<Record<string, Workout[]>> {
-        return this.workoutService.findAllGroupByDate();
+    findAllGroupByDate(@Query() query: QueryWorkoutDto): Promise<{ data: Record<string, Workout[]>; total: number }> {
+        return this.workoutService.findAllGroupByDate(query);
     }
 
     @Get('find')

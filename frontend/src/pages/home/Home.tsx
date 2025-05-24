@@ -11,8 +11,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import React from 'react';
 
-import { NavHeader } from '@/components/NavHeader';
-
 /**
  * 首页组件
  *
@@ -57,7 +55,6 @@ export const Home = () => {
 
   return (
     <div className="min-h-screen bg-[var(--adm-color-background)]">
-      <NavHeader title="首页" />
       <div className="p-4">
         {/* 训练统计 */}
         <Card className="mb-4">

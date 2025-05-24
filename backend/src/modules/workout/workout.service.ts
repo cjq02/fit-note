@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { Workout, WorkoutDocument } from './workout.entity';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
+import { QueryWorkoutDto } from './dto/query-workout.dto';
 import { ProjectService } from '../project/project.service';
 
 @Injectable()
@@ -80,16 +81,54 @@ export class WorkoutService {
 
     /**
      * 按日期分组获取训练记录
-     * @returns {Promise<Record<string, Workout[]>>} 按日期分组的训练记录
+     * @param {QueryWorkoutDto} query - 查询参数
+     * @returns {Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按日期分组的训练记录和分页信息
      */
-    async findAllGroupByDate(): Promise<Record<string, Workout[]>> {
-        const workouts = await this.workoutModel.find().sort({ date: -1 }).exec();
-        return workouts.reduce((acc, workout) => {
+    async findAllGroupByDate(query: QueryWorkoutDto): Promise<{
+        data: Record<string, Workout[]>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+        // 构建查询条件
+        const conditions: any = {};
+        if (query.date) {
+            conditions.date = query.date;
+        }
+        if (query.project) {
+            conditions.project = { $regex: query.project, $options: 'i' };
+        }
+
+        // 获取总数
+        const total = await this.workoutModel.countDocuments(conditions).exec();
+
+        // 获取分页数据
+        const workouts = await this.workoutModel
+            .find(conditions)
+            .sort({ date: -1 })
+            .skip((query.page - 1) * query.pageSize)
+            .limit(query.pageSize)
+            .exec();
+
+        // 按日期分组
+        const groupedWorkouts = workouts.reduce((acc, workout) => {
             if (!acc[workout.date]) {
                 acc[workout.date] = [];
             }
             acc[workout.date].push(workout);
             return acc;
         }, {} as Record<string, Workout[]>);
+
+        // 计算是否还有更多数据
+        const hasMore = total > query.page * query.pageSize;
+
+        return {
+            data: groupedWorkouts,
+            total,
+            page: query.page,
+            pageSize: query.pageSize,
+            hasMore,
+        };
     }
 }
