@@ -1,12 +1,9 @@
-import { Button, Card, Dialog, List, Space, SwipeAction, Tag, Toast } from 'antd-mobile';
-import { ClockCircleOutline } from 'antd-mobile-icons';
-import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Button, Card, Dialog, List, Space, SwipeAction, Tag, Toast } from 'antd-mobile';
+import { useNavigate } from 'react-router-dom';
 
-import { NavHeader } from '../../components/NavHeader';
-import { getWorkoutsGroupByDate, deleteWorkout } from '@/api/workout.api';
-import type { Workout } from '@/@typings/types.d.ts';
+import { deleteWorkout, getWorkoutsGroupByDate } from '@/api/workout.api';
+import { NavHeader } from '@/components/NavHeader';
 
 /**
  * 训练记录页面组件
@@ -62,12 +59,6 @@ export const Workout = () => {
 
   const rightActions = (id: string) => [
     {
-      key: 'edit',
-      text: '编辑',
-      color: 'primary',
-      onClick: () => handleEdit(id),
-    },
-    {
       key: 'delete',
       text: '删除',
       color: 'danger',
@@ -96,6 +87,7 @@ export const Workout = () => {
                           backgroundColor: '#ffffff',
                           marginBottom: '16px',
                         }}
+                        onClick={() => handleEdit(workout.id)}
                       >
                         <Space direction="vertical" style={{ width: '100%' }}>
                           {/* 项目名称和单位 */}

@@ -252,12 +252,12 @@ export const WorkoutForm = () => {
    * 返回到项目列表页面并刷新数据
    */
   const handleBack = () => {
-    navigate('/project');
+    navigate('/project', { replace: true });
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--adm-color-background)]">
-      <NavHeader title={id ? '编辑训练' : '记录训练'} showBack={true} onBack={handleBack} />
+      <NavHeader title={id ? '编辑训练' : '新增训练'} showBack={true} onBack={handleBack} />
       <div className="flex-1 p-4 pb-24">
         <Form form={form} layout="vertical" footer={null}>
           {/* 日期和项目名称卡片 */}
