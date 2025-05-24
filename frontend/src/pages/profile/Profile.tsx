@@ -37,16 +37,14 @@ export const Profile = () => {
         throw new Error('未登录');
       }
       const response = await getUserInfo();
-      console.log('用户信息响应:', response); // 添加调试日志
       return response.data.user;
     },
-    retry: false, // 失败时不重试
+    retry: false,
   });
 
   // 检查登录状态
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log('当前 token:', token); // 添加调试日志
     if (!token) {
       navigate('/login');
     }
@@ -54,13 +52,13 @@ export const Profile = () => {
 
   // 获取头像显示文字
   const getAvatarText = () => {
+    console.log('用户信息状态:', { isLoading, error, userInfo });
     if (isLoading) return '...';
-    if (error) {
-      console.error('获取用户信息失败:', error); // 添加调试日志
-      return '!';
-    }
+    if (error) return '!';
     if (!userInfo?.username) return '?';
-    return userInfo.username.charAt(0).toUpperCase();
+    const firstChar = userInfo.username.charAt(0).toUpperCase();
+    console.log('头像文字:', firstChar);
+    return firstChar;
   };
 
   // 获取用户名显示
@@ -76,7 +74,7 @@ export const Profile = () => {
       content: '确定要退出登录吗？',
       onConfirm: () => {
         localStorage.removeItem('token');
-        queryClient.clear(); // 清除所有查询缓存
+        queryClient.clear();
         Toast.show({
           icon: 'success',
           content: '已退出登录',
@@ -154,16 +152,21 @@ export const Profile = () => {
           <div className="flex items-center">
             <div className="relative">
               <div
-                className="w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-medium select-none"
+                className="w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-medium select-none"
                 style={{
-                  background:
-                    'linear-gradient(to bottom right, var(--adm-color-primary), var(--adm-color-primary-light))',
+                  background: 'linear-gradient(135deg, #1677ff 0%, #4096ff 100%)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                  minWidth: '4rem',
+                  minHeight: '4rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
                 }}
               >
-                {getAvatarText()}
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--adm-color-primary)] flex items-center justify-center text-white text-xs border-2 border-white">
-                <EditSOutline />
+                <span style={{ display: 'block', lineHeight: 1, fontSize: '1.5rem' }}>
+                  {getAvatarText()}
+                </span>
               </div>
             </div>
             <div className="ml-4 flex-1">
