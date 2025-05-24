@@ -14,12 +14,12 @@ export class QueryWorkoutDto {
     @IsNumber()
     @Type(() => Number)
     @Min(1)
-    page?: number = 1;
+    page: number = 1;
 
     @IsOptional()
     @IsNumber()
     @Type(() => Number)
     @Min(1)
     @Max(100)
-    pageSize?: number = 10;
+    pageSize: number = 10;
 }

@@ -21,7 +21,19 @@ export class WorkoutController {
      * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
      */
     @Get('group-by-date')
-    findAllGroupByDate(@Query() query: QueryWorkoutDto): Promise<{ data: Record<string, Workout[]>; total: number }> {
+    findAllGroupByDate(@Query('params') params: any): Promise<{ data: Record<string, Workout[]>; total: number }> {
+        const page = Number(params?.page) || 1;
+        const pageSize = Number(params?.pageSize) || 10;
+        const date = params?.date;
+        const project = params?.project;
+
+        const query: QueryWorkoutDto = {
+            page,
+            pageSize,
+            date,
+            project
+        };
+
         return this.workoutService.findAllGroupByDate(query);
     }
 

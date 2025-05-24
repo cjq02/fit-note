@@ -100,35 +100,51 @@ export class WorkoutService {
             conditions.project = { $regex: query.project, $options: 'i' };
         }
 
-        // 获取总数
-        const total = await this.workoutModel.countDocuments(conditions).exec();
+        try {
+            // 1. 首先获取所有唯一的日期
+            const uniqueDates = await this.workoutModel
+                .distinct('date', conditions)
+                .exec();
 
-        // 获取分页数据
-        const workouts = await this.workoutModel
-            .find(conditions)
-            .sort({ date: -1 })
-            .skip((query.page - 1) * query.pageSize)
-            .limit(query.pageSize)
-            .exec();
+            // 对日期进行排序（在内存中进行）
+            uniqueDates.sort((a, b) => b.localeCompare(a));
 
-        // 按日期分组
-        const groupedWorkouts = workouts.reduce((acc, workout) => {
-            if (!acc[workout.date]) {
-                acc[workout.date] = [];
-            }
-            acc[workout.date].push(workout);
-            return acc;
-        }, {} as Record<string, Workout[]>);
+            // 2. 计算分页
+            const startIndex = (query.page - 1) * query.pageSize;
+            const endIndex = startIndex + query.pageSize;
+            const paginatedDates = uniqueDates.slice(startIndex, endIndex);
 
-        // 计算是否还有更多数据
-        const hasMore = total > query.page * query.pageSize;
+            // 3. 获取这些日期对应的所有记录
+            const workouts = await this.workoutModel
+                .find({
+                    ...conditions,
+                    date: { $in: paginatedDates }
+                })
+                .sort({ date: -1, _id: -1 })
+                .exec();
 
-        return {
-            data: groupedWorkouts,
-            total,
-            page: query.page,
-            pageSize: query.pageSize,
-            hasMore,
-        };
+            // 4. 按日期分组
+            const groupedWorkouts = workouts.reduce((acc, workout) => {
+                if (!acc[workout.date]) {
+                    acc[workout.date] = [];
+                }
+                acc[workout.date].push(workout);
+                return acc;
+            }, {} as Record<string, Workout[]>);
+
+            // 5. 计算总数和是否有更多数据
+            const total = uniqueDates.length;
+            const hasMore = total > endIndex;
+
+            return {
+                data: groupedWorkouts,
+                total,
+                page: query.page,
+                pageSize: query.pageSize,
+                hasMore,
+            };
+        } catch (error) {
+            throw error;
+        }
     }
 }
