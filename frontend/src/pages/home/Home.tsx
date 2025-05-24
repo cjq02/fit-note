@@ -1,9 +1,23 @@
 import { Card, Grid, Space, Tag } from 'antd-mobile';
-import { CalendarOutline, StarOutline, HeartOutline } from 'antd-mobile-icons';
+import {
+  CalendarOutline,
+  PieOutline,
+  HeartOutline,
+  HistogramOutline,
+  VideoOutline,
+  SendOutline,
+  StarOutline,
+} from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
-import { NavHeader } from '../../components/NavHeader';
+import { NavHeader } from '@/components/NavHeader';
 
+/**
+ * 首页组件
+ *
+ * @returns {JSX.Element} 首页
+ */
 export const Home = () => {
   const navigate = useNavigate();
 
@@ -15,10 +29,30 @@ export const Home = () => {
   ];
 
   const quickActions = [
-    { title: '开始训练', path: '/project', color: 'primary' },
-    { title: '训练记录', path: '/workout', color: 'success' },
-    { title: '训练计划', path: '/plan', color: 'warning' },
-    { title: '数据统计', path: '/stats', color: 'danger' },
+    {
+      title: '开始训练',
+      path: '/project',
+      color: 'primary',
+      icon: <VideoOutline className="text-white text-2xl" />,
+    },
+    {
+      title: '训练记录',
+      path: '/workout',
+      color: 'success',
+      icon: <HistogramOutline className="text-white text-2xl" />,
+    },
+    {
+      title: '训练计划',
+      path: '/plan',
+      color: 'warning',
+      icon: <SendOutline className="text-white text-2xl" />,
+    },
+    {
+      title: '数据统计',
+      path: '/stats',
+      color: 'danger',
+      icon: <PieOutline className="text-white text-2xl" />,
+    },
   ];
 
   return (
@@ -46,9 +80,14 @@ export const Home = () => {
             {quickActions.map(item => (
               <Grid.Item key={item.title}>
                 <div
-                  className={`h-20 rounded-lg bg-[var(--adm-color-${item.color}-light)] flex items-center justify-center cursor-pointer`}
+                  className={`h-24 rounded-lg bg-[var(--adm-color-${item.color}-light)] flex flex-col items-center justify-center cursor-pointer active:opacity-80 transition-opacity`}
                   onClick={() => navigate(item.path)}
                 >
+                  <div
+                    className={`w-12 h-12 rounded-full bg-[var(--adm-color-${item.color})] flex items-center justify-center mb-2`}
+                  >
+                    {item.icon}
+                  </div>
                   <span className={`text-[var(--adm-color-${item.color})] font-medium`}>
                     {item.title}
                   </span>
