@@ -27,13 +27,14 @@ const UNIT_OPTIONS = [
 export const WorkoutForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
-  const projectName = searchParams.get('projectName');
-  const urlProjectId = searchParams.get('projectId');
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState<Date>(() => {
+    const urlDate = searchParams.get('date');
+    return urlDate ? new Date(urlDate) : new Date();
+  });
   const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
   const [dateVisible, setDateVisible] = useState(false);
 
@@ -48,7 +49,8 @@ export const WorkoutForm = () => {
   });
 
   // 根据当前页面类型获取 projectId
-  const projectId = id ? workoutData?.data?.projectId : urlProjectId;
+  const projectId = id ? workoutData?.data?.projectId : searchParams.get('projectId');
+  const projectName = id ? workoutData?.data?.project : searchParams.get('projectName');
 
   // 根据日期和项目ID查询训练记录
   const { data: dateWorkoutData, refetch: refetchDateWorkout } = useQuery<Workout | null, Error>({
@@ -96,9 +98,8 @@ export const WorkoutForm = () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] });
       queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
       Toast.show({ icon: 'success', content: '创建成功' });
-      // 重置表单数据
+      // 重置表单数据，但保持当前日期
       setGroups([{ reps: '', weight: '', seqNo: 1 }]);
-      setDate(new Date());
     },
     /**
      * 创建失败回调
@@ -119,7 +120,6 @@ export const WorkoutForm = () => {
       queryClient.invalidateQueries({ queryKey: ['workout', id] });
       Toast.show({ icon: 'success', content: '更新成功' });
       setGroups([{ reps: '', weight: '', seqNo: 1 }]);
-      setDate(new Date());
     },
     onError: (error: any) => {
       Toast.show({ icon: 'fail', content: error.response?.data?.message || '更新失败' });
@@ -176,7 +176,6 @@ export const WorkoutForm = () => {
    * @param {Date} newDate - 新的日期
    */
   const handleDateChange = async (newDate: Date) => {
-    setDate(newDate);
     setDateVisible(false);
 
     if (projectId) {
@@ -191,13 +190,17 @@ export const WorkoutForm = () => {
           queryClient.invalidateQueries({ queryKey: ['workout', workout.id] });
         } else {
           // 如果没有找到记录，重定向到新建页面
+          const targetDate = dayjs(newDate).format('YYYY-MM-DD');
           navigate(
-            `/workout/new?projectName=${projectName}&projectId=${projectId}&date=${dayjs(newDate).format('YYYY-MM-DD')}`,
+            `/workout/new?projectName=${projectName}&projectId=${projectId}&date=${targetDate}`,
+            { replace: true },
           );
           // 重新加载新建页面的数据
           refetchDateWorkout();
           // 清空组数据
           setGroups([{ reps: '', weight: '', seqNo: 1 }]);
+          // 更新日期状态
+          setDate(newDate);
         }
       } catch (error) {
         Toast.show({ icon: 'fail', content: '查询失败' });
@@ -303,35 +306,29 @@ export const WorkoutForm = () => {
             {groups.map((group, idx) => (
               <SwipeAction
                 key={idx}
-                rightActions={
-                  groups.length > 1
-                    ? [
-                        {
-                          key: 'delete',
-                          text: '删除',
-                          color: 'danger',
-                          onClick: () => handleRemoveGroup(idx),
-                        },
-                      ]
-                    : []
-                }
+                rightActions={[
+                  {
+                    key: 'delete',
+                    text: '删除',
+                    color: 'danger',
+                    onClick: () => handleRemoveGroup(idx),
+                  },
+                ]}
               >
                 <div className="p-4 rounded-xl bg-white shadow-sm transition-all hover:shadow-md">
                   <div className="flex items-center justify-between mb-3">
                     <div className="font-medium text-[var(--adm-color-text)]">
                       第{group.seqNo}组
                     </div>
-                    {groups.length > 1 && (
-                      <Button
-                        color="danger"
-                        fill="none"
-                        size="mini"
-                        onClick={() => handleRemoveGroup(idx)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <DeleteOutline />
-                      </Button>
-                    )}
+                    <Button
+                      color="danger"
+                      fill="none"
+                      size="mini"
+                      onClick={() => handleRemoveGroup(idx)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <DeleteOutline />
+                    </Button>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col">

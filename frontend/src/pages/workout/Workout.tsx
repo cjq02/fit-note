@@ -1,52 +1,62 @@
 import { Button, Card, Dialog, List, Space, SwipeAction, Tag, Toast } from 'antd-mobile';
 import { ClockCircleOutline } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { NavHeader } from '../../components/NavHeader';
+import { getWorkoutsGroupByDate, deleteWorkout } from '@/api/workout.api';
+import type { Workout } from '@/@typings/types.d.ts';
 
-interface WorkoutItem {
-  id: string;
-  date: string;
-  type: string;
-  duration: number;
-  exercises: string[];
-}
-
-const mockData: WorkoutItem[] = [
-  {
-    id: '1',
-    date: '2024-03-20',
-    type: '力量训练',
-    duration: 60,
-    exercises: ['卧推', '深蹲', '硬拉'],
-  },
-  {
-    id: '2',
-    date: '2024-03-18',
-    type: '有氧训练',
-    duration: 45,
-    exercises: ['跑步', '跳绳'],
-  },
-];
-
+/**
+ * 训练记录页面组件
+ *
+ * @returns {JSX.Element} 训练记录页面
+ */
 export const Workout = () => {
   const navigate = useNavigate();
 
-  const handleDelete = (_id: string) => {
+  // 获取按日期分组的训练记录
+  const { data: groupedWorkoutsData, refetch } = useQuery({
+    queryKey: ['workouts', 'group-by-date'],
+    queryFn: async () => {
+      const response = await getWorkoutsGroupByDate();
+      return response.data;
+    },
+  });
+
+  /**
+   * 处理删除训练记录
+   *
+   * @param {string} id - 训练记录ID
+   */
+  const handleDelete = (id: string) => {
     Dialog.confirm({
       content: '确定要删除这条训练记录吗？',
-      onConfirm: () => {
-        // TODO: 调用删除 API
-        Toast.show({
-          icon: 'success',
-          content: '删除成功',
-        });
+      onConfirm: async () => {
+        try {
+          await deleteWorkout(id);
+          Toast.show({
+            icon: 'success',
+            content: '删除成功',
+          });
+          refetch(); // 重新获取数据
+        } catch (error) {
+          Toast.show({
+            icon: 'fail',
+            content: '删除失败',
+          });
+        }
       },
     });
   };
 
+  /**
+   * 处理编辑训练记录
+   *
+   * @param {string} id - 训练记录ID
+   */
   const handleEdit = (id: string) => {
-    // TODO: 跳转到编辑页面
     navigate(`/workout/edit/${id}`);
   };
 
@@ -70,53 +80,56 @@ export const Workout = () => {
       <NavHeader title="训练记录" />
       <div className="p-4 pb-20">
         {/* 训练记录列表 */}
-        <List>
-          {mockData.map(workout => (
-            <SwipeAction key={workout.id} rightActions={rightActions(workout.id)}>
-              <List.Item>
-                <Card
-                  className="w-full"
-                  style={{
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                    borderRadius: '12px',
-                    backgroundColor: '#ffffff',
-                    marginBottom: '16px',
-                  }}
-                >
-                  <Space direction="vertical" style={{ width: '100%' }}>
-                    {/* 日期和类型 */}
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <div className="font-medium text-[var(--adm-color-text)]">
-                          {workout.type}
-                        </div>
-                        <div className="text-xs text-[var(--adm-color-text-light)] mt-1">
-                          {workout.date}
-                        </div>
-                      </div>
-                      <div className="flex items-center text-[var(--adm-color-primary)]">
-                        <ClockCircleOutline className="mr-1" />
-                        <span className="text-sm">{workout.duration}分钟</span>
-                      </div>
-                    </div>
+        {groupedWorkoutsData &&
+          Object.entries(groupedWorkoutsData).map(([date, workouts]) => (
+            <div key={date} className="mb-6">
+              <div className="text-sm text-[var(--adm-color-text-light)] mb-2">{date}</div>
+              <List>
+                {workouts.map(workout => (
+                  <SwipeAction key={workout.id} rightActions={rightActions(workout.id)}>
+                    <List.Item>
+                      <Card
+                        className="w-full"
+                        style={{
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          borderRadius: '12px',
+                          backgroundColor: '#ffffff',
+                          marginBottom: '16px',
+                        }}
+                      >
+                        <Space direction="vertical" style={{ width: '100%' }}>
+                          {/* 项目名称和单位 */}
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="font-medium text-[var(--adm-color-text)]">
+                                {workout.project}
+                              </div>
+                            </div>
+                            <div className="text-[var(--adm-color-text-light)]">
+                              <span className="text-sm">{workout.unit}</span>
+                            </div>
+                          </div>
 
-                    {/* 训练项目标签 */}
-                    <div className="flex gap-2 flex-wrap mt-2">
-                      {workout.exercises.map(exercise => (
-                        <Tag key={exercise} color="primary" fill="outline" className="text-xs">
-                          {exercise}
-                        </Tag>
-                      ))}
-                    </div>
-                  </Space>
-                </Card>
-              </List.Item>
-            </SwipeAction>
+                          {/* 训练组信息 */}
+                          <div className="flex gap-2 flex-wrap mt-2">
+                            {workout.groups.map((group, index) => (
+                              <Tag key={index} color="primary" fill="outline" className="text-xs">
+                                {group.seqNo}组: {group.weight}
+                                {workout.unit} × {group.reps}次
+                              </Tag>
+                            ))}
+                          </div>
+                        </Space>
+                      </Card>
+                    </List.Item>
+                  </SwipeAction>
+                ))}
+              </List>
+            </div>
           ))}
-        </List>
 
         {/* 空状态 */}
-        {mockData.length === 0 && (
+        {(!groupedWorkoutsData || Object.keys(groupedWorkoutsData).length === 0) && (
           <div className="flex flex-col items-center justify-center py-12">
             <div className="text-[var(--adm-color-text-light)] mb-4">还没有训练记录</div>
             <Button color="primary" onClick={() => navigate('/workout/new')}>

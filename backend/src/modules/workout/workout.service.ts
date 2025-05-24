@@ -77,4 +77,19 @@ export class WorkoutService {
             projectId,
         }).exec();
     }
-} 
+
+    /**
+     * 按日期分组获取训练记录
+     * @returns {Promise<Record<string, Workout[]>>} 按日期分组的训练记录
+     */
+    async findAllGroupByDate(): Promise<Record<string, Workout[]>> {
+        const workouts = await this.workoutModel.find().sort({ date: -1 }).exec();
+        return workouts.reduce((acc, workout) => {
+            if (!acc[workout.date]) {
+                acc[workout.date] = [];
+            }
+            acc[workout.date].push(workout);
+            return acc;
+        }, {} as Record<string, Workout[]>);
+    }
+}

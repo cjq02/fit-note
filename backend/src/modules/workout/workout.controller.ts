@@ -14,6 +14,15 @@ export class WorkoutController {
         return this.workoutService.findAll();
     }
 
+    /**
+     * 获取按日期分组的训练记录列表
+     * @returns {Promise<Record<string, Workout[]>>} 按日期分组的训练记录
+     */
+    @Get('group-by-date')
+    findAllGroupByDate(): Promise<Record<string, Workout[]>> {
+        return this.workoutService.findAllGroupByDate();
+    }
+
     @Get('find')
     findByDateAndProject(
         @Query('params') params: { date: string; projectId: string },
@@ -43,4 +52,4 @@ export class WorkoutController {
     remove(@Param('id') id: string): Promise<void> {
         return this.workoutService.remove(id);
     }
-} 
+}

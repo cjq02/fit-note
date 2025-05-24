@@ -70,3 +70,12 @@ export const findByDateAndProject = async (
     params: { date, projectId },
   });
 };
+
+/**
+ * 获取按日期分组的训练记录
+ *
+ * @returns {Promise<ApiResponse<Record<string, Workout[]>>>} 按日期分组的训练记录
+ */
+export const getWorkoutsGroupByDate = async (): Promise<ApiResponse<Record<string, Workout[]>>> => {
+  return http.get('/api/workouts/group-by-date');
+};
