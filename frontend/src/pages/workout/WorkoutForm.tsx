@@ -9,7 +9,7 @@ import {
   Toast
 } from 'antd-mobile';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import type { ApiResponse, CreateWorkoutRequest, Workout, WorkoutGroup } from '../../api/types';
@@ -50,6 +50,7 @@ export const WorkoutForm = () => {
         setGroups(workout.groups.map((g: WorkoutGroup) => ({
           reps: g.reps.toString(),
           weight: g.weight.toString(),
+          seqNo: g.seqNo,
         })));
       }
     },
@@ -85,8 +86,9 @@ export const WorkoutForm = () => {
   const [groups, setGroups] = useState<Array<{
     reps: string;
     weight: string;
+    seqNo: number;
   }>>([
-    { reps: '', weight: '' },
+    { reps: '', weight: '', seqNo: 1 },
   ]);
 
   // 处理组的变化
@@ -98,13 +100,15 @@ export const WorkoutForm = () => {
 
   // 添加组
   const handleAddGroup = () => {
-    setGroups([...groups, { reps: '', weight: '' }]);
+    const newSeqNo = groups.length + 1;
+    setGroups([...groups, { reps: '', weight: '', seqNo: newSeqNo }]);
   };
 
   // 删除组
   const handleRemoveGroup = (index: number) => {
     if (groups.length === 1) return;
-    setGroups(groups.filter((_, i) => i !== index));
+    const newGroups = groups.filter((_, i) => i !== index).map((group, idx) => ({ ...group, seqNo: idx + 1 }));
+    setGroups(newGroups);
   };
 
   // 提交表单
@@ -126,6 +130,7 @@ export const WorkoutForm = () => {
       groups: groups.map(g => ({
         reps: parseInt(g.reps, 10),
         weight: parseFloat(g.weight),
+        seqNo: g.seqNo,
       })),
     };
 
@@ -134,6 +139,38 @@ export const WorkoutForm = () => {
     } else {
       createMutation.mutate(data);
     }
+  };
+
+  // 根据项目 ID 和日期查询训练记录
+  useEffect(() => {
+    const fetchWorkout = async () => {
+      if (projectId && date) {
+        const response = await getWorkoutByDate(projectId, dayjs(date).format('YYYY-MM-DD'));
+        if (!response.data) {
+          // 如果没有记录，跳转到新建页面
+          navigate('/new'); // 假设新建页面的路径是 /new
+        } else {
+          // 如果有记录，加载数据到页面
+          const workout = response.data;
+          setDate(new Date(workout.date));
+          setUnit(workout.unit);
+          setGroups(workout.groups.map((g: WorkoutGroup) => ({
+            reps: g.reps.toString(),
+            weight: g.weight.toString(),
+            seqNo: g.seqNo,
+          })));
+        }
+      }
+    };
+
+    fetchWorkout();
+  }, [projectId, date, navigate]);
+
+  // 新增的查询函数
+  const getWorkoutByDate = async (projectId: string, date: string): Promise<{ data: Workout | null }> => {
+    // 这里需要实现根据项目 ID 和日期查询训练记录的 API 调用
+    // 返回的结果应该是包含训练记录的响应
+    return { data: null }; // 示例返回，实际需要替换为 API 调用
   };
 
   return (
@@ -181,7 +218,7 @@ export const WorkoutForm = () => {
           </Form.Item>
           {groups.map((group, idx) => (
             <div key={idx} className="mb-4 p-3 rounded-lg border border-solid border-gray-200 bg-white shadow-sm">
-              <div className="font-medium mb-2">第{idx + 1}组</div>
+              <div className="font-medium mb-2">第{group.seqNo}组</div>
               <Space direction="vertical" block style={{ width: '100%' }}>
                 <div className="flex items-center gap-2">
                   <span className="w-12 text-xs text-gray-500">次数</span>

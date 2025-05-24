@@ -13,6 +13,7 @@ export interface Workout {
 export interface WorkoutGroup {
   reps: number;
   weight: number;
+  seqNo: number;
 }
 
 // 创建训练记录的请求参数
