@@ -5,6 +5,7 @@ import reactPlugin from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import prettier from 'eslint-plugin-prettier'
 import prettierConfig from 'eslint-config-prettier'
+import jsdoc from 'eslint-plugin-jsdoc'
 
 export default [
   js.configs.recommended,
@@ -34,6 +35,7 @@ export default [
       react: reactPlugin,
       'react-hooks': reactHooks,
       prettier: prettier,
+      jsdoc: jsdoc
     },
     rules: {
       'no-unused-vars': 'off',
@@ -59,6 +61,29 @@ export default [
         printWidth: 100,
         tabWidth: 2,
         endOfLine: 'auto'
+      }],
+      'jsdoc/require-jsdoc': ['error', {
+        publicOnly: true,
+        require: {
+          FunctionDeclaration: true,
+          MethodDefinition: true,
+          ClassDeclaration: true,
+          ArrowFunctionExpression: true,
+          FunctionExpression: true
+        }
+      }],
+      'jsdoc/require-param': 'error',
+      'jsdoc/require-param-description': 'error',
+      'jsdoc/require-param-name': 'error',
+      'jsdoc/require-param-type': 'error',
+      'jsdoc/require-returns': 'error',
+      'jsdoc/require-returns-type': 'error',
+      'jsdoc/require-returns-description': 'error',
+      'jsdoc/check-param-names': 'error',
+      'jsdoc/check-tag-names': 'error',
+      'jsdoc/check-types': 'error',
+      'jsdoc/tag-lines': ['error', 'any', {
+        startLines: 1
       }]
     },
     settings: {

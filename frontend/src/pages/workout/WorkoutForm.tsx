@@ -14,6 +14,11 @@ const UNIT_OPTIONS = [
   { label: '磅', value: 'lb' },
 ];
 
+/**
+ * 训练记录表单
+ *
+ * @returns {JSX.Element} 训练记录表单组件
+ */
 export const WorkoutForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -267,7 +272,7 @@ export const WorkoutForm = () => {
                             handleGroupChange(idx, 'reps', num.toString());
                           }
                         }}
-                        className="h-[40px] rounded-lg"
+                        className="h-[48px] rounded-lg bg-[var(--adm-color-primary-light)] text-center text-xl font-bold border border-[var(--adm-color-primary)] text-[var(--adm-color-primary)] px-4"
                       />
                     </div>
                     <div className="flex flex-col">
@@ -285,7 +290,7 @@ export const WorkoutForm = () => {
                             handleGroupChange(idx, 'weight', num.toString());
                           }
                         }}
-                        className="h-[40px] rounded-lg"
+                        className="h-[48px] rounded-lg bg-[var(--adm-color-primary-light)] text-center text-xl font-bold border border-[var(--adm-color-primary)] text-[var(--adm-color-primary)] px-4"
                       />
                     </div>
                   </div>
