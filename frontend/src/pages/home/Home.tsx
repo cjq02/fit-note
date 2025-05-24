@@ -31,15 +31,9 @@ export const Home = () => {
             {stats.map(item => (
               <Grid.Item key={item.title}>
                 <div className="flex flex-col items-center">
-                  <div className={`text-[var(--adm-color-${item.color})] mb-1`}>
-                    {item.icon}
-                  </div>
-                  <div className="text-sm text-[var(--adm-color-text-light)]">
-                    {item.title}
-                  </div>
-                  <div className="font-medium">
-                    {item.value}
-                  </div>
+                  <div className={`text-[var(--adm-color-${item.color})] mb-1`}>{item.icon}</div>
+                  <div className="text-sm text-[var(--adm-color-text-light)]">{item.title}</div>
+                  <div className="font-medium">{item.value}</div>
                 </div>
               </Grid.Item>
             ))}
@@ -70,18 +64,14 @@ export const Home = () => {
             <div className="flex justify-between items-center p-2">
               <div>
                 <div className="font-medium">俯卧撑</div>
-                <div className="text-xs text-[var(--adm-color-text-light)] mt-1">
-                  2024-03-20
-                </div>
+                <div className="text-xs text-[var(--adm-color-text-light)] mt-1">2024-03-20</div>
               </div>
               <Tag color="primary">3组</Tag>
             </div>
             <div className="flex justify-between items-center p-2">
               <div>
                 <div className="font-medium">健腹轮</div>
-                <div className="text-xs text-[var(--adm-color-text-light)] mt-1">
-                  2024-03-19
-                </div>
+                <div className="text-xs text-[var(--adm-color-text-light)] mt-1">2024-03-19</div>
               </div>
               <Tag color="primary">2组</Tag>
             </div>

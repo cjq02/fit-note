@@ -1,5 +1,13 @@
 import { Avatar, Card, List, Space, Switch, Toast, Dialog, Button } from 'antd-mobile';
-import { SetOutline, UserOutline, BellOutline, LockOutline, RightOutline, EditSOutline, KeyOutline } from 'antd-mobile-icons';
+import {
+  SetOutline,
+  UserOutline,
+  BellOutline,
+  LockOutline,
+  RightOutline,
+  EditSOutline,
+  KeyOutline,
+} from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -12,7 +20,11 @@ export const Profile = () => {
   const queryClient = useQueryClient();
 
   // 获取用户信息
-  const { data: userInfo, isLoading, error } = useQuery({
+  const {
+    data: userInfo,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['userInfo'],
     queryFn: async () => {
       const token = localStorage.getItem('token');
@@ -139,7 +151,8 @@ export const Profile = () => {
               <div
                 className="w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-medium select-none"
                 style={{
-                  background: 'linear-gradient(to bottom right, var(--adm-color-primary), var(--adm-color-primary-light))',
+                  background:
+                    'linear-gradient(to bottom right, var(--adm-color-primary), var(--adm-color-primary-light))',
                 }}
               >
                 {getAvatarText()}
@@ -156,12 +169,7 @@ export const Profile = () => {
                     欢迎使用 Fit Note
                   </div>
                 </div>
-                <Button
-                  size="small"
-                  color="primary"
-                  fill="outline"
-                  onClick={handleChangeUsername}
-                >
+                <Button size="small" color="primary" fill="outline" onClick={handleChangeUsername}>
                   修改
                 </Button>
               </div>

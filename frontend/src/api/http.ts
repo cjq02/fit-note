@@ -1,5 +1,4 @@
 import axios from 'axios';
-import type { AxiosRequestConfig } from 'axios';
 
 import type { ApiResponse } from './types';
 
@@ -24,7 +23,7 @@ instance.interceptors.request.use(
   },
   error => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 响应拦截器
@@ -65,7 +64,7 @@ instance.interceptors.response.use(
       console.error('请求配置错误:', error.message);
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // 封装 HTTP 方法

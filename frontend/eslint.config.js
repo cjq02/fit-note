@@ -1,88 +1,70 @@
-import eslint from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import reactPlugin from 'eslint-plugin-react'
+import js from '@eslint/js'
 import tseslint from '@typescript-eslint/eslint-plugin'
-import tseslintParser from '@typescript-eslint/parser'
-import tanstackQuery from '@tanstack/eslint-plugin-query'
-import importPlugin from 'eslint-plugin-import'
+import tsParser from '@typescript-eslint/parser'
+import reactPlugin from 'eslint-plugin-react'
+import reactHooks from 'eslint-plugin-react-hooks'
 import prettier from 'eslint-plugin-prettier'
 import prettierConfig from 'eslint-config-prettier'
 
 export default [
-  eslint.configs.recommended,
+  js.configs.recommended,
   prettierConfig,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
-      parser: tseslintParser,
+      parser: tsParser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
         ecmaFeatures: {
-          jsx: true,
-        },
+          jsx: true
+        }
       },
       globals: {
-        ...globals.browser,
-        ...globals.es2021,
-      },
+        console: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
+        React: 'readonly',
+        __dirname: 'readonly'
+      }
     },
     plugins: {
-      'react': reactPlugin,
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
       '@typescript-eslint': tseslint,
-      '@tanstack/query': tanstackQuery,
-      'import': importPlugin,
-      'prettier': prettier,
+      react: reactPlugin,
+      'react-hooks': reactHooks,
+      prettier: prettier,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      ...tseslint.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-      'prettier/prettier': ['error', {}, { usePrettierrc: true }],
-      'indent': ['error', 2, {
-        'SwitchCase': 1,
-        'flatTernaryExpressions': true
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_'
       }],
       'react/jsx-indent': ['error', 2],
       'react/jsx-indent-props': ['error', 2],
-      // pnpm 相关规则
-      'import/no-unresolved': 'error',
-      'import/named': 'error',
-      'import/default': 'error',
-      'import/namespace': 'error',
-      'import/no-duplicates': 'error',
-      'import/order': ['error', {
-        'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-        'newlines-between': 'always',
-        'alphabetize': { 'order': 'asc', 'caseInsensitive': true }
-      }],
-      // TypeScript 相关规则
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', {
-        'argsIgnorePattern': '^_',
-        'varsIgnorePattern': '^_'
-      }],
-      'no-redeclare': 'error',
+      'semi': 'off',
+      'quotes': 'off',
+      'comma-dangle': 'off',
+      'object-curly-spacing': 'off',
+      'array-bracket-spacing': 'off',
+      'arrow-spacing': 'off',
+      'no-multiple-empty-lines': 'off',
+      'no-trailing-spaces': 'off',
+      'eol-last': 'off',
+      'prettier/prettier': ['error', {
+        singleQuote: true,
+        semi: true,
+        trailingComma: 'all',
+        printWidth: 100,
+        tabWidth: 2,
+        endOfLine: 'auto'
+      }]
     },
     settings: {
       react: {
-        version: 'detect',
-      },
-      'import/resolver': {
-        typescript: {
-          alwaysTryTypes: true,
-        },
-        node: {
-          extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        },
-      },
-    },
-  },
+        version: 'detect'
+      }
+    }
+  }
 ]
