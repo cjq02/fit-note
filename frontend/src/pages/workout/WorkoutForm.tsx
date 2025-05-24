@@ -93,13 +93,17 @@ export const WorkoutForm = () => {
     mutationFn: createWorkout,
     /**
      * 创建成功回调
+     *
+     * @param response
      */
-    onSuccess: () => {
+    onSuccess: response => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] });
       queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
       Toast.show({ icon: 'success', content: '创建成功' });
       // 重置表单数据，但保持当前日期
-      setGroups([{ reps: '', weight: '', seqNo: 1 }]);
+      setGroups([{ reps: '', weight: '0', seqNo: 1 }]);
+      // 重定向到编辑页面
+      navigate(`/workout/edit/${response.data.id}`);
     },
     /**
      * 创建失败回调
@@ -119,7 +123,7 @@ export const WorkoutForm = () => {
       queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
       queryClient.invalidateQueries({ queryKey: ['workout', id] });
       Toast.show({ icon: 'success', content: '更新成功' });
-      setGroups([{ reps: '', weight: '', seqNo: 1 }]);
+      setGroups([{ reps: '', weight: '0', seqNo: 1 }]);
     },
     onError: (error: any) => {
       Toast.show({ icon: 'fail', content: error.response?.data?.message || '更新失败' });
@@ -133,7 +137,7 @@ export const WorkoutForm = () => {
       weight: string;
       seqNo: number;
     }>
-  >([{ reps: '', weight: '', seqNo: 1 }]);
+  >([{ reps: '', weight: '0', seqNo: 1 }]);
 
   /**
    * 处理组的变化
@@ -154,7 +158,9 @@ export const WorkoutForm = () => {
    */
   const handleAddGroup = () => {
     const newSeqNo = groups.length + 1;
-    setGroups([...groups, { reps: '', weight: '', seqNo: newSeqNo }]);
+    // 获取上一组的数据
+    const lastGroup = groups[groups.length - 1];
+    setGroups([...groups, { reps: lastGroup.reps, weight: lastGroup.weight, seqNo: newSeqNo }]);
   };
 
   /**
@@ -198,7 +204,7 @@ export const WorkoutForm = () => {
           // 重新加载新建页面的数据
           refetchDateWorkout();
           // 清空组数据
-          setGroups([{ reps: '', weight: '', seqNo: 1 }]);
+          setGroups([{ reps: '', weight: '0', seqNo: 1 }]);
           // 更新日期状态
           setDate(newDate);
         }
@@ -358,11 +364,9 @@ export const WorkoutForm = () => {
                         placeholder={`请输入重量(${unit})`}
                         value={group.weight}
                         onChange={val => {
-                          // 只允许输入数字和小数点
-                          const num = parseFloat(val.replace(/[^\d.]/g, ''));
-                          if (!isNaN(num)) {
-                            handleGroupChange(idx, 'weight', num.toString());
-                          }
+                          // 允许输入0和数字，以及删除操作
+                          const num = val.replace(/[^\d.]/g, '');
+                          handleGroupChange(idx, 'weight', num);
                         }}
                         className="h-[48px] rounded-lg bg-[var(--adm-color-primary-light)] text-center text-xl font-bold border border-[var(--adm-color-primary)] text-[var(--adm-color-primary)] px-4"
                       />
