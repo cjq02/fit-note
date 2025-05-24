@@ -262,53 +262,59 @@ export const Workout = () => {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-[var(--adm-color-background)]">
-      <div className="flex-1 overflow-y-auto px-3 pb-20 pt-2">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="flex-1 overflow-y-auto px-4 pb-20 pt-4">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
-          <div key={date} className="mb-1.5">
-            <div className="text-xs text-[var(--adm-color-text-light)] mb-1 px-1">{date}</div>
+          <div key={date} className="mb-6">
+            <div className="text-sm text-indigo-600 mb-3 px-1 font-medium tracking-wide">
+              {date}
+            </div>
             <List>
               {workouts.map(workout => (
                 <SwipeAction key={workout.id} rightActions={rightActions(workout.id)}>
                   <List.Item className="[&_.adm-list-item-content-main]:!py-1">
                     <Card
-                      className="w-full transition-all duration-200 hover:shadow-md active:scale-[0.98]"
+                      className="w-full transition-all duration-200 active:scale-[0.98]"
                       style={{
-                        boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
-                        borderRadius: '8px',
-                        backgroundColor: '#ffffff',
+                        borderRadius: '16px',
+                        background:
+                          'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
+                        backdropFilter: 'blur(10px)',
                         marginBottom: '2px',
+                        boxShadow: '0 4px 20px rgba(99, 102, 241, 0.1)',
+                        border: '1px solid rgba(99, 102, 241, 0.1)',
                       }}
                       onClick={() => handleEdit(workout.id)}
                     >
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-3">
                         {/* 项目名称和总训练量 */}
                         <div className="flex justify-between items-center">
-                          <div>
-                            <div className="font-medium text-[var(--adm-color-text)] text-[15px]">
-                              {workout.project}
+                          <div className="flex items-center gap-2">
+                            <div className="w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
+                            <div>
+                              <div className="font-semibold text-gray-800 text-[16px] tracking-wide">
+                                {workout.project}
+                              </div>
                             </div>
                           </div>
-                          <div className="text-[var(--adm-color-primary)] font-medium">
-                            <span className="text-sm">
-                              共{calculateProjectTotal(workouts, workout.project)}次
+                          <div className="text-indigo-500 font-medium">
+                            <span className="text-sm bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-1.5 rounded-full shadow-sm">
+                              {calculateProjectTotal(workouts, workout.project)}次
                             </span>
                           </div>
                         </div>
 
                         {/* 训练组信息 */}
-                        <div className="flex gap-1.5 flex-wrap">
+                        <div className="flex gap-2 flex-wrap">
                           {workout.groups.map((group, index) => (
-                            <Tag
+                            <div
                               key={index}
-                              color="primary"
-                              fill="outline"
-                              className="text-xs px-1.5 py-0.5 rounded-full"
+                              className="text-xs text-indigo-600 bg-gradient-to-r from-indigo-50 to-purple-50 px-3 py-1.5 rounded-full border border-indigo-100 shadow-sm"
                             >
                               {group.seqNo}组: {group.weight}
                               {workout.unit} × {group.reps}次
-                            </Tag>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -321,16 +327,17 @@ export const Workout = () => {
         ))}
 
         {/* 无限滚动加载 */}
-        <InfiniteScroll
-          loadMore={loadMore}
-          hasMore={hasMore.current}
-          threshold={0.8} // 当滚动到距离底部 80% 时触发加载
-        />
+        <InfiniteScroll loadMore={loadMore} hasMore={hasMore.current} threshold={0.8} />
 
         {/* 空状态 */}
         {(!allWorkouts || Object.keys(allWorkouts).length === 0) && !isLoading && (
-          <div className="flex flex-col items-center justify-center py-8">
-            <Empty description="暂无训练记录" />
+          <div className="flex flex-col items-center justify-center py-16">
+            <Empty
+              description="暂无训练记录"
+              imageStyle={{
+                width: '120px',
+              }}
+            />
           </div>
         )}
       </div>
