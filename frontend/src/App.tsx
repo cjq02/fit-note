@@ -1,6 +1,8 @@
 import { TabBar, NavBar } from 'antd-mobile';
 import { AppOutline, UnorderedListOutline, UserOutline } from 'antd-mobile-icons';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { useLocation, useNavigate, Outlet, matchRoutes } from 'react-router-dom';
+import type { RouteObject } from 'react-router-dom';
+import { router } from './router';
 
 const tabs = [
   {
@@ -21,6 +23,14 @@ const tabs = [
 ];
 
 /**
+ * 扩展路由类型，添加 title 属性
+ */
+type CustomRouteObject = RouteObject & {
+  title?: string;
+  children?: CustomRouteObject[];
+};
+
+/**
  * 应用主组件
  *
  * @returns {JSX.Element} 返回应用主界面
@@ -34,10 +44,18 @@ export const App = () => {
     return <Outlet />;
   }
 
-  // 获取当前页面的标题
+  /**
+   * 获取当前页面的标题
+   *
+   * @returns {string} 页面标题
+   */
   const getPageTitle = () => {
-    const currentTab = tabs.find(tab => tab.key === location.pathname);
-    return currentTab?.title || 'Fit Note';
+    const matches = matchRoutes(router.routes, location);
+    if (!matches) return 'Fit Note';
+
+    // 获取最后一个匹配的路由（最具体的路由）
+    const lastMatch = matches[matches.length - 1];
+    return (lastMatch.route as CustomRouteObject).title || 'Fit Note';
   };
 
   return (
