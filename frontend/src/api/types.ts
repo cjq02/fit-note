@@ -3,6 +3,7 @@ export interface Workout {
   id: string;
   date: string;
   project: string;
+  projectId: string;
   unit: 'kg' | 'lb';
   groups: WorkoutGroup[];
   createdAt: string;

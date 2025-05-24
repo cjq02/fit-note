@@ -23,33 +23,36 @@ export const WorkoutForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const projectName = searchParams.get('projectName');
-  const projectId = searchParams.get('projectId');
 
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
-  const [date, setDate] = useState<Date>(new Date());
+  const queryDate = searchParams.get('date');
+  const [date, setDate] = useState<Date>(queryDate ? new Date(queryDate) : new Date());
   const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
   const [dateVisible, setDateVisible] = useState(false);
 
   // 获取训练记录详情（通过ID）
   const { data: workoutData } = useQuery<ApiResponse<Workout>, Error>({
-    queryKey: ['workout', id],
     queryFn: () => getWorkout(id!),
+    queryKey: ['workout', id],
     enabled: !!id,
     staleTime: 0,
     gcTime: 0,
     retry: 1,
   });
 
+  // 根据当前页面类型获取 projectId
+  const projectId = id ? workoutData?.data?.projectId : searchParams.get('projectId');
+  const projectName = id ? workoutData?.data?.project : searchParams.get('projectName');
+
   // 根据日期和项目ID查询训练记录
-  const { data: dateWorkoutData } = useQuery<Workout | null, Error>({
-    queryKey: ['workout', 'date', projectId, dayjs(date).format('YYYY-MM-DD')],
+  const { data: dateWorkoutData, refetch: refetchDateWorkout } = useQuery<Workout | null, Error>({
     queryFn: async () => {
       if (!projectId) throw new Error('项目ID不能为空');
       const response = await findByDateAndProject(dayjs(date).format('YYYY-MM-DD'), projectId);
-      return response.data?.data || null;
+      return response.data || null;
     },
+    queryKey: ['workout', 'date', projectId, dayjs(date).format('YYYY-MM-DD')],
     enabled: !!projectId && !!date,
     staleTime: 0,
     gcTime: 0,
@@ -74,7 +77,16 @@ export const WorkoutForm = () => {
 
   // 创建训练记录
   const createMutation = useMutation({
+    /**
+     * 创建训练记录
+     *
+     * @param {CreateWorkoutRequest} data - 创建训练记录的请求参数
+     * @returns {Promise<ApiResponse<Workout>>} 创建的训练记录
+     */
     mutationFn: createWorkout,
+    /**
+     * 创建成功回调
+     */
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] });
       queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
@@ -83,6 +95,11 @@ export const WorkoutForm = () => {
       setGroups([{ reps: '', weight: '', seqNo: 1 }]);
       setDate(new Date());
     },
+    /**
+     * 创建失败回调
+     *
+     * @param {any} error - 错误信息
+     */
     onError: (error: any) => {
       Toast.show({ icon: 'fail', content: error.response?.data?.message || '创建失败' });
     },
@@ -96,7 +113,6 @@ export const WorkoutForm = () => {
       queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
       queryClient.invalidateQueries({ queryKey: ['workout', id] });
       Toast.show({ icon: 'success', content: '更新成功' });
-      // 重置表单数据
       setGroups([{ reps: '', weight: '', seqNo: 1 }]);
       setDate(new Date());
     },
@@ -114,7 +130,13 @@ export const WorkoutForm = () => {
     }>
   >([{ reps: '', weight: '', seqNo: 1 }]);
 
-  // 处理组的变化
+  /**
+   * 处理组的变化
+   *
+   * @param {number} index - 组的索引
+   * @param {'reps' | 'weight'} key - 要修改的字段
+   * @param {string} value - 新的值
+   */
   const handleGroupChange = (index: number, key: 'reps' | 'weight', value: string) => {
     const newGroups = [...groups];
     newGroups[index][key] = value;
@@ -122,12 +144,20 @@ export const WorkoutForm = () => {
   };
 
   // 添加组
+  /**
+   * 添加新的训练组
+   */
   const handleAddGroup = () => {
     const newSeqNo = groups.length + 1;
     setGroups([...groups, { reps: '', weight: '', seqNo: newSeqNo }]);
   };
 
   // 删除组
+  /**
+   * 删除训练组
+   *
+   * @param {number} index - 要删除的组的索引
+   */
   const handleRemoveGroup = (index: number) => {
     if (groups.length === 1) return;
     const newGroups = groups
@@ -136,7 +166,46 @@ export const WorkoutForm = () => {
     setGroups(newGroups);
   };
 
+  // 处理日期变化
+  /**
+   * 处理日期变化
+   *
+   * @param {Date} newDate - 新的日期
+   */
+  const handleDateChange = async (newDate: Date) => {
+    setDate(newDate);
+    setDateVisible(false);
+
+    if (projectId) {
+      try {
+        const response = await findByDateAndProject(dayjs(newDate).format('YYYY-MM-DD'), projectId);
+        const workout = response.data;
+
+        if (workout) {
+          // 如果找到记录，重定向到编辑页面
+          navigate(`/workout/edit/${workout.id}`);
+          // 重新加载编辑页面的数据
+          queryClient.invalidateQueries({ queryKey: ['workout', workout.id] });
+        } else {
+          // 如果没有找到记录，重定向到新建页面
+          navigate(
+            `/workout/new?projectName=${projectName}&projectId=${projectId}&date=${dayjs(newDate).format('YYYY-MM-DD')}`,
+          );
+          // 重新加载新建页面的数据
+          refetchDateWorkout();
+        }
+      } catch (error) {
+        Toast.show({ icon: 'fail', content: '查询失败' });
+      }
+    }
+  };
+
   // 提交表单
+  /**
+   * 提交表单
+   *
+   * @returns {Promise<void>} 无返回值
+   */
   const onFinish = async () => {
     if (!projectName && !id) {
       Toast.show({ icon: 'fail', content: '项目名称不能为空' });
@@ -185,10 +254,7 @@ export const WorkoutForm = () => {
                   visible={dateVisible}
                   value={date}
                   onClose={() => setDateVisible(false)}
-                  onConfirm={val => {
-                    setDate(val as Date);
-                    setDateVisible(false);
-                  }}
+                  onConfirm={handleDateChange}
                   max={new Date()}
                 />
               </Form.Item>
