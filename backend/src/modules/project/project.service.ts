@@ -94,4 +94,4 @@ export class ProjectService {
             throw new NotFoundException('训练项目不存在');
         }
     }
-} 
+}

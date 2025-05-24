@@ -22,6 +22,58 @@ interface ApiResponse {
 }
 
 /**
+ * 计算训练项目在当前日期的次数
+ *
+ * @param {Record<string, WorkoutType[]>} workouts - 按日期分组的训练记录
+ * @param {string} currentDate - 当前日期
+ * @returns {Record<string, number>} 训练项目及其次数
+ */
+const calculateProjectCounts = (
+  workouts: Record<string, WorkoutType[]>,
+  currentDate: string,
+): Record<string, number> => {
+  const counts: Record<string, number> = {};
+
+  // 获取当前日期的训练记录
+  const currentWorkouts = workouts[currentDate] || [];
+
+  // 统计每个项目的次数
+  currentWorkouts.forEach(workout => {
+    counts[workout.project] = (counts[workout.project] || 0) + 1;
+  });
+
+  return counts;
+};
+
+/**
+ * 计算训练项目在当前日期的次数
+ *
+ * @param {WorkoutType[]} workouts - 当前日期的训练记录
+ * @param {string} project - 训练项目名称
+ * @returns {number} 训练次数
+ */
+const calculateProjectCount = (workouts: WorkoutType[], project: string): number => {
+  return workouts.filter(workout => workout.project === project).length;
+};
+
+/**
+ * 计算训练项目的总训练量（组数 × 次数）
+ *
+ * @param {WorkoutType[]} workouts - 当前日期的训练记录
+ * @param {string} project - 训练项目名称
+ * @returns {number} 总训练量
+ */
+const calculateProjectTotal = (workouts: WorkoutType[], project: string): number => {
+  return workouts
+    .filter(workout => workout.project === project)
+    .reduce((total, workout) => {
+      // 计算每组的总次数
+      const groupTotal = workout.groups.reduce((sum, group) => sum + group.reps, 0);
+      return total + groupTotal;
+    }, 0);
+};
+
+/**
  * 训练记录页面组件
  *
  * @returns {JSX.Element} 训练记录页面
@@ -35,6 +87,7 @@ export const Workout = () => {
   const [isLoading, setIsLoading] = useState(false);
   const isFirstLoad = useRef(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [currentDate, setCurrentDate] = useState<string>('');
 
   // 获取按日期分组的训练记录
   const { data: groupedWorkoutsData, refetch } = useQuery<ApiResponse>({
@@ -56,6 +109,11 @@ export const Workout = () => {
     if (groupedWorkoutsData) {
       if (page === 1) {
         setAllWorkouts(groupedWorkoutsData.data);
+        // 设置当前日期为第一条数据的日期
+        const firstDate = Object.keys(groupedWorkoutsData.data)[0];
+        if (firstDate) {
+          setCurrentDate(firstDate);
+        }
       } else {
         // 合并新数据
         const newWorkouts = { ...allWorkouts };
@@ -205,40 +263,42 @@ export const Workout = () => {
 
   return (
     <div className="h-screen flex flex-col bg-[var(--adm-color-background)]">
-      <div className="flex-1 overflow-y-auto px-3 pb-20">
+      <div className="flex-1 overflow-y-auto px-3 pb-20 pt-2">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
-          <div key={date} className="mb-3">
+          <div key={date} className="mb-1.5">
             <div className="text-xs text-[var(--adm-color-text-light)] mb-1 px-1">{date}</div>
             <List>
               {workouts.map(workout => (
                 <SwipeAction key={workout.id} rightActions={rightActions(workout.id)}>
-                  <List.Item>
+                  <List.Item className="[&_.adm-list-item-content-main]:!py-1">
                     <Card
                       className="w-full transition-all duration-200 hover:shadow-md active:scale-[0.98]"
                       style={{
                         boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
                         borderRadius: '8px',
                         backgroundColor: '#ffffff',
-                        marginBottom: '8px',
+                        marginBottom: '2px',
                       }}
                       onClick={() => handleEdit(workout.id)}
                     >
-                      <Space direction="vertical" style={{ width: '100%' }}>
-                        {/* 项目名称和单位 */}
+                      <div className="flex flex-col gap-1">
+                        {/* 项目名称和总训练量 */}
                         <div className="flex justify-between items-center">
                           <div>
                             <div className="font-medium text-[var(--adm-color-text)] text-[15px]">
                               {workout.project}
                             </div>
                           </div>
-                          <div className="text-[var(--adm-color-text-light)]">
-                            <span className="text-xs">{workout.unit}</span>
+                          <div className="text-[var(--adm-color-primary)] font-medium">
+                            <span className="text-sm">
+                              共{calculateProjectTotal(workouts, workout.project)}次
+                            </span>
                           </div>
                         </div>
 
                         {/* 训练组信息 */}
-                        <div className="flex gap-1.5 flex-wrap mt-1.5">
+                        <div className="flex gap-1.5 flex-wrap">
                           {workout.groups.map((group, index) => (
                             <Tag
                               key={index}
@@ -251,7 +311,7 @@ export const Workout = () => {
                             </Tag>
                           ))}
                         </div>
-                      </Space>
+                      </div>
                     </Card>
                   </List.Item>
                 </SwipeAction>
