@@ -1,4 +1,4 @@
-import { http } from './http';
+import { http } from '../utils/http';
 import type {
   ApiResponse,
   LoginRequest,
@@ -8,18 +8,29 @@ import type {
 } from './types';
 
 // 登录
+/**
+ *
+ * @param data
+ */
 export const login = async (data: LoginRequest): Promise<ApiResponse<LoginResponse>> => {
   const response = await http.post<LoginResponse>('/api/auth/login', data);
   return response;
 };
 
 // 注册
+/**
+ *
+ * @param data
+ */
 export const register = async (data: RegisterRequest): Promise<ApiResponse<void>> => {
   const response = await http.post<void>('/api/auth/register', data);
   return response;
 };
 
 // 获取用户信息
+/**
+ *
+ */
 export const getUserInfo = async (): Promise<ApiResponse<GetUserInfoResponse>> => {
   const response = await http.get<GetUserInfoResponse>('/api/auth/profile');
   return response;

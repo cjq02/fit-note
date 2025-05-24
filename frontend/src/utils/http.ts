@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import type { ApiResponse } from './types';
+import type { ApiResponse } from '../api/types';
 
 // 创建 axios 实例
 const instance = axios.create({
