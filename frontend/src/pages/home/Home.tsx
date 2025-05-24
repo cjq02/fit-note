@@ -31,25 +31,25 @@ export const Home = () => {
       title: '开始训练',
       path: '/project',
       color: 'primary',
-      icon: <VideoOutline className="text-white text-2xl" />,
+      icon: <VideoOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
     {
       title: '训练记录',
       path: '/workout',
       color: 'success',
-      icon: <HistogramOutline className="text-white text-2xl" />,
+      icon: <HistogramOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
     {
       title: '训练计划',
       path: '/plan',
       color: 'warning',
-      icon: <SendOutline className="text-white text-2xl" />,
+      icon: <SendOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
     {
       title: '数据统计',
       path: '/stats',
       color: 'danger',
-      icon: <PieOutline className="text-white text-2xl" />,
+      icon: <PieOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
   ];
 
