@@ -11,6 +11,9 @@ export class WorkoutGroup {
 
     @Prop({ required: true, type: Number, min: 0, max: 1000 })
     weight: number;
+
+    @Prop({ required: true, type: Number, min: 1 })
+    seqNo: number;
 }
 
 @Schema({ timestamps: true })
@@ -31,4 +34,4 @@ export class Workout {
     groups: WorkoutGroup[];
 }
 
-export const WorkoutSchema = SchemaFactory.createForClass(Workout); 
+export const WorkoutSchema = SchemaFactory.createForClass(Workout);

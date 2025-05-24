@@ -14,6 +14,11 @@ export class WorkoutGroupDto {
     @Min(0)
     @Max(1000)
     weight: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    @Min(1)
+    seqNo: number;
 }
 
 export class CreateWorkoutDto {
@@ -33,4 +38,4 @@ export class CreateWorkoutDto {
     @ValidateNested({ each: true })
     @Type(() => WorkoutGroupDto)
     groups: WorkoutGroupDto[];
-} 
+}

@@ -1,19 +1,11 @@
-import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
-import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  Radio,
-  Space,
-  Toast
-} from 'antd-mobile';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, DatePicker, Form, Input, Radio, Space, Toast } from 'antd-mobile';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import type { ApiResponse, CreateWorkoutRequest, Workout, WorkoutGroup } from '../../api/types';
-import { createWorkout, getWorkout, updateWorkout } from '../../api/workout';
+import { createWorkout, getWorkout, updateWorkout, findByDateAndProject } from '../../api/workout';
 import { NavHeader } from '../../components/NavHeader';
 
 const UNIT_OPTIONS = [
@@ -34,7 +26,7 @@ export const WorkoutForm = () => {
   const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
   const [dateVisible, setDateVisible] = useState(false);
 
-  // 获取训练记录详情
+  // 获取训练记录详情（通过ID）
   const { data: workoutData } = useQuery<ApiResponse<Workout>, Error>({
     queryKey: ['workout', id],
     queryFn: () => getWorkout(id!),
@@ -42,27 +34,48 @@ export const WorkoutForm = () => {
     staleTime: 0,
     gcTime: 0,
     retry: 1,
-    onSettled: (res: ApiResponse<Workout> | undefined) => {
-      if (res) {
-        const workout = res.data;
-        setDate(new Date(workout.date));
-        setUnit(workout.unit);
-        setGroups(workout.groups.map((g: WorkoutGroup) => ({
-          reps: g.reps.toString(),
-          weight: g.weight.toString(),
-          seqNo: g.seqNo,
-        })));
-      }
+  });
+
+  // 根据日期和项目ID查询训练记录
+  const { data: dateWorkoutData } = useQuery<Workout | null, Error>({
+    queryKey: ['workout', 'date', projectId, dayjs(date).format('YYYY-MM-DD')],
+    queryFn: async () => {
+      if (!projectId) throw new Error('项目ID不能为空');
+      const response = await findByDateAndProject(dayjs(date).format('YYYY-MM-DD'), projectId);
+      return response.data?.data || null;
     },
-  } as UseQueryOptions<ApiResponse<Workout>, Error>);
+    enabled: !!projectId && !!date,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
+  });
+
+  // 统一处理数据加载
+  useEffect(() => {
+    const workout = id ? workoutData?.data : dateWorkoutData;
+    if (workout) {
+      setDate(new Date(workout.date));
+      setUnit(workout.unit);
+      setGroups(
+        workout.groups.map((group: WorkoutGroup) => ({
+          reps: group.reps.toString(),
+          weight: group.weight.toString(),
+          seqNo: group.seqNo,
+        }))
+      );
+    }
+  }, [workoutData, dateWorkoutData, id]);
 
   // 创建训练记录
   const createMutation = useMutation({
     mutationFn: createWorkout,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] });
+      queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
       Toast.show({ icon: 'success', content: '创建成功' });
-      navigate(-1);
+      // 重置表单数据
+      setGroups([{ reps: '', weight: '', seqNo: 1 }]);
+      setDate(new Date());
     },
     onError: (error: any) => {
       Toast.show({ icon: 'fail', content: error.response?.data?.message || '创建失败' });
@@ -74,8 +87,12 @@ export const WorkoutForm = () => {
     mutationFn: updateWorkout,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workouts'] });
+      queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
+      queryClient.invalidateQueries({ queryKey: ['workout', id] });
       Toast.show({ icon: 'success', content: '更新成功' });
-      navigate(-1);
+      // 重置表单数据
+      setGroups([{ reps: '', weight: '', seqNo: 1 }]);
+      setDate(new Date());
     },
     onError: (error: any) => {
       Toast.show({ icon: 'fail', content: error.response?.data?.message || '更新失败' });
@@ -83,13 +100,13 @@ export const WorkoutForm = () => {
   });
 
   // 组表单初始值
-  const [groups, setGroups] = useState<Array<{
-    reps: string;
-    weight: string;
-    seqNo: number;
-  }>>([
-    { reps: '', weight: '', seqNo: 1 },
-  ]);
+  const [groups, setGroups] = useState<
+    Array<{
+      reps: string;
+      weight: string;
+      seqNo: number;
+    }>
+  >([{ reps: '', weight: '', seqNo: 1 }]);
 
   // 处理组的变化
   const handleGroupChange = (index: number, key: 'reps' | 'weight', value: string) => {
@@ -107,7 +124,9 @@ export const WorkoutForm = () => {
   // 删除组
   const handleRemoveGroup = (index: number) => {
     if (groups.length === 1) return;
-    const newGroups = groups.filter((_, i) => i !== index).map((group, idx) => ({ ...group, seqNo: idx + 1 }));
+    const newGroups = groups
+      .filter((_, i) => i !== index)
+      .map((group, idx) => ({ ...group, seqNo: idx + 1 }));
     setGroups(newGroups);
   };
 
@@ -141,47 +160,11 @@ export const WorkoutForm = () => {
     }
   };
 
-  // 根据项目 ID 和日期查询训练记录
-  useEffect(() => {
-    const fetchWorkout = async () => {
-      if (projectId && date) {
-        const response = await getWorkoutByDate(projectId, dayjs(date).format('YYYY-MM-DD'));
-        if (!response.data) {
-          // 如果没有记录，跳转到新建页面
-          navigate('/new'); // 假设新建页面的路径是 /new
-        } else {
-          // 如果有记录，加载数据到页面
-          const workout = response.data;
-          setDate(new Date(workout.date));
-          setUnit(workout.unit);
-          setGroups(workout.groups.map((g: WorkoutGroup) => ({
-            reps: g.reps.toString(),
-            weight: g.weight.toString(),
-            seqNo: g.seqNo,
-          })));
-        }
-      }
-    };
-
-    fetchWorkout();
-  }, [projectId, date, navigate]);
-
-  // 新增的查询函数
-  const getWorkoutByDate = async (projectId: string, date: string): Promise<{ data: Workout | null }> => {
-    // 这里需要实现根据项目 ID 和日期查询训练记录的 API 调用
-    // 返回的结果应该是包含训练记录的响应
-    return { data: null }; // 示例返回，实际需要替换为 API 调用
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-[var(--adm-color-background)]">
       <NavHeader title={id ? '编辑训练' : '记录训练'} />
       <div className="flex-1 p-4 pb-24">
-        <Form
-          form={form}
-          layout="vertical"
-          footer={null}
-        >
+        <Form form={form} layout="vertical" footer={null}>
           <div className="flex gap-3 mb-4">
             <Form.Item label="训练日期" style={{ flex: 1 }}>
               <div
@@ -211,13 +194,18 @@ export const WorkoutForm = () => {
             <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
               <div style={{ display: 'flex', gap: 16 }}>
                 {UNIT_OPTIONS.map(opt => (
-                  <Radio key={opt.value} value={opt.value}>{opt.label}</Radio>
+                  <Radio key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </Radio>
                 ))}
               </div>
             </Radio.Group>
           </Form.Item>
           {groups.map((group, idx) => (
-            <div key={idx} className="mb-4 p-3 rounded-lg border border-solid border-gray-200 bg-white shadow-sm">
+            <div
+              key={idx}
+              className="mb-4 p-3 rounded-lg border border-solid border-gray-200 bg-white shadow-sm"
+            >
               <div className="font-medium mb-2">第{group.seqNo}组</div>
               <Space direction="vertical" block style={{ width: '100%' }}>
                 <div className="flex items-center gap-2">
@@ -239,7 +227,12 @@ export const WorkoutForm = () => {
                   />
                 </div>
                 {groups.length > 1 && (
-                  <Button color="danger" fill="none" size="mini" onClick={() => handleRemoveGroup(idx)}>
+                  <Button
+                    color="danger"
+                    fill="none"
+                    size="mini"
+                    onClick={() => handleRemoveGroup(idx)}
+                  >
                     删除本组
                   </Button>
                 )}

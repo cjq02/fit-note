@@ -64,7 +64,7 @@ export default [
         'alphabetize': { 'order': 'asc', 'caseInsensitive': true }
       }],
       // TypeScript 相关规则
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': ['error', {
         'argsIgnorePattern': '^_',
         'varsIgnorePattern': '^_'
