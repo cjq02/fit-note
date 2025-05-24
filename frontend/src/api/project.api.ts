@@ -10,11 +10,10 @@ import type {
 /**
  * 获取所有训练项目
  *
- * @returns {Promise<ApiResponse<Project[]>>} 训练项目列表
+ * @returns {Promise<ApiResponse<string[]>>} 训练项目列表
  */
-export const getProjects = async (): Promise<ApiResponse<Project[]>> => {
-  // 直接使用后端返回的数据，包含 todayWorkoutId 字段
-  return http.get<Project[]>('/api/projects');
+export const getProjects = async (): Promise<ApiResponse<string[]>> => {
+  return http.get<string[]>('/api/projects');
 };
 
 // 获取训练项目详情

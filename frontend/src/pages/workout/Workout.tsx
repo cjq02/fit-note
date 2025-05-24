@@ -1,33 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-  Button,
   Card,
   Dialog,
+  Empty,
+  InfiniteScroll,
   List,
   Space,
   SwipeAction,
   Tag,
   Toast,
-  Form,
-  DatePicker,
-  Input,
-  InfiniteScroll,
-  Empty,
 } from 'antd-mobile';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import { useRef, useState, useEffect } from 'react';
-import { AddOutline } from 'antd-mobile-icons';
 
+import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { deleteWorkout, getWorkoutsGroupByDate } from '@/api/workout.api';
-import type { Workout } from '@/@typings/types.d.ts';
 
-interface WorkoutResponse {
-  data: Record<string, Workout[]>;
+interface ApiResponse {
+  data: Record<string, WorkoutType[]>;
   total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
 }
 
 /**
@@ -37,56 +28,81 @@ interface WorkoutResponse {
  */
 export const Workout = () => {
   const navigate = useNavigate();
-  const [searchForm] = Form.useForm();
-  const [searchParams, setSearchParams] = useState<{
-    date?: string;
-    project?: string;
-  }>({});
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const hasMore = useRef(true);
-  const [allWorkouts, setAllWorkouts] = useState<Record<string, Workout[]>>({});
+  const [allWorkouts, setAllWorkouts] = useState<Record<string, WorkoutType[]>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const isFirstLoad = useRef(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // 获取按日期分组的训练记录
-  const { data: groupedWorkoutsData, refetch } = useQuery({
-    queryKey: ['workouts', 'group-by-date', searchParams, page],
+  const { data: groupedWorkoutsData, refetch } = useQuery<ApiResponse>({
+    queryKey: ['workouts', 'group-by-date', page],
     queryFn: async () => {
       const response = await getWorkoutsGroupByDate({
-        ...searchParams,
         page,
         pageSize,
       });
       return response.data;
     },
+    staleTime: 0, // 数据立即过期
+    gcTime: 0, // 不缓存数据
+    enabled: false, // 禁用自动查询
   });
 
   // 处理数据加载成功
-  const handleDataSuccess = (data: WorkoutResponse | undefined) => {
-    if (!data?.data) return;
-
-    if (page === 1) {
-      setAllWorkouts(data.data);
-    } else {
-      // 合并新数据
-      const newWorkouts = { ...allWorkouts };
-      Object.entries(data.data).forEach(([date, workouts]) => {
-        if (newWorkouts[date]) {
-          newWorkouts[date] = [...newWorkouts[date], ...workouts];
-        } else {
-          newWorkouts[date] = workouts;
-        }
-      });
-      setAllWorkouts(newWorkouts);
-    }
-    hasMore.current = data.hasMore;
-  };
-
-  // 监听数据变化
   useEffect(() => {
     if (groupedWorkoutsData) {
-      handleDataSuccess(groupedWorkoutsData);
+      if (page === 1) {
+        setAllWorkouts(groupedWorkoutsData.data);
+      } else {
+        // 合并新数据
+        const newWorkouts = { ...allWorkouts };
+        Object.entries(groupedWorkoutsData.data).forEach(([date, workouts]) => {
+          if (newWorkouts[date]) {
+            newWorkouts[date] = [...newWorkouts[date], ...workouts];
+          } else {
+            newWorkouts[date] = workouts;
+          }
+        });
+        setAllWorkouts(newWorkouts);
+      }
+      hasMore.current = groupedWorkoutsData.total > page * pageSize;
     }
-  }, [groupedWorkoutsData]);
+  }, [groupedWorkoutsData, page]);
+
+  // 首次加载数据
+  useEffect(() => {
+    const loadInitialData = async () => {
+      if (isFirstLoad.current) {
+        isFirstLoad.current = false;
+        setIsLoading(true);
+        try {
+          await refetch();
+          setIsInitialized(true);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    loadInitialData();
+  }, []);
+
+  // 页码变化时加载数据
+  useEffect(() => {
+    const loadMoreData = async () => {
+      if (page > 1) {
+        setIsLoading(true);
+        try {
+          await refetch();
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    loadMoreData();
+  }, [page]);
 
   /**
    * 处理删除训练记录
@@ -103,7 +119,16 @@ export const Workout = () => {
             icon: 'success',
             content: '删除成功',
           });
-          refetch(); // 重新获取数据
+          // 重置状态并重新加载
+          setPage(1);
+          setAllWorkouts({});
+          isFirstLoad.current = true;
+          setIsLoading(true);
+          try {
+            await refetch();
+          } finally {
+            setIsLoading(false);
+          }
         } catch (error) {
           Toast.show({
             icon: 'fail',
@@ -124,38 +149,48 @@ export const Workout = () => {
   };
 
   /**
-   * 处理搜索表单提交
-   *
-   * @param {object} values - 表单值
-   * @param values.date
-   * @param values.project
-   */
-  const handleSearch = (values: { date?: Date; project?: string }) => {
-    setSearchParams({
-      date: values.date ? dayjs(values.date).format('YYYY-MM-DD') : undefined,
-      project: values.project,
-    });
-    setPage(1);
-    setAllWorkouts({});
-    hasMore.current = true;
-  };
-
-  /**
-   * 处理重置搜索
-   */
-  const handleReset = () => {
-    searchForm.resetFields();
-    setSearchParams({});
-    setPage(1);
-    setAllWorkouts({});
-    hasMore.current = true;
-  };
-
-  /**
    * 加载更多数据
    */
   const loadMore = async () => {
-    if (!hasMore.current) return;
+    // 检查是否已初始化
+    if (!isInitialized) {
+      console.log('页面未初始化完成，不触发加载');
+      return;
+    }
+
+    // 检查是否正在加载或没有更多数据
+    if (!hasMore.current || isLoading) {
+      console.log('不满足加载条件:', { hasMore: hasMore.current, isLoading });
+      return;
+    }
+
+    // 获取滚动容器和内容高度
+    const container = document.querySelector('.overflow-y-auto');
+    if (!container) {
+      console.log('未找到滚动容器');
+      return;
+    }
+
+    const scrollTop = container.scrollTop;
+    const scrollHeight = container.scrollHeight;
+    const clientHeight = container.clientHeight;
+    const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+
+    console.log('滚动信息:', {
+      scrollTop,
+      scrollHeight,
+      clientHeight,
+      distanceToBottom,
+      currentPage: page,
+    });
+
+    // 只有当滚动到距离底部 300px 以内时才加载
+    if (distanceToBottom > 300) {
+      console.log('距离底部太远，不触发加载');
+      return;
+    }
+
+    console.log('触发加载下一页:', page + 1);
     setPage(prev => prev + 1);
   };
 
@@ -171,28 +206,6 @@ export const Workout = () => {
   return (
     <div className="h-screen flex flex-col bg-[var(--adm-color-background)]">
       <div className="flex-1 overflow-y-auto px-3 pb-20">
-        {/* 搜索表单 */}
-        <Card className="mb-3 sticky top-0 z-10 bg-[var(--adm-color-background)]">
-          <Form form={searchForm} onFinish={handleSearch} layout="horizontal" className="p-2">
-            <Form.Item name="date" label="日期" className="mb-1">
-              <DatePicker>
-                {value => (value ? dayjs(value).format('YYYY-MM-DD') : '请选择日期')}
-              </DatePicker>
-            </Form.Item>
-            <Form.Item name="project" label="训练项目" className="mb-1">
-              <Input placeholder="请输入训练项目" />
-            </Form.Item>
-            <div className="flex gap-2 justify-end">
-              <Button onClick={handleReset} fill="outline" size="small">
-                重置
-              </Button>
-              <Button color="primary" type="submit" size="small">
-                搜索
-              </Button>
-            </div>
-          </Form>
-        </Card>
-
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
           <div key={date} className="mb-3">
@@ -248,38 +261,18 @@ export const Workout = () => {
         ))}
 
         {/* 无限滚动加载 */}
-        <InfiniteScroll loadMore={loadMore} hasMore={hasMore.current} />
+        <InfiniteScroll
+          loadMore={loadMore}
+          hasMore={hasMore.current}
+          threshold={0.8} // 当滚动到距离底部 80% 时触发加载
+        />
 
         {/* 空状态 */}
-        {(!allWorkouts || Object.keys(allWorkouts).length === 0) && (
+        {(!allWorkouts || Object.keys(allWorkouts).length === 0) && !isLoading && (
           <div className="flex flex-col items-center justify-center py-8">
-            <Empty
-              image={<AddOutline className="text-3xl text-[var(--adm-color-light)]" />}
-              description="还没有训练记录"
-            />
-            <Button
-              color="primary"
-              className="mt-3"
-              size="small"
-              onClick={() => navigate('/workout/new')}
-            >
-              开始记录
-            </Button>
+            <Empty description="暂无训练记录" />
           </div>
         )}
-
-        {/* 悬浮添加按钮 */}
-        <div className="fixed bottom-20 right-3 z-20">
-          <Button
-            color="primary"
-            shape="rounded"
-            size="large"
-            onClick={() => navigate('/workout/new')}
-            className="shadow-md"
-          >
-            <AddOutline />
-          </Button>
-        </div>
       </div>
     </div>
   );
