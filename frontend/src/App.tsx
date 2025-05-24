@@ -41,20 +41,20 @@ export const App = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-screen">
       <NavBar
-        className="bg-white border-b border-[var(--adm-color-border)]"
+        className="flex-none bg-white border-b border-[var(--adm-color-border)]"
         onBack={() => navigate(-1)}
       >
         {getPageTitle()}
       </NavBar>
-      <div className="flex-1 pb-[var(--adm-tab-bar-height)]">
+      <div className="flex-1 overflow-hidden">
         <Outlet />
       </div>
       <TabBar
         activeKey={location.pathname}
         onChange={value => navigate(value)}
-        className="fixed bottom-0 left-0 right-0 bg-white border-t border-[var(--adm-color-border)]"
+        className="flex-none bg-white border-t border-[var(--adm-color-border)]"
       >
         {tabs.map(item => (
           <TabBar.Item key={item.key} icon={item.icon} title={item.title} />
