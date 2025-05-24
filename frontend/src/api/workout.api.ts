@@ -1,5 +1,10 @@
-import { http } from '../utils/http';
-import type { ApiResponse, CreateWorkoutRequest, UpdateWorkoutRequest, Workout } from './types';
+import { http } from '@/utils/http';
+import type {
+  ApiResponse,
+  CreateWorkoutRequest,
+  UpdateWorkoutRequest,
+  Workout,
+} from '@/@typings/types.d.ts';
 
 /**
  *获取训练记录列表

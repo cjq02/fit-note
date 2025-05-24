@@ -1,9 +1,16 @@
-import { http } from '../utils/http';
-import type { ApiResponse, CreateProjectRequest, Project, UpdateProjectRequest } from './types';
+import { http } from '@/utils/http';
+import type {
+  ApiResponse,
+  CreateProjectRequest,
+  Project,
+  UpdateProjectRequest,
+} from '@/@typings/types.d.ts';
 
 // 获取训练项目列表
 /**
+ * 获取所有训练项目
  *
+ * @returns {Promise<ApiResponse<Project[]>>} 训练项目列表
  */
 export const getProjects = async (): Promise<ApiResponse<Project[]>> => {
   // 直接使用后端返回的数据，包含 todayWorkoutId 字段
@@ -12,8 +19,10 @@ export const getProjects = async (): Promise<ApiResponse<Project[]>> => {
 
 // 获取训练项目详情
 /**
+ * 获取单个训练项目详情
  *
- * @param id
+ * @param {string} id - 项目ID
+ * @returns {Promise<ApiResponse<Project>>} 训练项目详情
  */
 export const getProject = async (id: string): Promise<ApiResponse<Project>> => {
   const response = await http.get<Project>(`/api/projects/${id}`);
@@ -22,8 +31,10 @@ export const getProject = async (id: string): Promise<ApiResponse<Project>> => {
 
 // 创建训练项目
 /**
+ * 创建新的训练项目
  *
- * @param data
+ * @param {CreateProjectRequest} data - 创建项目请求参数
+ * @returns {Promise<ApiResponse<Project>>} 创建的项目信息
  */
 export const createProject = async (data: CreateProjectRequest): Promise<ApiResponse<Project>> => {
   const response = await http.post<Project>('/api/projects', data);
@@ -32,8 +43,10 @@ export const createProject = async (data: CreateProjectRequest): Promise<ApiResp
 
 // 更新训练项目
 /**
+ * 更新训练项目信息
  *
- * @param data
+ * @param {UpdateProjectRequest} data - 更新项目请求参数
+ * @returns {Promise<ApiResponse<Project>>} 更新后的项目信息
  */
 export const updateProject = async (data: UpdateProjectRequest): Promise<ApiResponse<Project>> => {
   const response = await http.put<Project>(`/api/projects/${data.id}`, data);
@@ -42,8 +55,10 @@ export const updateProject = async (data: UpdateProjectRequest): Promise<ApiResp
 
 // 删除训练项目
 /**
+ * 删除训练项目
  *
- * @param id
+ * @param {string} id - 项目ID
+ * @returns {Promise<ApiResponse<void>>} 删除操作响应
  */
 export const deleteProject = async (id: string): Promise<ApiResponse<void>> => {
   const response = await http.delete<void>(`/api/projects/${id}`);

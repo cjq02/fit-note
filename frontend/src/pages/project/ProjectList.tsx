@@ -4,9 +4,9 @@ import { AddOutline, DeleteOutline, EditSOutline, StarOutline } from 'antd-mobil
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { createProject, deleteProject, getProjects, updateProject } from '../../api/project';
-import type { CreateProjectRequest, Project } from '../../api/types';
-import { NavHeader } from '../../components/NavHeader';
+import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
+import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
+import { NavHeader } from '@/components/NavHeader';
 import { ProjectForm } from './ProjectForm';
 
 /**

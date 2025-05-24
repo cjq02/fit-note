@@ -12,9 +12,14 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
-import { NavHeader } from '../../components/NavHeader';
-import { getUserInfo } from '../../api/auth';
+import { NavHeader } from '@/components/NavHeader';
+import { getUserInfo } from '@/api/auth.api';
 
+/**
+ * 个人中心页面组件
+ *
+ * @returns {JSX.Element} 个人中心页面
+ */
 export const Profile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();

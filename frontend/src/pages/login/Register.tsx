@@ -1,9 +1,14 @@
 import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useNavigate, Link } from 'react-router-dom';
 
-import { NavHeader } from '../../components/NavHeader';
-import { register } from '../../api/auth';
+import { NavHeader } from '@/components/NavHeader';
+import { register } from '@/api/auth.api';
 
+/**
+ * 注册
+ *
+ * @returns {JSX.Element} 注册页面
+ */
 export const Register = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();

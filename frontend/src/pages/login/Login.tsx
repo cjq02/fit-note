@@ -2,9 +2,14 @@ import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 
-import { NavHeader } from '../../components/NavHeader';
-import { login } from '../../api/auth';
+import { NavHeader } from '@/components/NavHeader';
+import { login } from '@/api/auth.api';
 
+/**
+ * 登录页面组件
+ *
+ * @returns {JSX.Element} 登录页面
+ */
 export const Login = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();

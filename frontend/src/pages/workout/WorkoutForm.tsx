@@ -5,9 +5,14 @@ import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-import type { ApiResponse, CreateWorkoutRequest, Workout, WorkoutGroup } from '../../api/types';
-import { createWorkout, getWorkout, updateWorkout, findByDateAndProject } from '../../api/workout';
-import { NavHeader } from '../../components/NavHeader';
+import type {
+  ApiResponse,
+  CreateWorkoutRequest,
+  Workout,
+  WorkoutGroup,
+} from '@/@typings/types.d.ts';
+import { createWorkout, getWorkout, updateWorkout, findByDateAndProject } from '@/api/workout.api';
+import { NavHeader } from '@/components/NavHeader';
 
 const UNIT_OPTIONS = [
   { label: 'kg', value: 'kg' },
