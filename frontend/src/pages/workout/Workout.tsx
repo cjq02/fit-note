@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { Dialog, ErrorBlock, InfiniteScroll, List, Toast } from 'antd-mobile';
+import { Dialog, ErrorBlock, InfiniteScroll, Toast } from 'antd-mobile';
 import { useEffect, useRef, useState } from 'react';
 
 import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { deleteWorkout, getWorkoutsGroupByDate } from '@/api/workout.api';
-import { WorkoutItem } from './components/WorkoutItem';
+import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 
 /**
  * 训练记录页面组件
@@ -176,23 +176,7 @@ export const Workout = () => {
       <div className="flex-1 overflow-y-auto px-4 pt-4">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
-          <div key={date} className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-1.5 h-4 bg-gradient-to-b from-blue-500 to-sky-500 rounded-full"></div>
-              <div className="text-[15px] font-medium text-blue-600 tracking-wide">{date}</div>
-              <div className="flex-1 h-[1px] bg-gradient-to-r from-blue-100 to-transparent"></div>
-            </div>
-            <List>
-              {workouts.map(workout => (
-                <WorkoutItem
-                  key={workout.id}
-                  workout={workout}
-                  workouts={workouts}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </List>
-          </div>
+          <WorkoutDayGroup key={date} date={date} workouts={workouts} onDelete={handleDelete} />
         ))}
 
         {/* 无限滚动加载 */}
