@@ -105,5 +105,11 @@ export const getWorkoutsByYearMonth = async (params: {
   year: string;
   month: string;
 }): Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>> => {
-  return http.get('/api/workouts/by-year-month', { params });
+  const { year, month } = params;
+  return http.get('/api/workouts/by-year-month', {
+    params: {
+      year,
+      month,
+    },
+  });
 };

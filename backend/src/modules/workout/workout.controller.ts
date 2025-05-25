@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query, BadRequestException } from '@nestjs/common';
 
 import { WorkoutService } from './workout.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
@@ -44,6 +44,23 @@ export class WorkoutController {
         return this.workoutService.findByDateAndProject(params.date, params.projectId);
     }
 
+    /**
+     * 按年月获取训练记录列表
+     * @param {string} year - 年份
+     * @param {string} month - 月份
+     * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
+     */
+    @Get('by-year-month')
+    findByYearMonth(
+        @Query('year') year: string,
+        @Query('month') month: string,
+    ): Promise<{ data: Record<string, Workout[]>; total: number }> {
+        if (!year || !month) {
+            throw new BadRequestException('年份和月份不能为空');
+        }
+        return this.workoutService.findByYearMonth(year, month);
+    }
+
     @Get(':id')
     findOne(@Param('id') id: string): Promise<Workout> {
         return this.workoutService.findOne(id);
@@ -65,19 +82,5 @@ export class WorkoutController {
     @Delete(':id')
     remove(@Param('id') id: string): Promise<void> {
         return this.workoutService.remove(id);
-    }
-
-    /**
-     * 按年月获取训练记录列表
-     * @param {string} year - 年份
-     * @param {string} month - 月份
-     * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
-     */
-    @Get('by-year-month')
-    findByYearMonth(
-        @Query('year') year: string,
-        @Query('month') month: string,
-    ): Promise<{ data: Record<string, Workout[]>; total: number }> {
-        return this.workoutService.findByYearMonth(year, month);
     }
 }

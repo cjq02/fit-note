@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -153,14 +153,32 @@ export class WorkoutService {
      * @param {string} year - 年份
      * @param {string} month - 月份
      * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
+     * @throws {BadRequestException} 当年月参数无效时抛出异常
      */
     async findByYearMonth(year: string, month: string): Promise<{
         data: Record<string, Workout[]>;
         total: number;
     }> {
+        // 验证参数
+        if (!year || !month) {
+            throw new BadRequestException('年份和月份不能为空');
+        }
+
+        // 验证年份格式
+        const yearNum = parseInt(year);
+        if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
+            throw new BadRequestException('无效的年份');
+        }
+
+        // 验证月份格式
+        const monthNum = parseInt(month);
+        if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+            throw new BadRequestException('无效的月份');
+        }
+
         // 构建日期范围
         const startDate = `${year}-${month.padStart(2, '0')}-01`;
-        const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
+        const lastDay = new Date(yearNum, monthNum, 0).getDate();
         const endDate = `${year}-${month.padStart(2, '0')}-${lastDay}`;
 
         // 查询指定日期范围内的所有记录

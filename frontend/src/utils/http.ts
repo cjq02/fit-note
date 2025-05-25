@@ -69,8 +69,8 @@ instance.interceptors.response.use(
 
 // 封装 HTTP 方法
 export const http = {
-  get: <T>(url: string, params?: any): Promise<ApiResponse<T>> => {
-    return instance.get(url, { params });
+  get: <T>(url: string, config?: any): Promise<ApiResponse<T>> => {
+    return instance.get(url, config);
   },
 
   post: <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
