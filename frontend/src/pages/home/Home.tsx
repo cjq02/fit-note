@@ -54,7 +54,7 @@ export const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--adm-color-background)]">
+    <div className="page-container bg-[var(--adm-color-background)]">
       <div className="p-4">
         {/* 训练统计 */}
         <Card className="mb-4">

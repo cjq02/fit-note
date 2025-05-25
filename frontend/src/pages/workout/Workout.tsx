@@ -262,8 +262,8 @@ export const Workout = () => {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-sky-50">
-      <div className="flex-1 overflow-y-auto px-4 pb-20 pt-4">
+    <div className="page-container bg-gradient-to-br from-blue-50 via-white to-sky-50">
+      <div className="flex-1 overflow-y-auto px-4 pt-4">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
           <div key={date} className="mb-6">

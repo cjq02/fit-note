@@ -66,13 +66,13 @@ export const App = () => {
       >
         {getPageTitle()}
       </NavBar>
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto pb-[50px] container">
         <Outlet />
       </div>
       <TabBar
         activeKey={location.pathname}
         onChange={value => navigate(value)}
-        className="flex-none bg-white border-t border-[var(--adm-color-border)]"
+        className="flex-none bg-white border-t border-[var(--adm-color-border)] fixed bottom-0 left-0 right-0"
       >
         {tabs.map(item => (
           <TabBar.Item key={item.key} icon={item.icon} title={item.title} />

@@ -143,7 +143,7 @@ export const Profile = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--adm-color-background)]">
+    <div className="page-container bg-[var(--adm-color-background)]">
       <div className="p-4">
         {/* 用户信息卡片 */}
         <Card className="mb-4">

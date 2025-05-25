@@ -255,7 +255,7 @@ export const WorkoutForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--adm-color-background)]">
+    <div className="page-container bg-[var(--adm-color-background)]">
       <div className="flex-1 p-4 pb-24">
         <Form form={form} layout="vertical" footer={null}>
           {/* 日期和项目名称卡片 */}

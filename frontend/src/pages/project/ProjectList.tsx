@@ -218,7 +218,7 @@ export const ProjectList = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="page-container bg-gradient-to-b from-gray-50 to-white">
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="p-4 max-w-2xl mx-auto">
           {isLoading ? (
