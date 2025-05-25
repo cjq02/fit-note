@@ -25,29 +25,6 @@ export const Home = () => {
     { title: '连续训练', value: '5天', icon: <StarOutline />, color: 'success' },
   ];
 
-  const quickActions = [
-    {
-      title: '开始训练',
-      path: '/project',
-      color: 'primary',
-    },
-    {
-      title: '训练记录',
-      path: '/workout',
-      color: 'success',
-    },
-    {
-      title: '训练日程',
-      path: '/schedule',
-      color: 'warning',
-    },
-    {
-      title: '数据统计',
-      path: '/stats',
-      color: 'danger',
-    },
-  ];
-
   return (
     <div className="page-container bg-[var(--adm-color-background)]">
       <div className="p-4">
@@ -69,28 +46,50 @@ export const Home = () => {
         {/* 快捷入口 */}
         <Card title="快捷入口" className="mb-4">
           <Grid columns={2} gap={8}>
-            {quickActions.map((item, index) => (
-              <Grid.Item key={item.title}>
-                <div
-                  className={`h-24 rounded-lg bg-[var(--adm-color-${item.color}-light)] flex flex-col items-center justify-center cursor-pointer active:opacity-80 transition-opacity`}
-                  onClick={() => navigate(item.path)}
-                >
-                  <div
-                    className={`w-12 h-12 rounded-full bg-[var(--adm-color-${item.color})] flex items-center justify-center mb-2`}
-                  >
-                    {index === 0 && <VideoOutline style={{ fontSize: '24px', color: 'white' }} />}
-                    {index === 1 && (
-                      <HistogramOutline style={{ fontSize: '24px', color: 'white' }} />
-                    )}
-                    {index === 2 && <SendOutline style={{ fontSize: '24px', color: 'white' }} />}
-                    {index === 3 && <PieOutline style={{ fontSize: '24px', color: 'white' }} />}
-                  </div>
-                  <span className={`text-[var(--adm-color-${item.color})] font-medium`}>
-                    {item.title}
-                  </span>
+            <Grid.Item>
+              <div
+                className="h-24 rounded-lg bg-[var(--adm-color-primary-light)] flex flex-col items-center justify-center cursor-pointer active:opacity-80 transition-opacity"
+                onClick={() => navigate('/project')}
+              >
+                <div className="w-12 h-12 rounded-full bg-[var(--adm-color-primary)] flex items-center justify-center mb-2">
+                  <VideoOutline style={{ fontSize: '24px', color: 'white' }} />
                 </div>
-              </Grid.Item>
-            ))}
+                <span className="text-[var(--adm-color-primary)] font-medium">开始训练</span>
+              </div>
+            </Grid.Item>
+            <Grid.Item>
+              <div
+                className="h-24 rounded-lg bg-[var(--adm-color-success-light)] flex flex-col items-center justify-center cursor-pointer active:opacity-80 transition-opacity"
+                onClick={() => navigate('/workout')}
+              >
+                <div className="w-12 h-12 rounded-full bg-[var(--adm-color-success)] flex items-center justify-center mb-2">
+                  <HistogramOutline style={{ fontSize: '24px', color: 'white' }} />
+                </div>
+                <span className="text-[var(--adm-color-success)] font-medium">训练记录</span>
+              </div>
+            </Grid.Item>
+            <Grid.Item>
+              <div
+                className="h-24 rounded-lg bg-[var(--adm-color-warning-light)] flex flex-col items-center justify-center cursor-pointer active:opacity-80 transition-opacity"
+                onClick={() => navigate('/schedule')}
+              >
+                <div className="w-12 h-12 rounded-full bg-[var(--adm-color-warning)] flex items-center justify-center mb-2">
+                  <SendOutline style={{ fontSize: '24px', color: 'white' }} />
+                </div>
+                <span className="text-[var(--adm-color-warning)] font-medium">训练日程</span>
+              </div>
+            </Grid.Item>
+            <Grid.Item>
+              <div
+                className="h-24 rounded-lg bg-[var(--adm-color-danger-light)] flex flex-col items-center justify-center cursor-pointer active:opacity-80 transition-opacity"
+                onClick={() => navigate('/stats')}
+              >
+                <div className="w-12 h-12 rounded-full bg-[var(--adm-color-danger)] flex items-center justify-center mb-2">
+                  <PieOutline style={{ fontSize: '24px', color: 'white' }} />
+                </div>
+                <span className="text-[var(--adm-color-danger)] font-medium">数据统计</span>
+              </div>
+            </Grid.Item>
           </Grid>
         </Card>
 
