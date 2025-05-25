@@ -1,27 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { Card, Dialog, ErrorBlock, InfiniteScroll, List, SwipeAction, Toast } from 'antd-mobile';
+import { Dialog, ErrorBlock, InfiniteScroll, List, Toast } from 'antd-mobile';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { deleteWorkout, getWorkoutsGroupByDate } from '@/api/workout.api';
-
-/**
- * 计算训练项目的总训练量（组数 × 次数）
- *
- * @param {WorkoutType[]} workouts - 当前日期的训练记录
- * @param {string} project - 训练项目名称
- * @returns {number} 总训练量
- */
-const calculateProjectTotal = (workouts: WorkoutType[], project: string): number => {
-  return workouts
-    .filter(workout => workout.project === project)
-    .reduce((total, workout) => {
-      // 计算每组的总次数
-      const groupTotal = workout.groups.reduce((sum, group) => sum + group.reps, 0);
-      return total + groupTotal;
-    }, 0);
-};
+import { WorkoutItem } from './components/WorkoutItem';
 
 /**
  * 训练记录页面组件
@@ -29,7 +12,6 @@ const calculateProjectTotal = (workouts: WorkoutType[], project: string): number
  * @returns {JSX.Element} 训练记录页面
  */
 export const Workout = () => {
-  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const hasMore = useRef(true);
@@ -144,15 +126,6 @@ export const Workout = () => {
   };
 
   /**
-   * 处理编辑训练记录
-   *
-   * @param {string} id - 训练记录ID
-   */
-  const handleEdit = (id: string) => {
-    navigate(`/workout/edit/${id}`);
-  };
-
-  /**
    * 加载更多数据
    */
   const loadMore = async () => {
@@ -198,15 +171,6 @@ export const Workout = () => {
     setPage(prev => prev + 1);
   };
 
-  const rightActions = (id: string) => [
-    {
-      key: 'delete',
-      text: '删除',
-      color: 'danger',
-      onClick: () => handleDelete(id),
-    },
-  ];
-
   return (
     <div className="page-container bg-gradient-to-br from-blue-50 via-white to-sky-50">
       <div className="flex-1 overflow-y-auto px-4 pt-4">
@@ -220,55 +184,12 @@ export const Workout = () => {
             </div>
             <List>
               {workouts.map(workout => (
-                <SwipeAction key={workout.id} rightActions={rightActions(workout.id)}>
-                  <List.Item className="[&_.adm-list-item-content-main]:!py-1">
-                    <Card
-                      className="w-full transition-all duration-200 active:scale-[0.98]"
-                      style={{
-                        borderRadius: '16px',
-                        background:
-                          'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
-                        backdropFilter: 'blur(10px)',
-                        marginBottom: '2px',
-                        boxShadow: '0 4px 20px rgba(59, 130, 246, 0.1)',
-                        border: '1px solid rgba(59, 130, 246, 0.1)',
-                      }}
-                      onClick={() => handleEdit(workout.id)}
-                    >
-                      <div className="flex flex-col gap-3">
-                        {/* 项目名称和总训练量 */}
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-sky-500 rounded-full"></div>
-                            <div>
-                              <div className="font-semibold text-gray-800 text-[16px] tracking-wide">
-                                {workout.project}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-blue-500 font-medium">
-                            <span className="text-sm bg-gradient-to-r from-blue-500 to-sky-500 text-white px-4 py-1.5 rounded-full shadow-sm">
-                              {calculateProjectTotal(workouts, workout.project)}次
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* 训练组信息 */}
-                        <div className="flex gap-2 flex-wrap">
-                          {workout.groups.map((group, index) => (
-                            <div
-                              key={index}
-                              className="text-xs text-blue-600 bg-gradient-to-r from-blue-50 to-sky-50 px-3 py-1.5 rounded-full border border-blue-100 shadow-sm"
-                            >
-                              {group.seqNo}组: {group.weight}
-                              {workout.unit} × {group.reps}次
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </Card>
-                  </List.Item>
-                </SwipeAction>
+                <WorkoutItem
+                  key={workout.id}
+                  workout={workout}
+                  workouts={workouts}
+                  onDelete={handleDelete}
+                />
               ))}
             </List>
           </div>
