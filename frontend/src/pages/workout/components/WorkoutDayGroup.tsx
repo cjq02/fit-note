@@ -6,7 +6,7 @@ import { WorkoutItem } from './WorkoutItem';
 interface WorkoutDayGroupProps {
   date: string;
   workouts: WorkoutType[];
-  onDelete: (id: string) => void;
+  onDeleteSuccess: () => void;
 }
 
 /**
@@ -15,7 +15,7 @@ interface WorkoutDayGroupProps {
  * @param {WorkoutDayGroupProps} props - 组件属性
  * @returns {JSX.Element} 按天分组的训练记录
  */
-export const WorkoutDayGroup = ({ date, workouts, onDelete }: WorkoutDayGroupProps) => {
+export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayGroupProps) => {
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
@@ -25,7 +25,12 @@ export const WorkoutDayGroup = ({ date, workouts, onDelete }: WorkoutDayGroupPro
       </div>
       <List>
         {workouts.map(workout => (
-          <WorkoutItem key={workout.id} workout={workout} workouts={workouts} onDelete={onDelete} />
+          <WorkoutItem
+            key={workout.id}
+            workout={workout}
+            workouts={workouts}
+            onDeleteSuccess={onDeleteSuccess}
+          />
         ))}
       </List>
     </div>

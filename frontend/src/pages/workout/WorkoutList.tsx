@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { Dialog, ErrorBlock, InfiniteScroll, Toast } from 'antd-mobile';
+import { ErrorBlock, InfiniteScroll } from 'antd-mobile';
 import { useEffect, useRef, useState } from 'react';
 
 import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';
-import { deleteWorkout, getWorkoutsGroupByDate } from '@/api/workout.api';
+import { getWorkoutsGroupByDate } from '@/api/workout.api';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 
 /**
@@ -91,38 +91,19 @@ export const WorkoutList = () => {
   }, [page]);
 
   /**
-   * 处理删除训练记录
-   *
-   * @param {string} id - 训练记录ID
+   * 处理删除成功后的刷新
    */
-  const handleDelete = (id: string) => {
-    Dialog.confirm({
-      content: '确定要删除这条训练记录吗？',
-      onConfirm: async () => {
-        try {
-          await deleteWorkout(id);
-          Toast.show({
-            icon: 'success',
-            content: '删除成功',
-          });
-          // 重置状态并重新加载
-          setPage(1);
-          setAllWorkouts({});
-          isFirstLoad.current = true;
-          setIsLoading(true);
-          try {
-            await refetch();
-          } finally {
-            setIsLoading(false);
-          }
-        } catch (error) {
-          Toast.show({
-            icon: 'fail',
-            content: '删除失败',
-          });
-        }
-      },
-    });
+  const handleDeleteSuccess = async () => {
+    // 重置状态并重新加载
+    setPage(1);
+    setAllWorkouts({});
+    isFirstLoad.current = true;
+    setIsLoading(true);
+    try {
+      await refetch();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /**
@@ -176,7 +157,12 @@ export const WorkoutList = () => {
       <div className="flex-1 overflow-y-auto px-4 pt-4">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
-          <WorkoutDayGroup key={date} date={date} workouts={workouts} onDelete={handleDelete} />
+          <WorkoutDayGroup
+            key={date}
+            date={date}
+            workouts={workouts}
+            onDeleteSuccess={handleDeleteSuccess}
+          />
         ))}
 
         {/* 无限滚动加载 */}

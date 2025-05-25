@@ -1,7 +1,8 @@
-import { Card, List, SwipeAction } from 'antd-mobile';
+import { Card, Dialog, List, SwipeAction, Toast } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
 
 import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
+import { deleteWorkout } from '@/api/workout.api';
 
 /**
  * 计算训练项目的总训练量（组数 × 次数）
@@ -23,7 +24,7 @@ const calculateProjectTotal = (workouts: WorkoutType[], project: string): number
 interface WorkoutItemProps {
   workout: WorkoutType;
   workouts: WorkoutType[];
-  onDelete: (id: string) => void;
+  onDeleteSuccess: () => void;
 }
 
 /**
@@ -32,7 +33,7 @@ interface WorkoutItemProps {
  * @param {WorkoutItemProps} props - 组件属性
  * @returns {JSX.Element} 训练记录项
  */
-export const WorkoutItem = ({ workout, workouts, onDelete }: WorkoutItemProps) => {
+export const WorkoutItem = ({ workout, workouts, onDeleteSuccess }: WorkoutItemProps) => {
   const navigate = useNavigate();
 
   /**
@@ -44,12 +45,38 @@ export const WorkoutItem = ({ workout, workouts, onDelete }: WorkoutItemProps) =
     navigate(`/workout/edit/${id}`);
   };
 
+  /**
+   * 处理删除训练记录
+   *
+   * @param {string} id - 训练记录ID
+   */
+  const handleDelete = (id: string) => {
+    Dialog.confirm({
+      content: '确定要删除这条训练记录吗？',
+      onConfirm: async () => {
+        try {
+          await deleteWorkout(id);
+          Toast.show({
+            icon: 'success',
+            content: '删除成功',
+          });
+          onDeleteSuccess();
+        } catch (error) {
+          Toast.show({
+            icon: 'fail',
+            content: '删除失败',
+          });
+        }
+      },
+    });
+  };
+
   const rightActions = [
     {
       key: 'delete',
       text: '删除',
       color: 'danger',
-      onClick: () => onDelete(workout.id),
+      onClick: () => handleDelete(workout.id),
     },
   ];
 
