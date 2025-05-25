@@ -6,6 +6,9 @@ WORKDIR /app
 # 安装 pnpm
 RUN npm install -g pnpm
 
+# 配置淘宝镜像源
+RUN pnpm config set registry https://registry.npmmirror.com/
+
 # 复制整个项目文件
 COPY . .
 
@@ -23,6 +26,9 @@ WORKDIR /app
 
 # 安装 pnpm
 RUN npm install -g pnpm
+
+# 配置淘宝镜像源
+RUN pnpm config set registry https://registry.npmmirror.com/
 
 # 复制整个项目文件
 COPY . .
