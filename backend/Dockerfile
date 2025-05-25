@@ -13,6 +13,7 @@ COPY . .
 RUN pnpm install
 
 # 构建应用
+WORKDIR /app/backend
 RUN pnpm build
 
 # 生产阶段
