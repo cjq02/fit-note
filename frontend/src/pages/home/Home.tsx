@@ -1,15 +1,14 @@
 import { Card, Grid, Space, Tag } from 'antd-mobile';
 import {
   CalendarOutline,
-  PieOutline,
   HeartOutline,
   HistogramOutline,
-  VideoOutline,
+  PieOutline,
   SendOutline,
   StarOutline,
+  VideoOutline,
 } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
-import React from 'react';
 
 /**
  * 首页组件
@@ -40,8 +39,8 @@ export const Home = () => {
       icon: <HistogramOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
     {
-      title: '训练计划',
-      path: '/plan',
+      title: '训练日程',
+      path: '/schedule',
       color: 'warning',
       icon: <SendOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
