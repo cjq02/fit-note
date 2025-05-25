@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { getWorkoutsByYearMonth } from '@/api/workout.api';
 import type { Workout } from '@/@typings/types.d.ts';
 import type { PickerValue } from 'antd-mobile/es/components/picker';
+import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 
 /**
  * 训练日程页面组件
@@ -127,27 +128,24 @@ export const Schedule = () => {
 
         {/* 训练计划列表 */}
         <Card title="训练计划" className="mb-4">
-          <List>
-            {loading ? (
-              <List.Item>加载中...</List.Item>
-            ) : (
-              <>
-                {getSelectedDateSchedule().map((item, index) => (
-                  <List.Item
-                    key={index}
-                    prefix={new Date(item.createdAt).toLocaleTimeString('zh-CN', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                    description={`${item.groups.length}组`}
-                  >
-                    {item.project}
-                  </List.Item>
-                ))}
-                {getSelectedDateSchedule().length === 0 && <List.Item>暂无训练计划</List.Item>}
-              </>
-            )}
-          </List>
+          {loading ? (
+            <List.Item>加载中...</List.Item>
+          ) : (
+            <>
+              {getSelectedDateSchedule().length > 0 ? (
+                <WorkoutDayGroup
+                  date={selectedDate.toISOString().split('T')[0]}
+                  workouts={getSelectedDateSchedule()}
+                  onDeleteSuccess={() => {
+                    // 删除成功后刷新数据
+                    fetchWorkoutData();
+                  }}
+                />
+              ) : (
+                <List.Item>暂无训练计划</List.Item>
+              )}
+            </>
+          )}
         </Card>
       </div>
     </div>
