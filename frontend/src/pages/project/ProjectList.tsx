@@ -1,5 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Dialog, Empty, Popup, Toast, Skeleton, PullToRefresh } from 'antd-mobile';
+import {
+  Button,
+  Card,
+  Dialog,
+  Empty,
+  Popup,
+  Toast,
+  Skeleton,
+  PullToRefresh,
+  FloatingBubble,
+} from 'antd-mobile';
 import { AddOutline, DeleteOutline, EditSOutline, StarOutline } from 'antd-mobile-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +17,10 @@ import { useNavigate } from 'react-router-dom';
 import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
 import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
 import { ProjectForm } from './ProjectForm';
+
+interface ApiResponse<T> {
+  data: T;
+}
 
 /**
  * 训练项目列表页面组件
@@ -25,7 +39,7 @@ export const ProjectList = () => {
     data: projects = [],
     isLoading,
     refetch,
-  } = useQuery({
+  } = useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: async () => {
       const response = await getProjects();
@@ -239,6 +253,17 @@ export const ProjectList = () => {
           )}
         </div>
       </PullToRefresh>
+
+      <FloatingBubble
+        style={{
+          '--initial-position-bottom': '100px',
+          '--initial-position-right': '24px',
+          '--edge-distance': '24px',
+        }}
+        onClick={() => setShowForm(true)}
+      >
+        <AddOutline fontSize={24} />
+      </FloatingBubble>
 
       <Popup
         visible={showForm}
