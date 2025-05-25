@@ -17,19 +17,22 @@ export class WorkoutController {
 
     /**
      * 获取按日期分组的训练记录列表
-     * @param {QueryWorkoutDto} query - 查询参数
+     * @param {number} page - 页码
+     * @param {number} pageSize - 每页数量
+     * @param {string} date - 日期
+     * @param {string} project - 项目
      * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
      */
     @Get('group-by-date')
-    findAllGroupByDate(@Query('params') params: any): Promise<{ data: Record<string, Workout[]>; total: number }> {
-        const page = Number(params?.page) || 1;
-        const pageSize = Number(params?.pageSize) || 10;
-        const date = params?.date;
-        const project = params?.project;
-
+    findAllGroupByDate(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+        @Query('date') date: string,
+        @Query('project') project: string,
+    ): Promise<{ data: Record<string, Workout[]>; total: number }> {
         const query: QueryWorkoutDto = {
-            page,
-            pageSize,
+            page: Number(page) || 1,
+            pageSize: Number(pageSize) || 10,
             date,
             project
         };
@@ -37,11 +40,18 @@ export class WorkoutController {
         return this.workoutService.findAllGroupByDate(query);
     }
 
+    /**
+     * 根据日期和项目ID查找训练记录
+     * @param {string} date - 日期
+     * @param {string} projectId - 项目ID
+     * @returns {Promise<Workout | null>} 训练记录或null
+     */
     @Get('find')
     findByDateAndProject(
-        @Query('params') params: { date: string; projectId: string },
+        @Query('date') date: string,
+        @Query('projectId') projectId: string,
     ): Promise<Workout | null> {
-        return this.workoutService.findByDateAndProject(params.date, params.projectId);
+        return this.workoutService.findByDateAndProject(date, projectId);
     }
 
     /**
