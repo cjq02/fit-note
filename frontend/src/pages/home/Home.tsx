@@ -30,25 +30,21 @@ export const Home = () => {
       title: '开始训练',
       path: '/project',
       color: 'primary',
-      icon: <VideoOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
     {
       title: '训练记录',
       path: '/workout',
       color: 'success',
-      icon: <HistogramOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
     {
       title: '训练日程',
       path: '/schedule',
       color: 'warning',
-      icon: <SendOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
     {
       title: '数据统计',
       path: '/stats',
       color: 'danger',
-      icon: <PieOutline style={{ fontSize: '24px', color: 'white' }} />,
     },
   ];
 
@@ -73,7 +69,7 @@ export const Home = () => {
         {/* 快捷入口 */}
         <Card title="快捷入口" className="mb-4">
           <Grid columns={2} gap={8}>
-            {quickActions.map(item => (
+            {quickActions.map((item, index) => (
               <Grid.Item key={item.title}>
                 <div
                   className={`h-24 rounded-lg bg-[var(--adm-color-${item.color}-light)] flex flex-col items-center justify-center cursor-pointer active:opacity-80 transition-opacity`}
@@ -82,7 +78,12 @@ export const Home = () => {
                   <div
                     className={`w-12 h-12 rounded-full bg-[var(--adm-color-${item.color})] flex items-center justify-center mb-2`}
                   >
-                    {item.icon}
+                    {index === 0 && <VideoOutline style={{ fontSize: '24px', color: 'white' }} />}
+                    {index === 1 && (
+                      <HistogramOutline style={{ fontSize: '24px', color: 'white' }} />
+                    )}
+                    {index === 2 && <SendOutline style={{ fontSize: '24px', color: 'white' }} />}
+                    {index === 3 && <PieOutline style={{ fontSize: '24px', color: 'white' }} />}
                   </div>
                   <span className={`text-[var(--adm-color-${item.color})] font-medium`}>
                     {item.title}
