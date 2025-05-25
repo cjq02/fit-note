@@ -67,6 +67,18 @@ export const Schedule = () => {
     return workoutData[dateStr] || [];
   };
 
+  // 渲染日历标签
+  const renderLabel = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    const hasWorkout = workoutData[dateStr]?.length > 0;
+
+    return hasWorkout ? (
+      <div className="absolute bottom-0 left-0 right-0 flex justify-center">
+        <div className="h-1 w-1 rounded-full bg-[var(--adm-color-primary)]" />
+      </div>
+    ) : null;
+  };
+
   return (
     <div className="page-container bg-[var(--adm-color-background)]">
       <div className="p-4">
@@ -95,6 +107,21 @@ export const Schedule = () => {
             selectionMode="single"
             value={selectedDate}
             onChange={val => val && setSelectedDate(val)}
+            renderDate={date => {
+              const dateStr = date.toISOString().split('T')[0];
+              const hasWorkout = workoutData[dateStr]?.length > 0;
+              return (
+                <div className="relative flex h-full w-full items-center justify-center">
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                      hasWorkout ? 'bg-orange-500 text-white' : ''
+                    }`}
+                  >
+                    {date.getDate()}
+                  </div>
+                </div>
+              );
+            }}
           />
         </Card>
 
