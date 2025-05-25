@@ -7,11 +7,11 @@ import { deleteWorkout, getWorkoutsGroupByDate } from '@/api/workout.api';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 
 /**
- * 训练记录页面组件
+ * 训练记录列表页面组件
  *
- * @returns {JSX.Element} 训练记录页面
+ * @returns {JSX.Element} 训练记录列表页面
  */
-export const Workout = () => {
+export const WorkoutList = () => {
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const hasMore = useRef(true);

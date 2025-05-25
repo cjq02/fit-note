@@ -7,7 +7,7 @@ import { Login } from './pages/login/Login';
 import { Register } from './pages/login/Register';
 import { Profile } from './pages/profile/Profile';
 import { ProjectList } from './pages/project/ProjectList';
-import { Workout } from './pages/workout/Workout';
+import { WorkoutList } from './pages/workout/WorkoutList';
 import { WorkoutForm } from './pages/workout/WorkoutForm';
 import { Schedule } from './pages/workout/Schedule';
 
@@ -66,7 +66,7 @@ const routes: CustomRouteObject[] = [
         path: 'workout',
         element: (
           <PrivateRoute>
-            <Workout />
+            <WorkoutList />
           </PrivateRoute>
         ),
         title: '训练记录',
