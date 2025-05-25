@@ -9,6 +9,7 @@ import { Profile } from './pages/profile/Profile';
 import { ProjectList } from './pages/project/ProjectList';
 import { Workout } from './pages/workout/Workout';
 import { WorkoutForm } from './pages/workout/WorkoutForm';
+import { Schedule } from './pages/workout/Schedule';
 
 /**
  * 扩展路由类型，添加 title 属性
@@ -105,6 +106,15 @@ const routes: CustomRouteObject[] = [
           </PrivateRoute>
         ),
         title: '编辑训练',
+      },
+      {
+        path: 'schedule',
+        element: (
+          <PrivateRoute>
+            <Schedule />
+          </PrivateRoute>
+        ),
+        title: '训练日程',
       },
       {
         path: 'profile',
