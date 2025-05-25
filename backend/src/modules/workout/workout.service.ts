@@ -147,4 +147,45 @@ export class WorkoutService {
             throw error;
         }
     }
+
+    /**
+     * 按年月获取训练记录
+     * @param {string} year - 年份
+     * @param {string} month - 月份
+     * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
+     */
+    async findByYearMonth(year: string, month: string): Promise<{
+        data: Record<string, Workout[]>;
+        total: number;
+    }> {
+        // 构建日期范围
+        const startDate = `${year}-${month.padStart(2, '0')}-01`;
+        const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
+        const endDate = `${year}-${month.padStart(2, '0')}-${lastDay}`;
+
+        // 查询指定日期范围内的所有记录
+        const workouts = await this.workoutModel
+            .find({
+                date: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            })
+            .sort({ date: -1, _id: -1 })
+            .exec();
+
+        // 按日期分组
+        const groupedWorkouts = workouts.reduce((acc, workout) => {
+            if (!acc[workout.date]) {
+                acc[workout.date] = [];
+            }
+            acc[workout.date].push(workout);
+            return acc;
+        }, {} as Record<string, Workout[]>);
+
+        return {
+            data: groupedWorkouts,
+            total: workouts.length
+        };
+    }
 }

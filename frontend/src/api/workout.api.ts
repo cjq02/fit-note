@@ -89,3 +89,21 @@ export const getWorkoutsGroupByDate = async (params?: {
 }): Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>> => {
   return http.get('/api/workouts/group-by-date', { params });
 };
+
+/**
+ * 按年月获取训练记录列表
+ *
+ * @param {object} params - 查询参数
+ * @param {string} params.year - 年份，格式：YYYY，例如：2024
+ * @param {string} params.month - 月份，格式：MM，例如：03
+ * @returns {Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>>} 按日期分组的训练记录
+ * @example
+ * // 获取2024年3月的训练记录
+ * const response = await getWorkoutsByYearMonth({ year: '2024', month: '03' });
+ */
+export const getWorkoutsByYearMonth = async (params: {
+  year: string;
+  month: string;
+}): Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>> => {
+  return http.get('/api/workouts/by-year-month', { params });
+};

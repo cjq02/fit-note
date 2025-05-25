@@ -1,5 +1,7 @@
 import { Calendar, Card, List } from 'antd-mobile';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getWorkoutsGroupByDate } from '@/api/workout.api';
+import type { Workout } from '@/@typings/types.d.ts';
 
 /**
  * 训练日程页面组件
@@ -9,29 +11,35 @@ import { useState } from 'react';
 export const Schedule = () => {
   // 当前选中的日期
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  // 训练数据
+  const [workoutData, setWorkoutData] = useState<Record<string, Workout[]>>({});
+  // 加载状态
+  const [loading, setLoading] = useState(false);
 
-  // 模拟数据
-  const scheduleData = [
-    {
-      date: '2024-03-20',
-      items: [
-        { time: '09:00', title: '俯卧撑', sets: 3, reps: 20 },
-        { time: '15:00', title: '健腹轮', sets: 2, reps: 15 },
-      ],
-    },
-    {
-      date: '2024-03-21',
-      items: [
-        { time: '10:00', title: '引体向上', sets: 3, reps: 10 },
-        { time: '16:00', title: '深蹲', sets: 4, reps: 25 },
-      ],
-    },
-  ];
+  // 获取训练数据
+  const fetchWorkoutData = async () => {
+    try {
+      setLoading(true);
+      const response = await getWorkoutsGroupByDate();
+      if (response.code === 0 && response.data) {
+        setWorkoutData(response.data.data);
+      }
+    } catch (error) {
+      console.error('获取训练数据失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 组件加载时获取数据
+  useEffect(() => {
+    fetchWorkoutData();
+  }, []);
 
   // 获取选中日期的训练计划
   const getSelectedDateSchedule = () => {
     const dateStr = selectedDate.toISOString().split('T')[0];
-    return scheduleData.find(item => item.date === dateStr)?.items || [];
+    return workoutData[dateStr] || [];
   };
 
   return (
@@ -49,16 +57,25 @@ export const Schedule = () => {
         {/* 训练计划列表 */}
         <Card title="训练计划" className="mb-4">
           <List>
-            {getSelectedDateSchedule().map((item, index) => (
-              <List.Item
-                key={index}
-                prefix={item.time}
-                description={`${item.sets}组 × ${item.reps}次`}
-              >
-                {item.title}
-              </List.Item>
-            ))}
-            {getSelectedDateSchedule().length === 0 && <List.Item>暂无训练计划</List.Item>}
+            {loading ? (
+              <List.Item>加载中...</List.Item>
+            ) : (
+              <>
+                {getSelectedDateSchedule().map((item, index) => (
+                  <List.Item
+                    key={index}
+                    prefix={new Date(item.createdAt).toLocaleTimeString('zh-CN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                    description={`${item.groups.length}组`}
+                  >
+                    {item.project}
+                  </List.Item>
+                ))}
+                {getSelectedDateSchedule().length === 0 && <List.Item>暂无训练计划</List.Item>}
+              </>
+            )}
           </List>
         </Card>
       </div>
