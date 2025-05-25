@@ -1,60 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  Card,
-  Dialog,
-  Empty,
-  InfiniteScroll,
-  List,
-  Space,
-  SwipeAction,
-  Tag,
-  Toast,
-} from 'antd-mobile';
+import { Card, Dialog, ErrorBlock, InfiniteScroll, List, SwipeAction, Toast } from 'antd-mobile';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
+import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { deleteWorkout, getWorkoutsGroupByDate } from '@/api/workout.api';
-
-interface ApiResponse {
-  data: Record<string, WorkoutType[]>;
-  total: number;
-}
-
-/**
- * 计算训练项目在当前日期的次数
- *
- * @param {Record<string, WorkoutType[]>} workouts - 按日期分组的训练记录
- * @param {string} currentDate - 当前日期
- * @returns {Record<string, number>} 训练项目及其次数
- */
-const calculateProjectCounts = (
-  workouts: Record<string, WorkoutType[]>,
-  currentDate: string,
-): Record<string, number> => {
-  const counts: Record<string, number> = {};
-
-  // 获取当前日期的训练记录
-  const currentWorkouts = workouts[currentDate] || [];
-
-  // 统计每个项目的次数
-  currentWorkouts.forEach(workout => {
-    counts[workout.project] = (counts[workout.project] || 0) + 1;
-  });
-
-  return counts;
-};
-
-/**
- * 计算训练项目在当前日期的次数
- *
- * @param {WorkoutType[]} workouts - 当前日期的训练记录
- * @param {string} project - 训练项目名称
- * @returns {number} 训练次数
- */
-const calculateProjectCount = (workouts: WorkoutType[], project: string): number => {
-  return workouts.filter(workout => workout.project === project).length;
-};
 
 /**
  * 计算训练项目的总训练量（组数 × 次数）
@@ -87,17 +37,18 @@ export const Workout = () => {
   const [isLoading, setIsLoading] = useState(false);
   const isFirstLoad = useRef(true);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [currentDate, setCurrentDate] = useState<string>('');
 
   // 获取按日期分组的训练记录
-  const { data: groupedWorkoutsData, refetch } = useQuery<ApiResponse>({
+  const { data: groupedWorkoutsData, refetch } = useQuery<
+    ApiResponse<{ data: Record<string, WorkoutType[]>; total: number }>
+  >({
     queryKey: ['workouts', 'group-by-date', page],
     queryFn: async () => {
       const response = await getWorkoutsGroupByDate({
         page,
         pageSize,
       });
-      return response.data;
+      return response;
     },
     staleTime: 0, // 数据立即过期
     gcTime: 0, // 不缓存数据
@@ -108,16 +59,11 @@ export const Workout = () => {
   useEffect(() => {
     if (groupedWorkoutsData) {
       if (page === 1) {
-        setAllWorkouts(groupedWorkoutsData.data);
-        // 设置当前日期为第一条数据的日期
-        const firstDate = Object.keys(groupedWorkoutsData.data)[0];
-        if (firstDate) {
-          setCurrentDate(firstDate);
-        }
+        setAllWorkouts(groupedWorkoutsData.data.data);
       } else {
         // 合并新数据
         const newWorkouts = { ...allWorkouts };
-        Object.entries(groupedWorkoutsData.data).forEach(([date, workouts]) => {
+        Object.entries(groupedWorkoutsData.data.data).forEach(([date, workouts]) => {
           if (newWorkouts[date]) {
             newWorkouts[date] = [...newWorkouts[date], ...workouts];
           } else {
@@ -126,7 +72,7 @@ export const Workout = () => {
         });
         setAllWorkouts(newWorkouts);
       }
-      hasMore.current = groupedWorkoutsData.total > page * pageSize;
+      hasMore.current = groupedWorkoutsData.data.total > page * pageSize;
     }
   }, [groupedWorkoutsData, page]);
 
@@ -334,12 +280,7 @@ export const Workout = () => {
         {/* 空状态 */}
         {(!allWorkouts || Object.keys(allWorkouts).length === 0) && !isLoading && (
           <div className="flex flex-col items-center justify-center py-16">
-            <Empty
-              description="暂无训练记录"
-              imageStyle={{
-                width: '120px',
-              }}
-            />
+            <ErrorBlock status="empty" description="暂无训练记录" />
           </div>
         )}
       </div>

@@ -3,19 +3,19 @@ import {
   Button,
   Card,
   Dialog,
-  Empty,
-  Popup,
-  Toast,
-  Skeleton,
-  PullToRefresh,
+  ErrorBlock,
   FloatingBubble,
+  Popup,
+  PullToRefresh,
+  Skeleton,
+  Toast,
 } from 'antd-mobile';
 import { AddOutline, DeleteOutline, EditSOutline, StarOutline } from 'antd-mobile-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
 import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
+import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
 import { ProjectForm } from './ProjectForm';
 
 interface ApiResponse<T> {
@@ -243,7 +243,12 @@ export const ProjectList = () => {
             </div>
           ) : projects.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <Empty description="暂无训练项目" imageStyle={{ width: 160 }} className="py-8" />
+              <ErrorBlock
+                status="empty"
+                description="暂无训练项目"
+                style={{ '--image-height': '160px' }}
+                className="py-8"
+              />
               <Button color="primary" className="mt-4" onClick={() => setShowForm(true)}>
                 创建第一个项目
               </Button>

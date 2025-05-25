@@ -1,3 +1,11 @@
+// API 响应类型
+export interface ApiResponse<T> {
+  code: number;
+  data: T;
+  message: string;
+  total: number;
+}
+
 // 训练记录类型
 export interface Workout {
   id: string;
@@ -29,13 +37,6 @@ export interface CreateWorkoutRequest {
 // 更新训练记录的请求参数
 export interface UpdateWorkoutRequest extends CreateWorkoutRequest {
   id: string;
-}
-
-// API 响应类型
-export interface ApiResponse<T> {
-  code: number;
-  data: T;
-  message: string;
 }
 
 // 训练项目类型
