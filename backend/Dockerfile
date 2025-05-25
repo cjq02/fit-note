@@ -6,14 +6,11 @@ WORKDIR /app
 # 安装 pnpm
 RUN npm install -g pnpm
 
-# 复制 package.json 和 pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
-
-# 安装依赖
-RUN pnpm install
-
-# 复制源代码
+# 复制整个项目文件
 COPY . .
+
+# 安装所有依赖
+RUN pnpm install
 
 # 构建应用
 RUN pnpm build
@@ -26,15 +23,15 @@ WORKDIR /app
 # 安装 pnpm
 RUN npm install -g pnpm
 
-# 复制 package.json 和 pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+# 复制整个项目文件
+COPY . .
 
 # 只安装生产依赖
 RUN pnpm install --prod
 
 # 从构建阶段复制构建产物
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/backend/dist ./dist
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"] 
+CMD ["node", "dist/main"]
