@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, useNavigate } from 'react-router-dom';
 import type { RouteObject } from 'react-router-dom';
 
 import { App } from './App';
@@ -17,6 +17,7 @@ import { Schedule } from './pages/workout/Schedule';
 type CustomRouteObject = RouteObject & {
   title?: string;
   children?: CustomRouteObject[];
+  onBack?: () => void;
 };
 
 // 路由守卫组件

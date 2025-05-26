@@ -8,17 +8,11 @@ import {
   Popup,
   PullToRefresh,
   Skeleton,
-  Toast,
   SwipeAction,
   Tag,
+  Toast,
 } from 'antd-mobile';
-import {
-  AddOutline,
-  DeleteOutline,
-  EditSOutline,
-  StarOutline,
-  ClockCircleOutline,
-} from 'antd-mobile-icons';
+import { AddOutline, ClockCircleOutline, StarOutline } from 'antd-mobile-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -167,7 +161,7 @@ export const ProjectList = (): React.ReactElement => {
     (project: Project) => {
       if (project.todayWorkoutId) {
         // 如果存在当天的训练记录，进入编辑页面
-        navigate(`/workout/${project.todayWorkoutId}`);
+        navigate(`/workout/edit/${project.todayWorkoutId}`);
       } else {
         // 如果不存在当天的训练记录，进入新增页面
         navigate(

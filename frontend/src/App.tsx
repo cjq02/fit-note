@@ -28,6 +28,7 @@ const tabs = [
 type CustomRouteObject = RouteObject & {
   title?: string;
   children?: CustomRouteObject[];
+  onBack?: () => void;
 };
 
 /**
@@ -45,26 +46,32 @@ export const App = () => {
   }
 
   /**
-   * 获取当前页面的标题
+   * 获取当前页面的标题和回退事件
    *
-   * @returns {string} 页面标题
+   * @returns {{ title: string; onBack?: () => void }} 页面标题和回退事件
    */
-  const getPageTitle = () => {
+  const getPageConfig = () => {
     const matches = matchRoutes(router.routes, location);
-    if (!matches) return 'Fit Note';
+    if (!matches) return { title: 'Fit Note' };
 
     // 获取最后一个匹配的路由（最具体的路由）
     const lastMatch = matches[matches.length - 1];
-    return (lastMatch.route as CustomRouteObject).title || 'Fit Note';
+    const route = lastMatch.route as CustomRouteObject;
+    return {
+      title: route.title || 'Fit Note',
+      onBack: route.onBack,
+    };
   };
+
+  const pageConfig = getPageConfig();
 
   return (
     <div className="flex flex-col h-screen">
       <NavBar
         className="flex-none bg-white border-b border-[var(--adm-color-border)]"
-        onBack={() => navigate(-1)}
+        onBack={pageConfig.onBack || (() => navigate(-1))}
       >
-        {getPageTitle()}
+        {pageConfig.title}
       </NavBar>
       <div className="flex-1 overflow-y-auto pb-[50px] container">
         <Outlet />

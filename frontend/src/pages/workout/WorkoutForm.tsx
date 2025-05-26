@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, DatePicker, Form, Input, Radio, Toast, SwipeAction } from 'antd-mobile';
+import { Button, DatePicker, Dialog, Form, Input, Radio, SwipeAction, Toast } from 'antd-mobile';
 import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import type {
   ApiResponse,
@@ -11,7 +11,7 @@ import type {
   Workout,
   WorkoutGroup,
 } from '@/@typings/types.d.ts';
-import { createWorkout, getWorkout, updateWorkout, findByDateAndProject } from '@/api/workout.api';
+import { createWorkout, findByDateAndProject, getWorkout, updateWorkout } from '@/api/workout.api';
 
 const UNIT_OPTIONS = [
   { label: 'kg', value: 'kg' },
@@ -85,6 +85,75 @@ export const WorkoutForm = () => {
     }
   }, [workoutData, dateWorkoutData, id]);
 
+  // 组表单初始值
+  const [groups, setGroups] = useState<
+    Array<{
+      reps: string;
+      weight: string;
+      seqNo: number;
+    }>
+  >([{ reps: '', weight: '0', seqNo: 1 }]);
+
+  // 检查表单是否有修改
+  const [isFormModified, setIsFormModified] = useState(false);
+
+  // 监听表单变化
+  useEffect(() => {
+    const originalData = id ? workoutData?.data : dateWorkoutData;
+    if (originalData) {
+      const currentData = {
+        date: dayjs(date).format('YYYY-MM-DD'),
+        unit,
+        groups: groups.map(g => ({
+          reps: parseInt(g.reps, 10),
+          weight: parseFloat(g.weight),
+          seqNo: g.seqNo,
+        })),
+      };
+      const originalFormData = {
+        date: originalData.date,
+        unit: originalData.unit,
+        groups: originalData.groups.map(g => ({
+          reps: g.reps,
+          weight: g.weight,
+          seqNo: g.seqNo,
+        })),
+      };
+      setIsFormModified(JSON.stringify(currentData) !== JSON.stringify(originalFormData));
+    }
+  }, [date, unit, groups, workoutData, dateWorkoutData, id]);
+
+  // 监听浏览器回退事件
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isFormModified) {
+        Dialog.confirm({
+          content: '表单已修改，确定要放弃修改吗？',
+          onConfirm: () => {
+            // 根据当前路由路径决定返回目标
+            if (location.pathname.includes('/workout/new')) {
+              navigate('/project', { replace: true });
+            } else {
+              navigate('/workout', { replace: true });
+            }
+          },
+        });
+      } else {
+        // 根据当前路由路径决定返回目标
+        if (location.pathname.includes('/workout/new')) {
+          navigate('/project', { replace: true });
+        } else {
+          navigate('/workout', { replace: true });
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate, isFormModified, fromPage]);
+
   // 创建训练记录
   const createMutation = useMutation({
     /**
@@ -135,15 +204,6 @@ export const WorkoutForm = () => {
       Toast.show({ icon: 'fail', content: error.response?.data?.message || '更新失败' });
     },
   });
-
-  // 组表单初始值
-  const [groups, setGroups] = useState<
-    Array<{
-      reps: string;
-      weight: string;
-      seqNo: number;
-    }>
-  >([{ reps: '', weight: '0', seqNo: 1 }]);
 
   /**
    * 处理组的变化
@@ -269,10 +329,19 @@ export const WorkoutForm = () => {
   };
 
   /**
-   * 返回到项目列表页面并刷新数据
+   * 返回到训练计划页面
    */
   const handleBack = () => {
-    navigate(`/${fromPage}`, { replace: true });
+    if (isFormModified) {
+      Dialog.confirm({
+        content: '表单已修改，确定要放弃修改吗？',
+        onConfirm: () => {
+          navigate(fromPage === 'project' ? '/project' : '/workout', { replace: true });
+        },
+      });
+    } else {
+      navigate(fromPage === 'project' ? '/project' : '/workout', { replace: true });
+    }
   };
 
   return (
