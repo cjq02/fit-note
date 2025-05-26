@@ -9,8 +9,16 @@ import {
   PullToRefresh,
   Skeleton,
   Toast,
+  SwipeAction,
+  Tag,
 } from 'antd-mobile';
-import { AddOutline, DeleteOutline, EditSOutline, StarOutline } from 'antd-mobile-icons';
+import {
+  AddOutline,
+  DeleteOutline,
+  EditSOutline,
+  StarOutline,
+  ClockCircleOutline,
+} from 'antd-mobile-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,16 +26,12 @@ import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
 import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
 import { ProjectForm } from './ProjectForm';
 
-interface ApiResponse<T> {
-  data: T;
-}
-
 /**
  * 训练项目列表页面组件
  *
  * @returns {JSX.Element} 项目列表页面
  */
-export const ProjectList = () => {
+export const ProjectList = (): React.ReactElement => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -182,57 +186,98 @@ export const ProjectList = () => {
    */
   const renderProjectCard = useCallback(
     (project: Project) => (
-      <Card
+      <SwipeAction
         key={project.id}
-        className="rounded-xl shadow-lg active:opacity-80 cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50"
-        onClick={() => handleCardClick(project)}
+        rightActions={[
+          {
+            key: 'edit',
+            text: '编辑',
+            color: 'primary',
+            onClick: e => {
+              e.stopPropagation();
+              handleEdit(project);
+            },
+          },
+          {
+            key: 'delete',
+            text: '删除',
+            color: 'danger',
+            onClick: e => {
+              e.stopPropagation();
+              handleDelete(project);
+            },
+          },
+        ]}
       >
-        <div className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <div className="font-medium text-lg text-gray-800">{project.name}</div>
+        <Card
+          className="rounded-xl active:opacity-80 cursor-pointer transition-all duration-300
+            bg-white
+            shadow-[0_4px_12px_rgba(0,0,0,0.05),0_8px_24px_rgba(0,0,0,0.08)]
+            hover:shadow-[0_8px_24px_rgba(0,0,0,0.08),0_16px_48px_rgba(0,0,0,0.12)]
+            hover:-translate-y-0.5"
+          onClick={() => handleCardClick(project)}
+        >
+          <div className="p-4">
+            <div className="flex items-start gap-3">
+              {/* 项目图标/封面 */}
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-md">
+                {project.name.charAt(0).toUpperCase()}
+              </div>
+
+              {/* 项目信息 */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="font-medium text-lg text-gray-800 truncate">{project.name}</div>
+                  {project.todayWorkoutId && (
+                    <Tag color="warning" className="flex items-center gap-1">
+                      <StarOutline className="text-xs" />
+                      今日已训练
+                    </Tag>
+                  )}
+                </div>
+
+                {project.description && (
+                  <div className="text-sm text-gray-500 mt-1 line-clamp-2">
+                    {project.description}
+                  </div>
+                )}
+
+                {/* 项目统计信息 */}
+                <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                  <div className="flex items-center gap-1">
+                    <ClockCircleOutline className="text-base" />
+                    <span>创建于: {new Date(project.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  {project.updatedAt !== project.createdAt && (
+                    <div className="flex items-center gap-1">
+                      <StarOutline className="text-base" />
+                      <span>更新于: {new Date(project.updatedAt).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 训练进度 */}
                 {project.todayWorkoutId && (
-                  <StarOutline className="text-yellow-500 animate-pulse" />
+                  <div className="mt-2">
+                    <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full"
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
-              {project.description && (
-                <div className="text-sm text-gray-500 mt-2 line-clamp-2">{project.description}</div>
-              )}
-            </div>
-            <div className="flex gap-2 ml-4">
-              <Button
-                fill="none"
-                size="mini"
-                className="text-blue-500 hover:bg-blue-50 rounded-full"
-                onClick={e => {
-                  e.stopPropagation();
-                  handleEdit(project);
-                }}
-              >
-                <EditSOutline />
-              </Button>
-              <Button
-                fill="none"
-                size="mini"
-                className="text-red-500 hover:bg-red-50 rounded-full"
-                onClick={e => {
-                  e.stopPropagation();
-                  handleDelete(project);
-                }}
-              >
-                <DeleteOutline />
-              </Button>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </SwipeAction>
     ),
     [handleCardClick, handleEdit, handleDelete],
   );
 
   return (
-    <div className="page-container bg-gradient-to-b from-gray-50 to-white">
+    <div className="page-container bg-gradient-to-b from-gray-100 to-gray-200">
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="p-4 max-w-2xl mx-auto">
           {isLoading ? (
