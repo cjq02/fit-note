@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-import type { ApiResponse } from '../api/types';
+import type { ApiResponse } from '@/@typings/types.d';
 
 // 创建 axios 实例
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

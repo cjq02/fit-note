@@ -257,6 +257,29 @@ docker builder prune -f
 - 后端 API：http://localhost/api
 - MongoDB：mongodb://localhost:27017
 
+### MongoDB 连接信息
+
+#### 连接字符串
+```
+mongodb://admin:password123@localhost:27017/fit-note?authSource=admin
+```
+
+#### VSCode 连接步骤
+1. 安装 MongoDB for VS Code 扩展
+2. 点击左侧 MongoDB 图标
+3. 点击 "Add Connection"
+4. 选择 "Connection String"
+5. 输入连接字符串
+6. 点击 "Connect"
+
+#### 连接参数说明
+- 主机：localhost
+- 端口：27017
+- 数据库：fit-note
+- 用户名：admin
+- 密码：password123
+- 认证数据库：admin
+
 ### 环境变量
 生产环境需要设置以下环境变量：
 - `MONGODB_URI`：MongoDB 连接地址
