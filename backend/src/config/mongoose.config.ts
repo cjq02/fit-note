@@ -25,8 +25,8 @@ const idTransformPlugin = (schema: mongoose.Schema) => {
 mongoose.plugin(idTransformPlugin);
 
 export const mongooseConfig: MongooseModuleOptions = {
-    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/fit-note',
+    uri: process.env.MONGODB_URI || 'mongodb://8.134.250.114:27017/fit-note',
     user: process.env.MONGODB_USER || 'admin',
     pass: process.env.MONGODB_PASS || 'password123',
     authSource: process.env.MONGODB_AUTH_SOURCE || 'admin',
-}; 
+};
