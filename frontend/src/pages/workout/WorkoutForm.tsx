@@ -3,7 +3,7 @@ import { Button, DatePicker, Form, Input, Radio, Toast, SwipeAction } from 'antd
 import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
 
 import type {
   ApiResponse,
@@ -27,6 +27,10 @@ export const WorkoutForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+
+  // 获取来源页面
+  const fromPage = location.state?.from || 'project';
 
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
@@ -101,8 +105,11 @@ export const WorkoutForm = () => {
       Toast.show({ icon: 'success', content: '创建成功' });
       // 重置表单数据，但保持当前日期
       setGroups([{ reps: '', weight: '0', seqNo: 1 }]);
-      // 重定向到编辑页面
-      navigate(`/workout/edit/${response.data.id}`);
+      // 重定向到编辑页面，替换当前历史记录，并传递来源页面
+      navigate(`/workout/edit/${response.data.id}`, {
+        replace: true,
+        state: { from: fromPage },
+      });
     },
     /**
      * 创建失败回调
@@ -160,6 +167,14 @@ export const WorkoutForm = () => {
     // 获取上一组的数据
     const lastGroup = groups[groups.length - 1];
     setGroups([...groups, { reps: lastGroup.reps, weight: lastGroup.weight, seqNo: newSeqNo }]);
+
+    // 使用 setTimeout 确保在 DOM 更新后执行滚动
+    window.setTimeout(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      });
+    }, 100);
   };
 
   /**
@@ -190,7 +205,10 @@ export const WorkoutForm = () => {
 
         if (workout) {
           // 如果找到记录，重定向到编辑页面
-          navigate(`/workout/edit/${workout.id}`);
+          navigate(`/workout/edit/${workout.id}`, {
+            replace: false,
+            state: { from: fromPage },
+          });
           // 重新加载编辑页面的数据
           queryClient.invalidateQueries({ queryKey: ['workout', workout.id] });
         } else {
@@ -198,7 +216,10 @@ export const WorkoutForm = () => {
           const targetDate = dayjs(newDate).format('YYYY-MM-DD');
           navigate(
             `/workout/new?projectName=${projectName}&projectId=${projectId}&date=${targetDate}`,
-            { replace: true },
+            {
+              replace: false,
+              state: { from: fromPage },
+            },
           );
           // 重新加载新建页面的数据
           refetchDateWorkout();
@@ -251,7 +272,7 @@ export const WorkoutForm = () => {
    * 返回到项目列表页面并刷新数据
    */
   const handleBack = () => {
-    navigate('/project', { replace: true });
+    navigate(`/${fromPage}`, { replace: true });
   };
 
   return (
@@ -288,21 +309,22 @@ export const WorkoutForm = () => {
 
           {/* 重量单位卡片 */}
           <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
-            <Form.Item label="重量单位">
+            <div className="flex items-center gap-6">
+              <span className="text-[var(--adm-color-text)] whitespace-nowrap">重量单位</span>
               <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
-                <div className="flex gap-4">
+                <div className="flex gap-6">
                   {UNIT_OPTIONS.map(opt => (
                     <Radio
                       key={opt.value}
                       value={opt.value}
-                      className="flex-1 h-[40px] rounded-lg border border-solid border-[var(--adm-color-border)] data-[checked=true]:border-[var(--adm-color-primary)] data-[checked=true]:bg-[var(--adm-color-primary-light)]"
+                      className="flex-1 h-[32px] rounded-lg border border-solid border-[var(--adm-color-border)] data-[checked=true]:border-[var(--adm-color-primary)] data-[checked=true]:bg-[var(--adm-color-primary-light)]"
                     >
                       {opt.label}
                     </Radio>
                   ))}
                 </div>
               </Radio.Group>
-            </Form.Item>
+            </div>
           </div>
 
           {/* 训练组列表 */}
@@ -344,6 +366,11 @@ export const WorkoutForm = () => {
                         placeholder="请输入次数"
                         value={group.reps}
                         onChange={val => {
+                          // 允许清空输入
+                          if (val === '') {
+                            handleGroupChange(idx, 'reps', '');
+                            return;
+                          }
                           // 只允许输入整数
                           const num = parseInt(val.replace(/[^\d]/g, ''), 10);
                           if (!isNaN(num)) {
