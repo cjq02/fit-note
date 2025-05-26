@@ -15,8 +15,11 @@ services:
     networks:
       - fit-note-network
     restart: always
+    network_mode: "host"
     security_opt:
       - no-new-privileges:true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   app:
     build:
