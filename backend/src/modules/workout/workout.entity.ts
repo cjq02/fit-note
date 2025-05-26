@@ -18,6 +18,9 @@ export class WorkoutGroup {
 
 @Schema({ timestamps: true })
 export class Workout {
+    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+    userId: Types.ObjectId;
+
     @Prop({ required: true })
     date: string;
 

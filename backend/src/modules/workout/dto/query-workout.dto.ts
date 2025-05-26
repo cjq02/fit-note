@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber, Min, Max } from 'class-validator';
+import { IsOptional, IsString, IsNumber, Min, Max, IsMongoId } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class QueryWorkoutDto {
@@ -9,6 +9,10 @@ export class QueryWorkoutDto {
     @IsOptional()
     @IsString()
     project?: string;
+
+    @IsOptional()
+    @IsMongoId()
+    userId?: string;
 
     @IsOptional()
     @IsNumber()

@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -6,12 +7,13 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { Project } from './project.entity';
 
 @Controller('projects')
+@UseGuards(JwtAuthGuard)
 export class ProjectController {
     constructor(private readonly projectService: ProjectService) { }
 
     @Get()
-    findAll(): Promise<Project[]> {
-        return this.projectService.findAll();
+    findAll(@Request() req): Promise<Project[]> {
+        return this.projectService.findAll(req.user.id);
     }
 
     @Get(':id')
@@ -36,4 +38,4 @@ export class ProjectController {
     remove(@Param('id') id: string): Promise<void> {
         return this.projectService.remove(id);
     }
-} 
+}

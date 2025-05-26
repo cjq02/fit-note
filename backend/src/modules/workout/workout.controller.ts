@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query, BadRequestException, Request, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { WorkoutService } from './workout.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
@@ -7,12 +8,13 @@ import { QueryWorkoutDto } from './dto/query-workout.dto';
 import { Workout } from './workout.entity';
 
 @Controller('workouts')
+@UseGuards(JwtAuthGuard)
 export class WorkoutController {
     constructor(private readonly workoutService: WorkoutService) { }
 
     @Get()
-    findAll(): Promise<Workout[]> {
-        return this.workoutService.findAll();
+    findAll(@Request() req): Promise<Workout[]> {
+        return this.workoutService.findAll(req.user.id);
     }
 
     /**
@@ -29,12 +31,14 @@ export class WorkoutController {
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
         @Query('project') project: string,
+        @Request() req
     ): Promise<{ data: Record<string, Workout[]>; total: number }> {
         const query: QueryWorkoutDto = {
             page: Number(page) || 1,
             pageSize: Number(pageSize) || 10,
             date,
-            project
+            project,
+            userId: req.user.id
         };
 
         return this.workoutService.findAllGroupByDate(query);
@@ -50,8 +54,9 @@ export class WorkoutController {
     findByDateAndProject(
         @Query('date') date: string,
         @Query('projectId') projectId: string,
+        @Request() req
     ): Promise<Workout | null> {
-        return this.workoutService.findByDateAndProject(date, projectId);
+        return this.workoutService.findByDateAndProject(date, projectId, req.user.id);
     }
 
     /**
@@ -64,33 +69,41 @@ export class WorkoutController {
     findByYearMonth(
         @Query('year') year: string,
         @Query('month') month: string,
+        @Request() req
     ): Promise<{ data: Record<string, Workout[]>; total: number }> {
         if (!year || !month) {
             throw new BadRequestException('年份和月份不能为空');
         }
-        return this.workoutService.findByYearMonth(year, month);
+        return this.workoutService.findByYearMonth(year, month, req.user.id);
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string): Promise<Workout> {
-        return this.workoutService.findOne(id);
+    findOne(@Param('id') id: string, @Request() req): Promise<Workout> {
+        return this.workoutService.findOne(id, req.user.id);
     }
 
+    /**
+     * 创建训练记录
+     * @param {CreateWorkoutDto} createWorkoutDto - 创建训练记录的数据
+     * @param {Request} req - 请求对象
+     * @returns {Promise<Workout>} 创建的训练记录
+     */
     @Post()
-    create(@Body() createWorkoutDto: CreateWorkoutDto): Promise<Workout> {
-        return this.workoutService.create(createWorkoutDto);
+    create(@Body() createWorkoutDto: CreateWorkoutDto, @Request() req): Promise<Workout> {
+        return this.workoutService.create(createWorkoutDto, req.user.id);
     }
 
     @Put(':id')
     update(
         @Param('id') id: string,
         @Body() updateWorkoutDto: UpdateWorkoutDto,
+        @Request() req
     ): Promise<Workout> {
-        return this.workoutService.update(id, updateWorkoutDto);
+        return this.workoutService.update(id, updateWorkoutDto, req.user.id);
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string): Promise<void> {
-        return this.workoutService.remove(id);
+    remove(@Param('id') id: string, @Request() req): Promise<void> {
+        return this.workoutService.remove(id, req.user.id);
     }
 }

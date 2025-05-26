@@ -18,13 +18,13 @@ export class WorkoutService {
     ) { }
 
     // 获取所有训练记录
-    async findAll(): Promise<Workout[]> {
-        return this.workoutModel.find().sort({ date: -1 }).exec();
+    async findAll(userId: string): Promise<Workout[]> {
+        return this.workoutModel.find({ userId }).sort({ date: -1 }).exec();
     }
 
     // 获取单个训练记录
-    async findOne(id: string): Promise<Workout> {
-        const workout = await this.workoutModel.findById(id).exec();
+    async findOne(id: string, userId: string): Promise<Workout> {
+        const workout = await this.workoutModel.findOne({ _id: id, userId }).exec();
         if (!workout) {
             throw new NotFoundException('训练记录不存在');
         }
@@ -32,26 +32,30 @@ export class WorkoutService {
     }
 
     // 创建训练记录
-    async create(createWorkoutDto: CreateWorkoutDto): Promise<Workout> {
+    // @param {CreateWorkoutDto} createWorkoutDto - 创建训练记录的数据
+    // @param {string} userId - 用户ID
+    // @returns {Promise<Workout>} 创建的训练记录
+    async create(createWorkoutDto: CreateWorkoutDto, userId: string): Promise<Workout> {
         // 验证训练项目是否存在
         await this.projectService.findOne(createWorkoutDto.projectId);
 
         const workout = new this.workoutModel({
             ...createWorkoutDto,
             projectId: createWorkoutDto.projectId,
+            userId,
         });
         return await workout.save();
     }
 
     // 更新训练记录
-    async update(id: string, updateWorkoutDto: UpdateWorkoutDto): Promise<Workout> {
+    async update(id: string, updateWorkoutDto: UpdateWorkoutDto, userId: string): Promise<Workout> {
         if (updateWorkoutDto.projectId) {
             // 验证训练项目是否存在
             await this.projectService.findOne(updateWorkoutDto.projectId);
         }
 
-        const workout = await this.workoutModel.findByIdAndUpdate(
-            id,
+        const workout = await this.workoutModel.findOneAndUpdate(
+            { _id: id, userId },
             updateWorkoutDto,
             { new: true }
         ).exec();
@@ -64,18 +68,19 @@ export class WorkoutService {
     }
 
     // 删除训练记录
-    async remove(id: string): Promise<void> {
-        const result = await this.workoutModel.findByIdAndDelete(id).exec();
-        if (!result) {
+    async remove(id: string, userId: string): Promise<void> {
+        const result = await this.workoutModel.deleteOne({ _id: id, userId }).exec();
+        if (result.deletedCount === 0) {
             throw new NotFoundException('训练记录不存在');
         }
     }
 
     // 根据日期和项目ID查询训练记录
-    async findByDateAndProject(date: string, projectId: string): Promise<Workout | null> {
+    async findByDateAndProject(date: string, projectId: string, userId: string): Promise<Workout | null> {
         return this.workoutModel.findOne({
             date,
             projectId,
+            userId
         }).exec();
     }
 
@@ -92,7 +97,7 @@ export class WorkoutService {
         hasMore: boolean;
     }> {
         // 构建查询条件
-        const conditions: any = {};
+        const conditions: any = { userId: query.userId };
         if (query.date) {
             conditions.date = query.date;
         }
@@ -152,10 +157,11 @@ export class WorkoutService {
      * 按年月获取训练记录
      * @param {string} year - 年份
      * @param {string} month - 月份
+     * @param {string} userId - 用户ID
      * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
      * @throws {BadRequestException} 当年月参数无效时抛出异常
      */
-    async findByYearMonth(year: string, month: string): Promise<{
+    async findByYearMonth(year: string, month: string, userId: string): Promise<{
         data: Record<string, Workout[]>;
         total: number;
     }> {
@@ -187,7 +193,8 @@ export class WorkoutService {
                 date: {
                     $gte: startDate,
                     $lte: endDate
-                }
+                },
+                userId
             })
             .sort({ date: -1, _id: -1 })
             .exec();

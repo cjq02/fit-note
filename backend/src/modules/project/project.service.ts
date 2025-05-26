@@ -22,8 +22,9 @@ export class ProjectService {
     ) { }
 
     // 获取所有训练项目
+    // @param {string} userId - 用户ID
     // @returns {Promise<Project[]>} 返回所有训练项目，每个项目包含当天的训练记录ID（如果存在）
-    async findAll(): Promise<(Project & { todayWorkoutId?: string })[]> {
+    async findAll(userId: string): Promise<(Project & { todayWorkoutId?: string })[]> {
         // 获取所有项目
         const projects = await this.projectModel.find().sort({ createdAt: -1 }).exec();
 
@@ -35,7 +36,8 @@ export class ProjectService {
             projects.map(async (project) => {
                 const todayWorkout = await this.workoutService.findByDateAndProject(
                     today,
-                    project.id
+                    project.id,
+                    userId
                 ) as WorkoutWithId | null;
                 return {
                     ...project.toObject(),
