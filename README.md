@@ -247,10 +247,49 @@ docker system df
 
 # 清理未使用的 Docker 资源（不会影响正在运行的容器）
 docker system prune -f
-
-# 清理构建缓存
-docker builder prune -f
 ```
+
+### 重新部署指南
+
+根据不同的修改情况，选择以下相应的重新部署方式：
+
+1. 仅更新源代码（未修改依赖和数据库）
+```bash
+# 只重启应用服务
+docker-compose -f docker-compose.prod.yml restart app
+```
+
+2. 修改了依赖（package.json）或 Dockerfile
+```bash
+# 停止服务
+docker-compose -f docker-compose.prod.yml down
+
+# 重新构建并启动服务
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+3. 修改了 docker-compose.prod.yml 配置
+```bash
+# 停止服务
+docker-compose -f docker-compose.prod.yml down
+
+# 重新启动服务（不重新构建）
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+4. 需要完全重置（包括数据库）
+```bash
+# 停止所有服务并删除所有数据
+docker-compose -f docker-compose.prod.yml down -v
+
+# 重新构建并启动服务
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+注意：
+- 使用 `restart` 命令是最轻量级的重启方式，不会影响数据
+- 使用 `--build` 参数会重新构建镜像，包括重新安装依赖
+- 使用 `-v` 参数会删除所有数据卷，包括数据库数据，请谨慎使用
 
 ### 访问服务
 - 前端页面：http://localhost
