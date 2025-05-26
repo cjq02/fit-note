@@ -12,14 +12,10 @@ services:
     command: mongod --bind_ip_all --auth
     volumes:
       - mongodb_data:/data/db
-    networks:
-      - fit-note-network
-    restart: always
     network_mode: "host"
+    restart: always
     security_opt:
       - no-new-privileges:true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   app:
     build:
@@ -31,7 +27,7 @@ services:
       - "80:80"
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://mongodb:27017/fit-note
+      - MONGODB_URI=mongodb://localhost:27017/fit-note
       - MONGODB_USER=admin
       - MONGODB_PASS=password123
       - MONGODB_AUTH_SOURCE=admin
