@@ -1,4 +1,4 @@
-import { Card, Grid, Space, Tag } from 'antd-mobile';
+import { Card, Grid, Space } from 'antd-mobile';
 import {
   CalendarOutline,
   HeartOutline,
@@ -9,6 +9,10 @@ import {
   VideoOutline,
 } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';
+import { getWorkoutsGroupByDate } from '@/api/workout.api';
+import { WorkoutDayGroup } from '../workout/components/WorkoutDayGroup';
 
 /**
  * 首页组件
@@ -17,6 +21,20 @@ import { useNavigate } from 'react-router-dom';
  */
 export const Home = () => {
   const navigate = useNavigate();
+
+  // 获取最近训练记录
+  const { data: recentWorkouts } = useQuery<
+    ApiResponse<{ data: Record<string, WorkoutType[]>; total: number }>
+  >({
+    queryKey: ['workouts', 'recent'],
+    queryFn: async () => {
+      const response = await getWorkoutsGroupByDate({
+        page: 1,
+        pageSize: 3,
+      });
+      return response;
+    },
+  });
 
   // 模拟数据
   const stats = [
@@ -96,20 +114,15 @@ export const Home = () => {
         {/* 最近训练 */}
         <Card title="最近训练" className="mb-4">
           <Space direction="vertical" block>
-            <div className="flex justify-between items-center p-2">
-              <div>
-                <div className="font-medium">俯卧撑</div>
-                <div className="text-xs text-[var(--adm-color-text-light)] mt-1">2024-03-20</div>
-              </div>
-              <Tag color="primary">3组</Tag>
-            </div>
-            <div className="flex justify-between items-center p-2">
-              <div>
-                <div className="font-medium">健腹轮</div>
-                <div className="text-xs text-[var(--adm-color-text-light)] mt-1">2024-03-19</div>
-              </div>
-              <Tag color="primary">2组</Tag>
-            </div>
+            {recentWorkouts?.data.data &&
+              Object.entries(recentWorkouts.data.data).map(([date, workouts]) => (
+                <WorkoutDayGroup
+                  key={date}
+                  date={date}
+                  workouts={workouts}
+                  onDeleteSuccess={() => {}}
+                />
+              ))}
           </Space>
         </Card>
       </div>
