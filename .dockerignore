@@ -1,0 +1,11 @@
+# 排除所有 node_modules 目录
+**/node_modules
+**/dist
+**/.git
+**/.env
+**/.env.*
+**/.vscode
+**/.idea
+**/*.log
+**/coverage
+**/.DS_Store

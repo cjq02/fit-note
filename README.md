@@ -181,6 +181,92 @@ pnpm build
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
+## 开发环境
+
+### 安装依赖
+```bash
+pnpm install
+```
+
+### 启动开发服务器
+```bash
+# 启动后端
+cd backend
+pnpm run start:dev
+
+# 启动前端
+cd frontend
+pnpm run dev
+```
+
+## 生产环境
+
+### 启动服务
+```bash
+# 构建并启动所有服务
+docker-compose -f docker-compose.prod.yml up --build
+
+# 后台运行
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+### 停止服务
+```bash
+# 停止所有服务
+docker-compose -f docker-compose.prod.yml down
+
+# 停止并删除所有相关资源（包括卷）
+docker-compose -f docker-compose.prod.yml down -v
+```
+
+### 查看日志
+```bash
+# 查看所有服务的日志
+docker-compose -f docker-compose.prod.yml logs
+
+# 实时查看日志
+docker-compose -f docker-compose.prod.yml logs -f
+
+# 查看特定服务的日志
+docker-compose -f docker-compose.prod.yml logs app
+```
+
+### 进入容器
+```bash
+# 进入应用容器
+docker exec -it fit-note-app sh
+
+# 进入 MongoDB 容器
+docker exec -it fit-note-mongodb sh
+```
+
+### Docker 系统维护
+```bash
+# 查看 Docker 系统资源使用情况
+docker system df
+
+# 清理未使用的 Docker 资源（不会影响正在运行的容器）
+docker system prune -f
+
+# 清理构建缓存
+docker builder prune -f
+```
+
+### 访问服务
+- 前端页面：http://localhost
+- 后端 API：http://localhost/api
+- MongoDB：mongodb://localhost:27017
+
+### 环境变量
+生产环境需要设置以下环境变量：
+- `MONGODB_URI`：MongoDB 连接地址
+- `MONGODB_USER`：MongoDB 用户名
+- `MONGODB_PASS`：MongoDB 密码
+- `MONGODB_AUTH_SOURCE`：MongoDB 认证数据库
+- `JWT_SECRET`：JWT 密钥
+
+这些变量已经在 `docker-compose.prod.yml` 中配置好了默认值，可以根据需要修改。
+
 ## 贡献指南
 
 1. Fork 项目
