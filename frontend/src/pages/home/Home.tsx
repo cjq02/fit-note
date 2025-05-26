@@ -11,8 +11,14 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';
-import { getWorkoutsGroupByDate } from '@/api/workout.api';
+import { getWorkoutsGroupByDate, getWorkoutStats } from '@/api/workout.api';
 import { WorkoutDayGroup } from '../workout/components/WorkoutDayGroup';
+
+type WorkoutStats = {
+  weeklyDays: number;
+  monthlyDays: number;
+  continuousDays: number;
+};
 
 /**
  * 首页组件
@@ -36,11 +42,32 @@ export const Home = () => {
     },
   });
 
-  // 模拟数据
+  // 获取训练统计信息
+  const { data: workoutStats } = useQuery<ApiResponse<WorkoutStats>>({
+    queryKey: ['workouts', 'stats'],
+    queryFn: getWorkoutStats,
+  });
+
+  // 训练统计卡片数据
   const stats = [
-    { title: '本周训练', value: '3次', icon: <CalendarOutline />, color: 'primary' },
-    { title: '累计消耗', value: '1200千卡', icon: <HeartOutline />, color: 'warning' },
-    { title: '连续训练', value: '5天', icon: <StarOutline />, color: 'success' },
+    {
+      title: '本周训练',
+      value: `${workoutStats?.data?.weeklyDays || 0}次`,
+      icon: <CalendarOutline />,
+      color: 'primary',
+    },
+    {
+      title: '本月训练',
+      value: `${workoutStats?.data?.monthlyDays || 0}次`,
+      icon: <HeartOutline />,
+      color: 'warning',
+    },
+    {
+      title: '连续训练',
+      value: `${workoutStats?.data?.continuousDays || 0}天`,
+      icon: <StarOutline />,
+      color: 'success',
+    },
   ];
 
   return (

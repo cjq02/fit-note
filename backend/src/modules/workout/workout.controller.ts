@@ -77,6 +77,20 @@ export class WorkoutController {
         return this.workoutService.findByYearMonth(year, month, req.user.id);
     }
 
+    /**
+     * 获取训练统计信息
+     * @param {Request} req - 请求对象
+     * @returns {Promise<{ weeklyDays: number; monthlyDays: number; continuousDays: number }>} 训练统计信息
+     */
+    @Get('stats')
+    getWorkoutStats(@Request() req): Promise<{
+        weeklyDays: number;
+        monthlyDays: number;
+        continuousDays: number;
+    }> {
+        return this.workoutService.getWorkoutStats(req.user.id);
+    }
+
     @Get(':id')
     findOne(@Param('id') id: string, @Request() req): Promise<Workout> {
         return this.workoutService.findOne(id, req.user.id);

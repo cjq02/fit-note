@@ -213,4 +213,73 @@ export class WorkoutService {
             total: workouts.length
         };
     }
+
+    /**
+     * 获取训练统计信息
+     * @param {string} userId - 用户ID
+     * @returns {Promise<{ weeklyDays: number; monthlyDays: number; continuousDays: number }>} 训练统计信息
+     */
+    async getWorkoutStats(userId: string): Promise<{
+        weeklyDays: number;
+        monthlyDays: number;
+        continuousDays: number;
+    }> {
+        // 获取当前日期
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+
+        // 计算本周开始日期（周一为每周第一天）
+        const weekStart = new Date(now);
+        const day = now.getDay() || 7; // 将周日的0转换为7
+        weekStart.setDate(now.getDate() - day + 1); // 减去当前是周几，再加1得到本周一
+        const weekStartStr = weekStart.toISOString().split('T')[0];
+
+        // 计算本月开始日期
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthStartStr = monthStart.toISOString().split('T')[0];
+
+        // 获取所有训练记录
+        const workouts = await this.workoutModel
+            .find({
+                userId,
+                date: { $lte: today }
+            })
+            .sort({ date: -1 })
+            .exec();
+
+        // 获取唯一的训练日期
+        const uniqueDates = [...new Set(workouts.map(w => w.date))].sort().reverse();
+
+        // 计算本周训练天数
+        const weeklyDays = uniqueDates.filter(date =>
+            date >= weekStartStr && date <= today
+        ).length;
+
+        // 计算本月训练天数
+        const monthlyDays = uniqueDates.filter(date =>
+            date >= monthStartStr && date <= today
+        ).length;
+
+        // 计算连续训练天数
+        let continuousDays = 0;
+        let currentDate = new Date(today);
+
+        for (const date of uniqueDates) {
+            const workoutDate = new Date(date);
+            const diffDays = Math.floor((currentDate.getTime() - workoutDate.getTime()) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0 || diffDays === 1) {
+                continuousDays++;
+                currentDate = workoutDate;
+            } else {
+                break;
+            }
+        }
+
+        return {
+            weeklyDays,
+            monthlyDays,
+            continuousDays
+        };
+    }
 }
