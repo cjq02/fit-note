@@ -25,6 +25,7 @@ interface WorkoutItemProps {
   workout: WorkoutType;
   workouts: WorkoutType[];
   onDeleteSuccess: () => void;
+  dateColor: string;
 }
 
 /**
@@ -33,7 +34,12 @@ interface WorkoutItemProps {
  * @param {WorkoutItemProps} props - 组件属性
  * @returns {JSX.Element} 训练记录项
  */
-export const WorkoutItem = ({ workout, workouts, onDeleteSuccess }: WorkoutItemProps) => {
+export const WorkoutItem = ({
+  workout,
+  workouts,
+  onDeleteSuccess,
+  dateColor,
+}: WorkoutItemProps) => {
   const navigate = useNavigate();
 
   /**
@@ -87,12 +93,11 @@ export const WorkoutItem = ({ workout, workouts, onDeleteSuccess }: WorkoutItemP
           className="w-full transition-all duration-200 active:scale-[0.98]"
           style={{
             borderRadius: '16px',
-            background:
-              'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
+            background: `linear-gradient(135deg, ${dateColor}11 0%, ${dateColor}08 100%)`,
             backdropFilter: 'blur(10px)',
             marginBottom: '2px',
-            boxShadow: '0 4px 20px rgba(59, 130, 246, 0.1)',
-            border: '1px solid rgba(59, 130, 246, 0.1)',
+            boxShadow: `0 4px 20px ${dateColor}22`,
+            border: `1px solid ${dateColor}22`,
           }}
           onClick={() => handleEdit(workout.id)}
         >
@@ -100,15 +105,28 @@ export const WorkoutItem = ({ workout, workouts, onDeleteSuccess }: WorkoutItemP
             {/* 项目名称和总训练量 */}
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-sky-500 rounded-full"></div>
+                <div
+                  className="w-1 h-6 rounded-full"
+                  style={{
+                    background: `linear-gradient(to bottom, ${dateColor}, ${dateColor}99)`,
+                  }}
+                />
                 <div>
-                  <div className="font-semibold text-gray-800 text-[16px] tracking-wide">
+                  <div
+                    className="font-semibold text-[16px] tracking-wide"
+                    style={{ color: dateColor }}
+                  >
                     {workout.project}
                   </div>
                 </div>
               </div>
-              <div className="text-blue-500 font-medium">
-                <span className="text-sm bg-gradient-to-r from-blue-500 to-sky-500 text-white px-4 py-1.5 rounded-full shadow-sm">
+              <div className="font-medium">
+                <span
+                  className="text-sm text-white px-4 py-1.5 rounded-full shadow-sm"
+                  style={{
+                    background: `linear-gradient(to right, ${dateColor}, ${dateColor}99)`,
+                  }}
+                >
                   {calculateProjectTotal(workouts, workout.project)}次
                 </span>
               </div>
@@ -119,7 +137,12 @@ export const WorkoutItem = ({ workout, workouts, onDeleteSuccess }: WorkoutItemP
               {workout.groups.map((group, index) => (
                 <div
                   key={index}
-                  className="text-xs text-blue-600 bg-gradient-to-r from-blue-50 to-sky-50 px-3 py-1.5 rounded-full border border-blue-100 shadow-sm"
+                  className="text-xs px-3 py-1.5 rounded-full border shadow-sm"
+                  style={{
+                    color: dateColor,
+                    background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
+                    borderColor: `${dateColor}22`,
+                  }}
                 >
                   {group.seqNo}组: {group.weight}
                   {workout.unit} × {group.reps}次

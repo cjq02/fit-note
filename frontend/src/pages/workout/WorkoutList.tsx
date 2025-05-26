@@ -153,7 +153,7 @@ export const WorkoutList = () => {
   };
 
   return (
-    <div className="page-container bg-gradient-to-br from-blue-50 via-white to-sky-50">
+    <div className="page-container bg-gradient-to-br from-gray-50 via-gray-50 to-gray-100">
       <div className="flex-1 overflow-y-auto px-4 pt-4">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
