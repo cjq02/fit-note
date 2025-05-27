@@ -4,6 +4,7 @@ import { getWorkoutsByYearMonth } from '@/api/workout.api';
 import type { Workout } from '@/@typings/types.d.ts';
 import type { PickerValue } from 'antd-mobile/es/components/picker';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
+import './Schedule.css';
 
 /**
  * 训练日程页面组件
@@ -114,7 +115,7 @@ export const Schedule = () => {
               return (
                 <div className="relative flex h-full w-full items-center justify-center">
                   <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                    className={`flex h-8 w-8 items-center justify-center rounded-full -mt-1 ${
                       hasWorkout ? 'bg-orange-500 text-white' : ''
                     }`}
                   >

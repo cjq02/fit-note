@@ -15,7 +15,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
   intercept(context: ExecutionContext, next: CallHandler): Observable<Response<T>> {
     return next.handle().pipe(
       map(data => {
-        this.logger.debug(`响应数据: ${JSON.stringify(data)}`);
+        // this.logger.debug(`响应数据: ${JSON.stringify(data)}`);
         return {
           data,
           code: 0,
