@@ -8,6 +8,9 @@ services:
       dockerfile: frontend/Dockerfile
     volumes:
       - frontend_dist:/app/frontend/dist
+    command: tail -f /dev/null # 保持容器运行
+    networks:
+      - app-network
 
   nginx:
     container_name: fit-note-nginx
