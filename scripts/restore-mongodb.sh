@@ -11,6 +11,9 @@ BACKUP_FILE=$1
 CONTAINER_NAME="fit-note-mongodb"
 DB_NAME="fit-note"
 TEMP_DIR="/tmp/mongodb_restore"
+MONGO_USER="admin"
+MONGO_PASS="password123"
+MONGO_AUTH_DB="admin"
 
 # 创建临时目录
 mkdir -p $TEMP_DIR
@@ -27,6 +30,9 @@ docker cp $TEMP_DIR/$RESTORE_DIR $CONTAINER_NAME:/dump
 # 执行恢复
 docker exec $CONTAINER_NAME mongorestore \
   --db $DB_NAME \
+  --username $MONGO_USER \
+  --password $MONGO_PASS \
+  --authenticationDatabase $MONGO_AUTH_DB \
   --drop \
   /dump/$RESTORE_DIR/$DB_NAME
 
