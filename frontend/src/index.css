@@ -91,3 +91,8 @@ textarea {
   font: inherit;
   color: inherit;
 }
+
+/* Toast 样式优化 */
+.adm-toast-icon svg {
+  display: inline-block !important;
+}
