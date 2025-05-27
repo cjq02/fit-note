@@ -20,6 +20,9 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
   // 生成基于日期的颜色
   const dateColor = generateColorFromDate(date);
 
+  // 按项目名称字母顺序排序
+  const sortedWorkouts = [...workouts].sort((a, b) => a.project.localeCompare(b.project));
+
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
@@ -40,7 +43,7 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
         />
       </div>
       <List>
-        {workouts.map(workout => (
+        {sortedWorkouts.map(workout => (
           <WorkoutItem
             key={workout.id}
             workout={workout}

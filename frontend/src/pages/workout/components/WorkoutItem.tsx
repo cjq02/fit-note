@@ -122,9 +122,10 @@ export const WorkoutItem = ({
               </div>
               <div className="font-medium">
                 <span
-                  className="text-sm text-white px-4 py-1.5 rounded-full shadow-sm"
+                  className="text-base font-semibold text-white px-5 py-2 rounded-full shadow-md"
                   style={{
-                    background: `linear-gradient(to right, ${dateColor}, ${dateColor}99)`,
+                    background: `linear-gradient(to right, ${dateColor}, ${dateColor}88)`,
+                    boxShadow: `0 2px 8px ${dateColor}44`,
                   }}
                 >
                   {calculateProjectTotal(workouts, workout.project)}次
@@ -145,7 +146,7 @@ export const WorkoutItem = ({
                   }}
                 >
                   {group.seqNo}组: {group.weight}
-                  {workout.unit} × {group.reps}次
+                  {workout.unit} × <span className="font-bold text-base">{group.reps}</span>次
                 </div>
               ))}
             </div>
