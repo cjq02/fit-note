@@ -80,7 +80,7 @@ export class WorkoutController {
     /**
      * 获取训练统计信息
      * @param {Request} req - 请求对象
-     * @returns {Promise<{ weeklyDays: number; monthlyDays: number; continuousDays: number; totalDays: number }>} 训练统计信息
+     * @returns {Promise<{ weeklyDays: number; monthlyDays: number; continuousDays: number; totalDays: number; withoutWorkoutDays: number }>} 训练统计信息
      */
     @Get('stats')
     getWorkoutStats(@Request() req): Promise<{
@@ -88,6 +88,7 @@ export class WorkoutController {
         monthlyDays: number;
         continuousDays: number;
         totalDays: number;
+        withoutWorkoutDays: number;
     }> {
         return this.workoutService.getWorkoutStats(req.user.id);
     }

@@ -217,13 +217,14 @@ export class WorkoutService {
     /**
      * 获取训练统计信息
      * @param {string} userId - 用户ID
-     * @returns {Promise<{ weeklyDays: number; monthlyDays: number; continuousDays: number; totalDays: number }>} 训练统计信息
+     * @returns {Promise<{ weeklyDays: number; monthlyDays: number; continuousDays: number; totalDays: number; withoutWorkoutDays: number }>} 训练统计信息
      */
     async getWorkoutStats(userId: string): Promise<{
         weeklyDays: number;
         monthlyDays: number;
         continuousDays: number;
         totalDays: number;
+        withoutWorkoutDays: number;
     }> {
         // 获取当前日期
         const now = new Date();
@@ -280,11 +281,20 @@ export class WorkoutService {
         // 计算总训练天数
         const totalDays = uniqueDates.length;
 
+        // 计算几天没有训练
+        let withoutWorkoutDays = 0;
+        if (uniqueDates.length > 0) {
+            const lastWorkoutDate = new Date(uniqueDates[0]);
+            const todayDate = new Date(today);
+            withoutWorkoutDays = Math.floor((todayDate.getTime() - lastWorkoutDate.getTime()) / (1000 * 60 * 60 * 24));
+        }
+
         return {
             weeklyDays,
             monthlyDays,
             continuousDays,
-            totalDays
+            totalDays,
+            withoutWorkoutDays
         };
     }
 }
