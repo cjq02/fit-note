@@ -439,8 +439,12 @@ export const WorkoutForm = () => {
                     </div>
                   )}
                   <div className="flex items-center justify-between mb-3">
-                    <div className="font-medium text-[var(--adm-color-text)]">
-                      第{group.seqNo}组
+                    <div className="flex items-center gap-1">
+                      <span className="text-[var(--adm-color-text)]">第</span>
+                      <span className="font-extrabold text-[var(--adm-color-primary)]">
+                        {group.seqNo}
+                      </span>
+                      <span className="text-[var(--adm-color-text)]">组</span>
                     </div>
                     <Button
                       color="danger"
