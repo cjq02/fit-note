@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# 拉取最新的代码
+echo "拉取最新的代码..."
+git pull
+
 # 检查参数
 if [ "$1" == "frontend" ]; then
     echo "进入前端容器并编译..."
