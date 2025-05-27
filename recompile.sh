@@ -37,8 +37,8 @@ if [ "$1" == "frontend" ]; then
 elif [ "$1" == "backend" ]; then
     build_backend
 elif [ "$1" == "all" ]; then
-    build_frontend
     build_backend
+    build_frontend
 else
     echo "请提供参数: frontend, backend, 或 all"
     exit 1
