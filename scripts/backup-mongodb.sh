@@ -12,7 +12,7 @@ mkdir -p $BACKUP_DIR
 
 # 执行备份
 docker exec $CONTAINER_NAME mongodump \
-  --nsInclude="${DB_NAME}.*" \
+  --db $DB_NAME \
   --out /dump/$DATE
 
 # 将备份文件从容器复制到主机
