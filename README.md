@@ -193,7 +193,17 @@ docker exec -it fit-note-frontend cat /var/log/nginx/error.log
 
 ### 停止服务
 ```bash
+# 停止所有服务
 docker-compose -f docker-compose.prod.yml down
+
+# 停止并删除所有相关资源（包括卷）
+docker-compose -f docker-compose.prod.yml down -v
+```
+
+### 文件权限说明
+```bash
+# 如果遇到git pull时提示recompile.sh文件权限冲突，执行以下命令移除执行权限
+chmod -x recompile.sh
 ```
 
 ### 重新启动前端容器
