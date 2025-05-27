@@ -9,8 +9,6 @@ build_frontend() {
     # 在容器中构建
     docker exec -it fit-note-frontend sh -c "cd /app/frontend && pnpm run build"
     # 重启容器
-    echo "重启前端容器..."
-    docker-compose -f docker-compose.prod.yml restart frontend
     echo "重启 nginx 容器..."
     docker-compose -f docker-compose.prod.yml restart nginx
 }
