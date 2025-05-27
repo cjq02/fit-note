@@ -12,6 +12,7 @@ import type {
   WorkoutGroup,
 } from '@/@typings/types.d.ts';
 import { createWorkout, findByDateAndProject, getWorkout, updateWorkout } from '@/api/workout.api';
+import { NumberInput } from '@/components/NumberInput';
 
 const UNIT_OPTIONS = [
   { label: 'kg', value: 'kg' },
@@ -459,41 +460,26 @@ export const WorkoutForm = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col">
                       <span className="text-sm text-[var(--adm-color-text-light)] mb-1">次数</span>
-                      <Input
-                        type="digit"
-                        pattern="[0-9]*"
-                        inputMode="numeric"
-                        placeholder="请输入次数"
+                      <NumberInput
                         value={group.reps}
-                        onChange={val => {
-                          // 允许清空输入
-                          if (val === '') {
-                            handleGroupChange(idx, 'reps', '');
-                            return;
-                          }
-                          // 只允许输入整数
-                          const num = parseInt(val.replace(/[^\d]/g, ''), 10);
-                          if (!isNaN(num)) {
-                            handleGroupChange(idx, 'reps', num.toString());
-                          }
-                        }}
-                        className="h-[48px] rounded-lg bg-[var(--adm-color-primary-light)] text-center text-xl font-bold border border-[var(--adm-color-primary)] text-[var(--adm-color-primary)] px-4"
+                        onChange={val => handleGroupChange(idx, 'reps', val)}
+                        placeholder="请输入次数"
+                        min={0}
+                        max={999}
+                        step={1}
+                        allowDecimal={false}
                       />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm text-[var(--adm-color-text-light)] mb-1">重量</span>
-                      <Input
-                        type="digit"
-                        pattern="[0-9]*"
-                        inputMode="numeric"
-                        placeholder={`请输入重量(${unit})`}
+                      <NumberInput
                         value={group.weight}
-                        onChange={val => {
-                          // 允许输入0和数字，以及删除操作
-                          const num = val.replace(/[^\d.]/g, '');
-                          handleGroupChange(idx, 'weight', num);
-                        }}
-                        className="h-[48px] rounded-lg bg-[var(--adm-color-primary-light)] text-center text-xl font-bold border border-[var(--adm-color-primary)] text-[var(--adm-color-primary)] px-4"
+                        onChange={val => handleGroupChange(idx, 'weight', val)}
+                        placeholder={`请输入重量(${unit})`}
+                        min={0}
+                        max={999}
+                        step={0.5}
+                        allowDecimal={true}
                       />
                     </div>
                   </div>

@@ -1,0 +1,48 @@
+@keyframes number-change {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-number-change {
+  animation: number-change 0.3s ease-in-out;
+}
+
+/* 增加时的颜色变化 */
+.number-increase {
+  background-color: var(--adm-color-success-light);
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* 减少时的颜色变化 */
+.number-decrease {
+  background-color: var(--adm-color-warning-light);
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* 按钮样式 */
+.number-input-button {
+  -webkit-tap-highlight-color: transparent !important;
+  color: var(--adm-color-primary) !important;
+}
+
+.number-input-button:not(:disabled):hover {
+  color: var(--adm-color-primary) !important;
+}
+
+.number-input-button:not(:disabled):active {
+  transform: scale(0.95) !important;
+}
+
+.number-input-button:not(:disabled):focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
