@@ -187,6 +187,24 @@ docker-compose -f docker-compose.prod.yml logs -f
 docker-compose -f docker-compose.prod.yml logs frontend
 ```
 
+4. 重新编译服务
+```bash
+
+# 添加执行权限
+chmod +x recompile.sh
+
+# 重新编译前端
+./recompile.sh frontend
+
+# 重新编译后端
+./recompile.sh backend
+
+# 重新编译所有服务
+./recompile.sh all
+```
+
+注意：每次修改 `recompile.sh` 文件后，都需要先执行 `chmod -x recompile.sh` 移除执行权限，拉取代码后再执行 `chmod +x recompile.sh` 重新添加执行权限。
+
 ### 服务访问
 
 - 前端页面：http://localhost
@@ -301,74 +319,6 @@ docker-compose -f docker-compose.prod.yml up -d --build
 - 使用 `restart` 命令是最轻量级的重启方式，不会影响数据
 - 使用 `--build` 参数会重新构建镜像，包括重新安装依赖
 - 使用 `-v` 参数会删除所有数据卷，包括数据库数据，请谨慎使用
-
-## 重新编译指南
-
-如果您需要重新编译代码而不重新构建镜像，可以使用 `recompile.sh` 脚本。该脚本允许您选择编译前端、后端或两者都编译。
-
-### 使用方法
-1. 确保 `recompile.sh` 文件具有执行权限：
-   ```bash
-   chmod +x recompile.sh
-   ```
-
-2. 运行脚本，并提供参数：
-   - 编译前端：
-     ```bash
-     ./recompile.sh frontend
-     ```
-   - 编译后端：
-     ```bash
-     ./recompile.sh backend
-     ```
-   - 编译前端和后端：
-     ```bash
-     ./recompile.sh all
-     ```
-
-### 脚本功能
-- 根据提供的参数决定是编译前端、后端还是两者都编译。
-- 重启服务。
-- 检查容器状态。
-- 查看日志。
-
-### 访问服务
-- 前端页面：http://localhost
-- 后端 API：http://localhost/api
-- MongoDB：mongodb://localhost:27017
-
-### MongoDB 连接信息
-
-#### 连接字符串
-```
-mongodb://admin:password123@localhost:27017/fit-note?authSource=admin
-```
-
-#### VSCode 连接步骤
-1. 安装 MongoDB for VS Code 扩展
-2. 点击左侧 MongoDB 图标
-3. 点击 "Add Connection"
-4. 选择 "Connection String"
-5. 输入连接字符串
-6. 点击 "Connect"
-
-#### 连接参数说明
-- 主机：localhost
-- 端口：27017
-- 数据库：fit-note
-- 用户名：admin
-- 密码：password123
-- 认证数据库：admin
-
-### 环境变量
-生产环境需要设置以下环境变量：
-- `MONGODB_URI`：MongoDB 连接地址
-- `MONGODB_USER`：MongoDB 用户名
-- `MONGODB_PASS`：MongoDB 密码
-- `MONGODB_AUTH_SOURCE`：MongoDB 认证数据库
-- `JWT_SECRET`：JWT 密钥
-
-这些变量已经在 `docker-compose.prod.yml` 中配置好了默认值，可以根据需要修改。
 
 ## 贡献指南
 
