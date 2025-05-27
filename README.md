@@ -181,6 +181,26 @@ pnpm build
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
+4. 检查容器状态
+```bash
+docker-compose ps
+```
+
+5. 查看 Nginx 错误日志（如有问题）
+```bash
+docker exec -it fit-note-frontend cat /var/log/nginx/error.log
+```
+
+### 停止服务
+```bash
+docker-compose -f docker-compose.prod.yml down
+```
+
+### 重新启动前端容器
+```bash
+docker-compose -f docker-compose.prod.yml up -d frontend
+```
+
 ## 开发环境
 
 ### 安装依赖
@@ -228,13 +248,16 @@ docker-compose -f docker-compose.prod.yml logs
 docker-compose -f docker-compose.prod.yml logs -f
 
 # 查看特定服务的日志
-docker-compose -f docker-compose.prod.yml logs app
+docker-compose -f docker-compose.prod.yml logs frontend
 ```
 
 ### 进入容器
 ```bash
-# 进入应用容器
-docker exec -it fit-note-app sh
+# 进入前端容器
+docker exec -it fit-note-frontend sh
+
+# 进入后端容器
+docker exec -it fit-note-backend sh
 
 # 进入 MongoDB 容器
 docker exec -it fit-note-mongodb sh
@@ -255,8 +278,11 @@ docker system prune -f
 
 1. 仅更新源代码（未修改依赖和数据库）
 ```bash
-# 只重启应用服务
-docker-compose -f docker-compose.prod.yml restart app
+# 只重启前端服务
+docker-compose -f docker-compose.prod.yml restart frontend
+
+# 只重启后端服务
+docker-compose -f docker-compose.prod.yml restart backend
 ```
 
 2. 修改了依赖（package.json）或 Dockerfile
@@ -290,6 +316,36 @@ docker-compose -f docker-compose.prod.yml up -d --build
 - 使用 `restart` 命令是最轻量级的重启方式，不会影响数据
 - 使用 `--build` 参数会重新构建镜像，包括重新安装依赖
 - 使用 `-v` 参数会删除所有数据卷，包括数据库数据，请谨慎使用
+
+## 重新编译指南
+
+如果您需要重新编译代码而不重新构建镜像，可以使用 `recompile.sh` 脚本。该脚本允许您选择编译前端、后端或两者都编译。
+
+### 使用方法
+1. 确保 `recompile.sh` 文件具有执行权限：
+   ```bash
+   chmod +x recompile.sh
+   ```
+
+2. 运行脚本，并提供参数：
+   - 编译前端：
+     ```bash
+     ./recompile.sh frontend
+     ```
+   - 编译后端：
+     ```bash
+     ./recompile.sh backend
+     ```
+   - 编译前端和后端：
+     ```bash
+     ./recompile.sh all
+     ```
+
+### 脚本功能
+- 根据提供的参数决定是编译前端、后端还是两者都编译。
+- 重启服务。
+- 检查容器状态。
+- 查看日志。
 
 ### 访问服务
 - 前端页面：http://localhost
