@@ -40,35 +40,61 @@ instance.interceptors.response.use(
     if (error.response) {
       // 处理 HTTP 错误
       const { status, data } = error.response;
+      console.error('Response Error:', data);
+
       switch (status) {
         case 401:
           // 未授权，清除 token 并跳转到登录页
           localStorage.removeItem('token');
-          window.location.href = '/login';
-          break;
+          // 返回错误信息，让调用者处理
+          return Promise.reject({
+            code: status,
+            message: data.message || '未授权',
+            data: null,
+          });
         case 403:
           // 权限不足
-          console.error('权限不足');
-          break;
+          return Promise.reject({
+            code: status,
+            message: data.message || '权限不足',
+            data: null,
+          });
         case 404:
           // 资源不存在
-          console.error('资源不存在');
-          break;
+          return Promise.reject({
+            code: status,
+            message: data.message || '资源不存在',
+            data: null,
+          });
         case 500:
           // 服务器错误
-          console.error('服务器错误');
-          break;
+          return Promise.reject({
+            code: status,
+            message: data.message || '服务器错误',
+            data: null,
+          });
         default:
-          console.error(data?.message || '请求失败');
+          return Promise.reject({
+            code: status,
+            message: data.message || '请求失败',
+            data: null,
+          });
       }
     } else if (error.request) {
       // 请求已发出但没有收到响应
-      console.error('网络错误，请检查网络连接');
+      return Promise.reject({
+        code: -1,
+        message: '网络错误，请检查网络连接',
+        data: null,
+      });
     } else {
       // 请求配置出错
-      console.error('请求配置错误:', error.message);
+      return Promise.reject({
+        code: -1,
+        message: `请求配置错误: ${error.message}`,
+        data: null,
+      });
     }
-    return Promise.reject(error);
   },
 );
 

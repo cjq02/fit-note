@@ -33,9 +33,10 @@ export const Login = () => {
       });
       navigate('/');
     } catch (error: any) {
+      console.error('登录错误:', error);
       Toast.show({
         icon: 'fail',
-        content: error.response?.data?.message || '登录失败',
+        content: error.message || '登录失败',
       });
     }
   };
