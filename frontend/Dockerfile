@@ -1,14 +1,14 @@
-# 构建阶段
-FROM node:18-alpine AS builder
-
-# 设置工作目录
-WORKDIR /app
+# 使用 Node.js 作为基础镜像
+FROM node:18-alpine
 
 # 安装 pnpm
 RUN npm install -g pnpm
 
 # 设置淘宝镜像源
 RUN pnpm config set registry https://registry.npmmirror.com/
+
+# 设置工作目录
+WORKDIR /app
 
 # 复制所有必要的文件
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -19,15 +19,11 @@ COPY packages/shared-utils/package.json ./packages/shared-utils/
 COPY frontend/ ./frontend/
 COPY packages/shared-utils/ ./packages/shared-utils/
 
-# 安装依赖并构建
+# 安装依赖
 RUN pnpm install
-RUN cd frontend && pnpm run build
 
-# 生产阶段
-FROM nginx:alpine
-
-# 复制构建产物
-COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+# 安装 nginx
+RUN apk add --no-cache nginx
 
 # 配置 Nginx
 COPY frontend/nginx.conf /etc/nginx/nginx.conf
@@ -35,5 +31,9 @@ COPY frontend/nginx.conf /etc/nginx/nginx.conf
 # 暴露端口
 EXPOSE 80
 
-# 启动 Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# 启动脚本
+COPY frontend/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# 启动服务
+CMD ["/app/start.sh"]
