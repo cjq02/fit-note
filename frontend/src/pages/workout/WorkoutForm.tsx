@@ -91,6 +91,7 @@ export const WorkoutForm = () => {
       reps: string;
       weight: string;
       seqNo: number;
+      isNew?: boolean;
     }>
   >([{ reps: '', weight: '0', seqNo: 1 }]);
 
@@ -226,7 +227,10 @@ export const WorkoutForm = () => {
     const newSeqNo = groups.length + 1;
     // 获取上一组的数据
     const lastGroup = groups[groups.length - 1];
-    setGroups([...groups, { reps: lastGroup.reps, weight: lastGroup.weight, seqNo: newSeqNo }]);
+    setGroups([
+      ...groups,
+      { reps: lastGroup.reps, weight: lastGroup.weight, seqNo: newSeqNo, isNew: true },
+    ]);
 
     // 使用 setTimeout 确保在 DOM 更新后执行滚动
     window.setTimeout(() => {
@@ -244,10 +248,25 @@ export const WorkoutForm = () => {
    */
   const handleRemoveGroup = (index: number) => {
     if (groups.length === 1) return;
-    const newGroups = groups
-      .filter((_, i) => i !== index)
-      .map((group, idx) => ({ ...group, seqNo: idx + 1 }));
-    setGroups(newGroups);
+
+    // 如果是非新增组，显示确认对话框
+    if (!groups[index].isNew) {
+      Dialog.confirm({
+        content: '确定要删除这组训练记录吗？',
+        onConfirm: () => {
+          const newGroups = groups
+            .filter((_, i) => i !== index)
+            .map((group, idx) => ({ ...group, seqNo: idx + 1 }));
+          setGroups(newGroups);
+        },
+      });
+    } else {
+      // 新增组直接删除
+      const newGroups = groups
+        .filter((_, i) => i !== index)
+        .map((group, idx) => ({ ...group, seqNo: idx + 1 }));
+      setGroups(newGroups);
+    }
   };
 
   /**
@@ -386,7 +405,7 @@ export const WorkoutForm = () => {
                     <Radio
                       key={opt.value}
                       value={opt.value}
-                      className="flex-1 h-[32px] rounded-lg border border-solid border-[var(--adm-color-border)] data-[checked=true]:border-[var(--adm-color-primary)] data-[checked=true]:bg-[var(--adm-color-primary-light)]"
+                      className="flex-1 h-[32px] rounded-lg data-[checked=true]:bg-[var(--adm-color-primary-light)]"
                     >
                       {opt.label}
                     </Radio>
@@ -410,7 +429,15 @@ export const WorkoutForm = () => {
                   },
                 ]}
               >
-                <div className="p-4 rounded-xl bg-white shadow-sm transition-all hover:shadow-md">
+                <div className="p-4 rounded-xl bg-white shadow-sm transition-all hover:shadow-md relative">
+                  {group.isNew && (
+                    <div className="absolute -right-2 -top-2 w-28 h-28 overflow-hidden">
+                      <div className="absolute right-0 top-0 w-28 h-28 bg-[#00B894] transform rotate-45 translate-x-14 -translate-y-14" />
+                      <span className="absolute right-4 top-4 text-base text-white font-bold transform rotate-45">
+                        NEW
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mb-3">
                     <div className="font-medium text-[var(--adm-color-text)]">
                       第{group.seqNo}组
