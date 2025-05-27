@@ -6,9 +6,20 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+    volumes:
+      - frontend_dist:/app/frontend/dist
+
+  nginx:
+    container_name: fit-note-nginx
+    build:
+      context: .
+      dockerfile: frontend/nginx.Dockerfile
     ports:
       - "80:80"
+    volumes:
+      - frontend_dist:/usr/share/nginx/html
     depends_on:
+      - frontend
       - backend
     networks:
       - app-network
@@ -54,6 +65,8 @@ services:
 volumes:
   mongodb_data:
     name: fit-note-mongodb-data
+  frontend_dist:
+    name: fit-note-frontend-dist
 
 networks:
   app-network:
