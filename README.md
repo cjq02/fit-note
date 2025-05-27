@@ -164,92 +164,18 @@ pnpm start:dev
 
 ### 生产环境部署
 
-1. 构建前端
-```bash
-cd frontend
-pnpm build
-```
-
-2. 构建后端
-```bash
-cd backend
-pnpm build
-```
-
-3. 使用 Docker Compose 部署
-```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-4. 检查容器状态
-```bash
-docker-compose ps
-```
-
-5. 查看 Nginx 错误日志（如有问题）
-```bash
-docker exec -it fit-note-frontend cat /var/log/nginx/error.log
-```
-
-### 停止服务
-```bash
-# 停止所有服务
-docker-compose -f docker-compose.prod.yml down
-
-# 停止并删除所有相关资源（包括卷）
-docker-compose -f docker-compose.prod.yml down -v
-```
-
-### 文件权限说明
-```bash
-# 如果遇到git pull时提示recompile.sh文件权限冲突，执行以下命令移除执行权限
-chmod -x recompile.sh
-```
-
-### 重新启动前端容器
-```bash
-docker-compose -f docker-compose.prod.yml up -d frontend
-```
-
-## 开发环境
-
-### 安装依赖
-```bash
-pnpm install
-```
-
-### 启动开发服务器
-```bash
-# 启动后端
-cd backend
-pnpm run start:dev
-
-# 启动前端
-cd frontend
-pnpm run dev
-```
-
-## 生产环境
-
-### 启动服务
+1. 构建并启动所有服务
 ```bash
 # 构建并启动所有服务
-docker-compose -f docker-compose.prod.yml up --build
-
-# 后台运行
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
-### 停止服务
+2. 检查容器状态
 ```bash
-# 停止所有服务
-docker-compose -f docker-compose.prod.yml down
-
-# 停止并删除所有相关资源（包括卷）
-docker-compose -f docker-compose.prod.yml down -v
+docker-compose -f docker-compose.prod.yml ps
 ```
 
-### 查看日志
+3. 查看服务日志
 ```bash
 # 查看所有服务的日志
 docker-compose -f docker-compose.prod.yml logs
@@ -261,7 +187,38 @@ docker-compose -f docker-compose.prod.yml logs -f
 docker-compose -f docker-compose.prod.yml logs frontend
 ```
 
-### 进入容器
+### 服务访问
+
+- 前端页面：http://localhost
+- 后端 API：http://localhost/api
+- MongoDB：mongodb://localhost:27017
+
+### MongoDB 连接信息
+
+#### 连接字符串
+```
+mongodb://admin:password123@localhost:27017/fit-note?authSource=admin
+```
+
+#### 连接参数说明
+- 主机：localhost
+- 端口：27017
+- 数据库：fit-note
+- 用户名：admin
+- 密码：password123
+- 认证数据库：admin
+
+### 环境变量
+生产环境已配置以下环境变量：
+- `MONGODB_URI`：MongoDB 连接地址
+- `MONGODB_USER`：MongoDB 用户名
+- `MONGODB_PASS`：MongoDB 密码
+- `MONGODB_AUTH_SOURCE`：MongoDB 认证数据库
+- `JWT_SECRET`：JWT 密钥
+
+### 容器管理
+
+#### 进入容器
 ```bash
 # 进入前端容器
 docker exec -it fit-note-frontend sh
@@ -271,6 +228,24 @@ docker exec -it fit-note-backend sh
 
 # 进入 MongoDB 容器
 docker exec -it fit-note-mongodb sh
+```
+
+#### 停止服务
+```bash
+# 停止所有服务
+docker-compose -f docker-compose.prod.yml down
+
+# 停止并删除所有相关资源（包括卷）
+docker-compose -f docker-compose.prod.yml down -v
+```
+
+#### 重启服务
+```bash
+# 重启所有服务
+docker-compose -f docker-compose.prod.yml restart
+
+# 重启特定服务
+docker-compose -f docker-compose.prod.yml restart frontend
 ```
 
 ### Docker 系统维护
