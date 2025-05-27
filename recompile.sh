@@ -19,6 +19,9 @@ build_backend() {
     docker cp backend/. fit-note-backend:/app/backend/
     echo "进入后端容器并编译..."
     docker exec -it fit-note-backend sh -c "cd /app/backend && pnpm run build"
+    # 重启后端容器以运行新的构建结果
+    echo "重启后端容器..."
+    docker-compose -f docker-compose.prod.yml restart backend
 }
 
 # 定义函数：检查容器状态
