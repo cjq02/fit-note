@@ -14,6 +14,7 @@ import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts'
 import { getWorkoutsGroupByDate, getWorkoutStats } from '@/api/workout.api';
 import { WorkoutDayGroup } from '../workout/components/WorkoutDayGroup';
 import React from 'react';
+import TrophyIcon from '@/assets/svg/trophy.svg';
 
 type WorkoutStats = {
   weeklyDays: number;
@@ -93,7 +94,8 @@ export const Home = () => {
         {/* 总训练天数卡片 */}
         <div className="mb-4">
           <div className="bg-gradient-to-r from-purple-100 to-purple-300 rounded-xl p-6 shadow-md">
-            <div className="text-center">
+            <div className="flex items-center justify-center gap-4">
+              <img src={TrophyIcon} alt="训练成就" className="w-16 h-16" />
               <div className="text-2xl text-gray-700 font-medium">
                 你已经训练了{' '}
                 <span className="text-3xl font-bold text-gray-800">
