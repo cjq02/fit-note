@@ -117,13 +117,14 @@ export const getWorkoutsByYearMonth = async (params: {
 /**
  * 获取训练统计信息
  *
- * @returns {Promise<ApiResponse<{ weeklyDays: number; monthlyDays: number; continuousDays: number }>>} 训练统计信息
+ * @returns {Promise<ApiResponse<{ weeklyDays: number; monthlyDays: number; continuousDays: number; totalDays: number }>>} 训练统计信息
  */
 export const getWorkoutStats = async (): Promise<
   ApiResponse<{
     weeklyDays: number;
     monthlyDays: number;
     continuousDays: number;
+    totalDays: number;
   }>
 > => {
   return http.get('/api/workouts/stats');

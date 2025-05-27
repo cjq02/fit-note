@@ -19,6 +19,7 @@ type WorkoutStats = {
   weeklyDays: number;
   monthlyDays: number;
   continuousDays: number;
+  totalDays: number;
 };
 
 /**
@@ -89,6 +90,21 @@ export const Home = () => {
   return (
     <div className="page-container bg-[var(--adm-color-background)]">
       <div className="p-4">
+        {/* 总训练天数卡片 */}
+        <div className="mb-4">
+          <div className="bg-gradient-to-r from-purple-100 to-purple-300 rounded-xl p-6 shadow-md">
+            <div className="text-center">
+              <div className="text-2xl text-gray-700 font-medium">
+                你已经训练了{' '}
+                <span className="text-3xl font-bold text-gray-800">
+                  {formatStatNumber(workoutStats?.data?.totalDays)}
+                </span>{' '}
+                天
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 训练统计（重构设计） */}
         <div className="flex gap-3 mb-4">
           {stats.map(item => (
