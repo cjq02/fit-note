@@ -15,6 +15,8 @@ build_frontend() {
 
 # 定义函数：构建后端
 build_backend() {
+    echo "同步文件到后端容器..."
+    docker cp backend/. fit-note-backend:/app/backend/
     echo "进入后端容器并编译..."
     docker exec -it fit-note-backend sh -c "cd /app/backend && pnpm run build"
 }
