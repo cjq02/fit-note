@@ -26,9 +26,9 @@ docker cp $TEMP_DIR/$RESTORE_DIR $CONTAINER_NAME:/dump
 
 # 执行恢复
 docker exec $CONTAINER_NAME mongorestore \
-  --db $DB_NAME \
+  --nsInclude="${DB_NAME}.*" \
   --drop \
-  /dump/$RESTORE_DIR/$DB_NAME
+  /dump/$RESTORE_DIR
 
 # 清理临时文件
 rm -rf $TEMP_DIR
