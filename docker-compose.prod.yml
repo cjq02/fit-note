@@ -1,30 +1,26 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: fit-note-mongodb
-    ports:
-      - "0.0.0.0:27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password123
-    command: mongod --bind_ip_all --auth
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - fit-note-network
-    restart: always
-    security_opt:
-      - no-new-privileges:true
-
-  app:
+  frontend:
+    container_name: fit-note-frontend
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: fit-note-app
+      dockerfile: frontend/Dockerfile
     ports:
       - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: always
+
+  backend:
+    container_name: fit-note-backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://mongodb:27017/fit-note
@@ -35,13 +31,30 @@ services:
     depends_on:
       - mongodb
     networks:
-      - fit-note-network
+      - app-network
     restart: always
+
+  mongodb:
+    image: mongo:latest
+    container_name: fit-note-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+    command: mongod --bind_ip_all --auth
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+    restart: always
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   mongodb_data:
     name: fit-note-mongodb-data
 
 networks:
-  fit-note-network:
-    name: fit-note-network
+  app-network:
+    driver: bridge
