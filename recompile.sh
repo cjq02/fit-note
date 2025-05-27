@@ -30,5 +30,5 @@ echo "检查容器状态..."
 docker-compose ps
 
 # 查看日志
-echo "查看日志..."
-docker-compose -f docker-compose.prod.yml logs
+# echo "查看日志..."
+# docker-compose -f docker-compose.prod.yml logs
