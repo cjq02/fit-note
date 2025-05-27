@@ -1,21 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { ValidationPipe, BadRequestException } from '@nestjs/common';
 
 import { AppModule } from './app.module';
-
-// 响应拦截器
-const responseInterceptor = (req: Request, res: Response, next: NextFunction) => {
-    const originalJson = res.json;
-    res.json = function (data: any) {
-        return originalJson.call(this, {
-            code: 0,
-            data,
-            message: 'success'
-        });
-    };
-    next();
-};
+import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
@@ -26,10 +14,20 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe({
         transform: true,
         whitelist: true,
+        exceptionFactory: (errors) => {
+            const messages = errors.map(error => {
+                const constraints = error.constraints;
+                return Object.values(constraints)[0];
+            });
+            return new BadRequestException(messages);
+        },
     }));
 
-    // 全局响应拦截器
-    app.use(responseInterceptor);
+    // 全局异常过滤器
+    app.useGlobalFilters(new HttpExceptionFilter());
+
+    // 全局响应转换拦截器
+    app.useGlobalInterceptors(new TransformInterceptor());
 
     // 全局前缀
     app.setGlobalPrefix('api');

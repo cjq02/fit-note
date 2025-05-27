@@ -46,9 +46,6 @@ export class AuthService {
 
         if (!user) {
             this.logger.debug(`用户不存在: ${username}`);
-            // 检查数据库中的所有用户
-            const allUsers = await this.userModel.find().exec();
-            this.logger.debug(`数据库中的所有用户: ${JSON.stringify(allUsers)}`);
             throw new UnauthorizedException('用户名或密码错误');
         }
 
@@ -87,4 +84,4 @@ export class AuthService {
             },
         };
     }
-} 
+}

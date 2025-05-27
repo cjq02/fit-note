@@ -23,11 +23,18 @@ export const Register = () => {
         });
         return;
       }
-      await register(values);
-      Toast.show({
-        icon: 'success',
-        content: '注册成功，请登录',
-      });
+      const res = await register(values);
+      if (res.code === 200) {
+        Toast.show({
+          icon: 'success',
+          content: '注册成功，请登录',
+        });
+      } else {
+        Toast.show({
+          icon: 'fail',
+          content: res.message,
+        });
+      }
       navigate('/login');
     } catch (error: any) {
       Toast.show({
@@ -59,7 +66,7 @@ export const Register = () => {
               label="用户名"
               rules={[
                 { required: true, message: '请输入用户名' },
-                { min: 3, message: '用户名至少3个字符' },
+                { min: 2, message: '用户名至少2个字符' },
                 { max: 20, message: '用户名最多20个字符' },
               ]}
             >
