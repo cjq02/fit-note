@@ -51,7 +51,7 @@ export class WorkoutController {
      * @param {string} date - 日期
      * @param {string} project - 项目
      * @param {Request} req - 请求对象
-     * @returns {Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
+     * @returns {Promise<{ data: Record<string, { project: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
      */
     @Get('group-by-week')
     findAllGroupByWeek(
@@ -60,7 +60,18 @@ export class WorkoutController {
         @Query('date') date: string,
         @Query('project') project: string,
         @Request() req
-    ): Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }> {
+    ): Promise<{
+        data: Record<string, {
+            project: string;
+            totalGroups: number;
+            totalReps: number;
+            totalDays: number;
+        }[]>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
         const query: QueryWorkoutDto = {
             page: Number(page) || 1,
             pageSize: Number(pageSize) || 10,

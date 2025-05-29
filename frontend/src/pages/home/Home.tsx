@@ -10,9 +10,14 @@ import {
 } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import type { ApiResponse, Workout as WorkoutType, WorkoutStats } from '@/@typings/types.d.ts';
-import { getWorkoutsGroupByDate, getWorkoutStats } from '@/api/workout.api';
-import { WorkoutDayGroup } from '../workout/components/WorkoutDayGroup';
+import type {
+  ApiResponse,
+  Workout as WorkoutType,
+  WorkoutStats,
+  WorkoutWeekResponse,
+} from '@/@typings/types.d.ts';
+import { getWorkoutsGroupByWeek, getWorkoutStats } from '@/api/workout.api';
+import { WorkoutWeekGroup } from '../workout/components/WorkoutWeekGroup';
 import React from 'react';
 import TrophyIcon from '@/assets/svg/trophy.svg';
 
@@ -37,17 +42,13 @@ export const Home = () => {
   const navigate = useNavigate();
 
   // 获取最近训练记录
-  const { data: recentWorkouts } = useQuery<
-    ApiResponse<{ data: Record<string, WorkoutType[]>; total: number }>
-  >({
+  const { data: recentWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
     queryKey: ['workouts', 'recent'],
-    queryFn: async () => {
-      const response = await getWorkoutsGroupByDate({
+    queryFn: () =>
+      getWorkoutsGroupByWeek({
         page: 1,
-        pageSize: 3,
-      });
-      return response;
-    },
+        pageSize: 2,
+      }),
   });
 
   // 获取训练统计信息
@@ -191,14 +192,9 @@ export const Home = () => {
         {/* 最近训练 */}
         <Card title="最近训练" className="mb-4">
           <Space direction="vertical" block>
-            {recentWorkouts?.data.data &&
-              Object.entries(recentWorkouts.data.data).map(([date, workouts]) => (
-                <WorkoutDayGroup
-                  key={date}
-                  date={date}
-                  workouts={workouts}
-                  onDeleteSuccess={() => {}}
-                />
+            {recentWorkouts?.data?.data &&
+              Object.entries(recentWorkouts.data.data).map(([weekKey, projects]) => (
+                <WorkoutWeekGroup key={weekKey} weekKey={weekKey} projects={projects} />
               ))}
           </Space>
         </Card>

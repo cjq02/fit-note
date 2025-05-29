@@ -100,3 +100,18 @@ export interface WorkoutStats {
   totalDays: number;
   withoutWorkoutDays: number;
 }
+
+export interface WorkoutWeekStats {
+  project: string;
+  totalGroups: number;
+  totalReps: number;
+  totalDays: number;
+}
+
+export interface WorkoutWeekResponse {
+  data: Record<string, WorkoutWeekStats[]>;
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}

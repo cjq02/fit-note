@@ -156,10 +156,15 @@ export class WorkoutService {
     /**
      * 按周分组获取训练记录
      * @param {QueryWorkoutDto} query - 查询参数
-     * @returns {Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
+     * @returns {Promise<{ data: Record<string, { project: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
      */
     async findAllGroupByWeek(query: QueryWorkoutDto): Promise<{
-        data: Record<string, Workout[]>;
+        data: Record<string, {
+            project: string;
+            totalGroups: number;
+            totalReps: number;
+            totalDays: number;
+        }[]>;
         total: number;
         page: number;
         pageSize: number;
@@ -181,8 +186,12 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 按周分组
-            const weekGroups: Record<string, Workout[]> = {};
+            // 2. 按周和项目分组
+            const weekGroups: Record<string, Record<string, {
+                workouts: Workout[];
+                uniqueDates: Set<string>;
+            }>> = {};
+
             workouts.forEach(workout => {
                 const date = new Date(workout.date);
                 // 获取本周一的日期
@@ -192,9 +201,16 @@ export class WorkoutService {
                 const weekKey = monday.toISOString().split('T')[0];
 
                 if (!weekGroups[weekKey]) {
-                    weekGroups[weekKey] = [];
+                    weekGroups[weekKey] = {};
                 }
-                weekGroups[weekKey].push(workout);
+                if (!weekGroups[weekKey][workout.project]) {
+                    weekGroups[weekKey][workout.project] = {
+                        workouts: [],
+                        uniqueDates: new Set()
+                    };
+                }
+                weekGroups[weekKey][workout.project].workouts.push(workout);
+                weekGroups[weekKey][workout.project].uniqueDates.add(workout.date);
             });
 
             // 3. 获取所有周的唯一键并排序
@@ -205,10 +221,35 @@ export class WorkoutService {
             const endIndex = startIndex + query.pageSize;
             const paginatedWeeks = uniqueWeeks.slice(startIndex, endIndex);
 
-            // 5. 构建分页后的数据
-            const paginatedData: Record<string, Workout[]> = {};
+            // 5. 构建分页后的数据，计算每周每个项目的统计信息
+            const paginatedData: Record<string, {
+                project: string;
+                totalGroups: number;
+                totalReps: number;
+                totalDays: number;
+            }[]> = {};
+
             paginatedWeeks.forEach(week => {
-                paginatedData[week] = weekGroups[week];
+                const weekStats = Object.entries(weekGroups[week]).map(([project, data]) => {
+                    // 计算总组数
+                    const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
+                    // 计算总次数
+                    const totalReps = data.workouts.reduce((sum, workout) =>
+                        sum + workout.groups.reduce((groupSum, group) => groupSum + group.reps, 0), 0);
+                    // 计算训练天数
+                    const totalDays = data.uniqueDates.size;
+
+                    return {
+                        project,
+                        totalGroups,
+                        totalReps,
+                        totalDays
+                    };
+                });
+
+                // 按项目名称排序
+                weekStats.sort((a, b) => a.project.localeCompare(b.project));
+                paginatedData[week] = weekStats;
             });
 
             // 6. 计算总数和是否有更多数据

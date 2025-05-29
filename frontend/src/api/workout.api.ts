@@ -5,6 +5,7 @@ import type {
   UpdateWorkoutRequest,
   Workout,
   WorkoutStats,
+  WorkoutWeekResponse,
 } from '@/@typings/types.d.ts';
 
 /**
@@ -122,4 +123,23 @@ export const getWorkoutsByYearMonth = async (params: {
  */
 export const getWorkoutStats = async (): Promise<ApiResponse<WorkoutStats>> => {
   return http.get('/api/workouts/stats');
+};
+
+/**
+ * 获取按周分组的训练记录
+ *
+ * @param {object} params - 查询参数
+ * @param {number} params.page - 页码
+ * @param {number} params.pageSize - 每页数量
+ * @param {string} [params.date] - 日期
+ * @param {string} [params.project] - 项目
+ * @returns {Promise<ApiResponse<WorkoutWeekResponse>>} 按周分组的训练记录
+ */
+export const getWorkoutsGroupByWeek = (params: {
+  page: number;
+  pageSize: number;
+  date?: string;
+  project?: string;
+}): Promise<ApiResponse<WorkoutWeekResponse>> => {
+  return http.get('/api/workouts/group-by-week', { params });
 };
