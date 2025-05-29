@@ -45,6 +45,34 @@ export class WorkoutController {
     }
 
     /**
+     * 获取按周分组的训练记录列表
+     * @param {string} page - 页码
+     * @param {string} pageSize - 每页数量
+     * @param {string} date - 日期
+     * @param {string} project - 项目
+     * @param {Request} req - 请求对象
+     * @returns {Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
+     */
+    @Get('group-by-week')
+    findAllGroupByWeek(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+        @Query('date') date: string,
+        @Query('project') project: string,
+        @Request() req
+    ): Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }> {
+        const query: QueryWorkoutDto = {
+            page: Number(page) || 1,
+            pageSize: Number(pageSize) || 10,
+            date,
+            project,
+            userId: req.user.id
+        };
+
+        return this.workoutService.findAllGroupByWeek(query);
+    }
+
+    /**
      * 根据日期和项目ID查找训练记录
      * @param {string} date - 日期
      * @param {string} projectId - 项目ID

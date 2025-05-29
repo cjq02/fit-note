@@ -154,6 +154,80 @@ export class WorkoutService {
     }
 
     /**
+     * 按周分组获取训练记录
+     * @param {QueryWorkoutDto} query - 查询参数
+     * @returns {Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
+     */
+    async findAllGroupByWeek(query: QueryWorkoutDto): Promise<{
+        data: Record<string, Workout[]>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+        // 构建查询条件
+        const conditions: any = { userId: query.userId };
+        if (query.date) {
+            conditions.date = query.date;
+        }
+        if (query.project) {
+            conditions.project = { $regex: query.project, $options: 'i' };
+        }
+
+        try {
+            // 1. 获取所有训练记录
+            const workouts = await this.workoutModel
+                .find(conditions)
+                .sort({ date: -1, _id: -1 })
+                .exec();
+
+            // 2. 按周分组
+            const weekGroups: Record<string, Workout[]> = {};
+            workouts.forEach(workout => {
+                const date = new Date(workout.date);
+                // 获取本周一的日期
+                const day = date.getDay() || 7; // 将周日的0转换为7
+                const monday = new Date(date);
+                monday.setDate(date.getDate() - day + 1);
+                const weekKey = monday.toISOString().split('T')[0];
+
+                if (!weekGroups[weekKey]) {
+                    weekGroups[weekKey] = [];
+                }
+                weekGroups[weekKey].push(workout);
+            });
+
+            // 3. 获取所有周的唯一键并排序
+            const uniqueWeeks = Object.keys(weekGroups).sort((a, b) => b.localeCompare(a));
+
+            // 4. 计算分页
+            const startIndex = (query.page - 1) * query.pageSize;
+            const endIndex = startIndex + query.pageSize;
+            const paginatedWeeks = uniqueWeeks.slice(startIndex, endIndex);
+
+            // 5. 构建分页后的数据
+            const paginatedData: Record<string, Workout[]> = {};
+            paginatedWeeks.forEach(week => {
+                paginatedData[week] = weekGroups[week];
+            });
+
+            // 6. 计算总数和是否有更多数据
+            const total = uniqueWeeks.length;
+            const hasMore = total > endIndex;
+
+            return {
+                data: paginatedData,
+                total,
+                page: query.page,
+                pageSize: query.pageSize,
+                hasMore,
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * 按年月获取训练记录
      * @param {string} year - 年份
      * @param {string} month - 月份
