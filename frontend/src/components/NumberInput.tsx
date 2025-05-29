@@ -98,7 +98,7 @@ export const NumberInput = ({
 
   // 按钮基础样式
   const buttonBaseStyle = `
-    w-10 h-10
+    w-8 h-10
     flex items-center justify-center
     border-[var(--adm-color-primary)]
     disabled:bg-[var(--adm-color-fill-light)]
