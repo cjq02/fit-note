@@ -1,5 +1,5 @@
 import { TabBar, NavBar } from 'antd-mobile';
-import { AppOutline, UnorderedListOutline, UserOutline } from 'antd-mobile-icons';
+import { AppOutline, UnorderedListOutline, UserOutline, CalendarOutline } from 'antd-mobile-icons';
 import { useLocation, useNavigate, Outlet, matchRoutes } from 'react-router-dom';
 import type { RouteObject } from 'react-router-dom';
 import { router } from './router';
@@ -9,6 +9,11 @@ const tabs = [
     key: '/',
     title: '首页',
     icon: <AppOutline />,
+  },
+  {
+    key: '/schedule',
+    title: '日程',
+    icon: <CalendarOutline />,
   },
   {
     key: '/workout',

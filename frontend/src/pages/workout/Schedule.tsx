@@ -109,6 +109,7 @@ export const Schedule = () => {
             selectionMode="single"
             value={selectedDate}
             onChange={val => val && setSelectedDate(val)}
+            weekStartsOn="Monday"
             renderDate={date => {
               const dateStr = date.toISOString().split('T')[0];
               const hasWorkout = workoutData[dateStr]?.length > 0;
