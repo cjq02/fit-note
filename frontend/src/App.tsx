@@ -1,5 +1,11 @@
 import { TabBar, NavBar } from 'antd-mobile';
-import { AppOutline, UnorderedListOutline, UserOutline, CalendarOutline } from 'antd-mobile-icons';
+import {
+  AppOutline,
+  UnorderedListOutline,
+  UserOutline,
+  CalendarOutline,
+  AddCircleOutline,
+} from 'antd-mobile-icons';
 import { useLocation, useNavigate, Outlet, matchRoutes } from 'react-router-dom';
 import type { RouteObject } from 'react-router-dom';
 import { router } from './router';
@@ -14,6 +20,15 @@ const tabs = [
     key: '/schedule',
     title: '日程',
     icon: <CalendarOutline />,
+  },
+  {
+    key: '/project',
+    title: '开始',
+    icon: (
+      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center -mt-3 shadow-lg">
+        <AddCircleOutline style={{ fontSize: '24px', color: 'white' }} />
+      </div>
+    ),
   },
   {
     key: '/workout',
@@ -87,7 +102,12 @@ export const App = () => {
         className="flex-none bg-white border-t border-[var(--adm-color-border)] fixed bottom-0 left-0 right-0"
       >
         {tabs.map(item => (
-          <TabBar.Item key={item.key} icon={item.icon} title={item.title} />
+          <TabBar.Item
+            key={item.key}
+            icon={item.icon}
+            title={item.key === '/project' ? '' : item.title}
+            className={item.key === '/project' ? 'scale-110' : ''}
+          />
         ))}
       </TabBar>
     </div>

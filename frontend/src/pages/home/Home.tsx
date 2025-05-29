@@ -165,7 +165,7 @@ export const Home = () => {
                 onClick={() => navigate('/schedule')}
               >
                 <div className="w-14 h-14 rounded-full bg-[var(--adm-color-warning)] flex items-center justify-center mb-2">
-                  <SendOutline style={{ fontSize: '32px', color: 'white' }} />
+                  <CalendarOutline style={{ fontSize: '32px', color: 'white' }} />
                 </div>
                 <span className="text-black text-base font-normal">训练日程</span>
               </div>
