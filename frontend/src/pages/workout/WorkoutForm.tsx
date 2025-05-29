@@ -535,7 +535,6 @@ export const WorkoutForm = () => {
                       <NumberInput
                         value={group.reps}
                         onChange={val => handleGroupChange(idx, 'reps', val)}
-                        placeholder="请输入次数"
                         min={0}
                         max={999}
                         step={1}
@@ -547,7 +546,6 @@ export const WorkoutForm = () => {
                       <NumberInput
                         value={group.weight}
                         onChange={val => handleGroupChange(idx, 'weight', val)}
-                        placeholder={`请输入重量(${unit})`}
                         min={0}
                         max={999}
                         step={0.5}

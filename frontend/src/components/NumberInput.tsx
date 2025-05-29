@@ -150,7 +150,7 @@ export const NumberInput = ({
           text-center text-lg font-bold
           border-0
           text-[var(--adm-color-primary)]
-          px-3
+          px-0
           focus:ring-0
           transition-all duration-300 ease-in-out
           ${isAnimating ? 'animate-number-change' : ''}
