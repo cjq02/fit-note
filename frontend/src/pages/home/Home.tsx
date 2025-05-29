@@ -10,18 +10,11 @@ import {
 } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';
+import type { ApiResponse, Workout as WorkoutType, WorkoutStats } from '@/@typings/types.d.ts';
 import { getWorkoutsGroupByDate, getWorkoutStats } from '@/api/workout.api';
 import { WorkoutDayGroup } from '../workout/components/WorkoutDayGroup';
 import React from 'react';
 import TrophyIcon from '@/assets/svg/trophy.svg';
-
-type WorkoutStats = {
-  weeklyDays: number;
-  monthlyDays: number;
-  continuousDays: number;
-  totalDays: number;
-};
 
 /**
  * 美化数字显示
@@ -80,10 +73,14 @@ export const Home = () => {
       unit: '次',
     },
     {
-      title: '连续训练',
-      value: formatStatNumber(workoutStats?.data?.continuousDays),
+      title: workoutStats?.data?.continuousDays === 0 ? '没有训练' : '连续训练',
+      value: formatStatNumber(
+        workoutStats?.data?.continuousDays === 0
+          ? workoutStats?.data?.withoutWorkoutDays
+          : workoutStats?.data?.continuousDays,
+      ),
       icon: <StarOutline />,
-      color: 'success',
+      color: workoutStats?.data?.continuousDays === 0 ? 'danger' : 'success',
       unit: '天',
     },
   ];
@@ -120,6 +117,7 @@ export const Home = () => {
                 ${item.color === 'primary' ? 'from-blue-100 to-blue-300' : ''}
                 ${item.color === 'warning' ? 'from-yellow-100 to-yellow-300' : ''}
                 ${item.color === 'success' ? 'from-green-100 to-green-300' : ''}
+                ${item.color === 'danger' ? 'from-red-100 to-red-300' : ''}
                 transition-transform hover:scale-105 active:scale-100
               `}
               style={{ minWidth: 0 }}

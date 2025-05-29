@@ -91,3 +91,12 @@ export interface UserInfo {
 export interface GetUserInfoResponse {
   user: UserInfo;
 }
+
+// 训练统计信息类型
+export interface WorkoutStats {
+  weeklyDays: number;
+  monthlyDays: number;
+  continuousDays: number;
+  totalDays: number;
+  withoutWorkoutDays: number;
+}
