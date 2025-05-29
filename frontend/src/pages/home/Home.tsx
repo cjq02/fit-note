@@ -8,7 +8,6 @@ import {
   HeartOutline,
   HistogramOutline,
   PieOutline,
-  SendOutline,
   StarOutline,
   VideoOutline,
 } from 'antd-mobile-icons';
