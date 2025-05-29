@@ -93,7 +93,7 @@ export const App = () => {
       >
         {pageConfig.title}
       </NavBar>
-      <div className="flex-1 overflow-y-auto pb-[50px] container">
+      <div className="flex-1 overflow-y-auto pb-[50px] body">
         <Outlet />
       </div>
       <TabBar

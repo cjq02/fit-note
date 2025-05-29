@@ -2,10 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+.body {
+  overflow: hidden;
+}
+
 .page-container {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 :root {
