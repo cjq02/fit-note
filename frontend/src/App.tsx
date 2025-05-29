@@ -25,7 +25,7 @@ const tabs = [
     key: '/project',
     title: '开始',
     icon: (
-      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center -mt-3 shadow-lg">
+      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center -mt-4 shadow-lg">
         <AddCircleOutline style={{ fontSize: '24px', color: 'white' }} />
       </div>
     ),
