@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, DatePicker, Dialog, Form, Input, Radio, SwipeAction, Toast } from 'antd-mobile';
 import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import type {
@@ -13,6 +13,13 @@ import type {
 } from '@/@typings/types.d.ts';
 import { createWorkout, findByDateAndProject, getWorkout, updateWorkout } from '@/api/workout.api';
 import { NumberInput } from '@/components/NumberInput';
+
+// 添加NodeJS类型定义
+declare global {
+  namespace NodeJS {
+    interface Timeout {}
+  }
+}
 
 const UNIT_OPTIONS = [
   { label: 'kg', value: 'kg' },
@@ -41,6 +48,9 @@ export const WorkoutForm = () => {
   });
   const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
   const [dateVisible, setDateVisible] = useState(false);
+  const [restTime, setRestTime] = useState<number>(0);
+  const timerRef = useRef<number | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   // 获取训练记录详情（通过ID）
   const { data: workoutData } = useQuery<ApiResponse<Workout>, Error>({
@@ -93,6 +103,7 @@ export const WorkoutForm = () => {
       weight: string;
       seqNo: number;
       isNew?: boolean;
+      restTime?: number;
     }>
   >([{ reps: '', weight: '0', seqNo: 1 }]);
 
@@ -220,11 +231,56 @@ export const WorkoutForm = () => {
     setGroups(newGroups);
   };
 
+  /**
+   * 开始/暂停休息计时
+   *
+   * @param idx
+   */
+  const handleStartRest = (idx: number) => {
+    // 只有最后一组才能计时
+    if (idx !== groups.length - 1) {
+      return;
+    }
+
+    if (timerRef.current) {
+      // 如果正在计时，则暂停
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+      setIsPaused(true);
+    } else {
+      // 如果已暂停或未开始，则继续计时
+      setIsPaused(false);
+      // 如果是第一次开始计时，重置时间
+      if (!groups[idx].restTime) {
+        setRestTime(0);
+      }
+      timerRef.current = window.setInterval(() => {
+        setRestTime(prev => {
+          const newTime = prev + 1;
+          // 更新组数据中的休息时间
+          setGroups(currentGroups => {
+            const newGroups = [...currentGroups];
+            newGroups[idx] = { ...newGroups[idx], restTime: newTime };
+            return newGroups;
+          });
+          return newTime;
+        });
+      }, 1000);
+    }
+  };
+
   // 添加组
   /**
    * 添加新的训练组
    */
   const handleAddGroup = () => {
+    // 如果有正在进行的计时，先终止它
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+      setIsPaused(false);
+    }
+
     const newSeqNo = groups.length + 1;
     // 获取上一组的数据
     const lastGroup = groups[groups.length - 1];
@@ -314,12 +370,28 @@ export const WorkoutForm = () => {
     }
   };
 
+  // 组件卸载时清除定时器
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        window.clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
   /**
    * 提交表单
    *
    * @returns {Promise<void>} 无返回值
    */
   const onFinish = async () => {
+    // 如果有正在进行的计时，先终止它
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+      setIsPaused(false);
+    }
+
     if (!projectName && !id) {
       Toast.show({ icon: 'fail', content: '项目名称不能为空' });
       return;
@@ -457,8 +529,8 @@ export const WorkoutForm = () => {
                       <DeleteOutline />
                     </Button>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex flex-col">
+                  <div className="flex gap-3">
+                    <div className="flex flex-col flex-[2]">
                       <span className="text-sm text-[var(--adm-color-text-light)] mb-1">次数</span>
                       <NumberInput
                         value={group.reps}
@@ -470,7 +542,7 @@ export const WorkoutForm = () => {
                         allowDecimal={false}
                       />
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col flex-[2]">
                       <span className="text-sm text-[var(--adm-color-text-light)] mb-1">重量</span>
                       <NumberInput
                         value={group.weight}
@@ -481,6 +553,24 @@ export const WorkoutForm = () => {
                         step={0.5}
                         allowDecimal={true}
                       />
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-sm text-[var(--adm-color-text-light)] mb-1">休息</span>
+                      <Button
+                        size="small"
+                        color={
+                          idx === groups.length - 1
+                            ? timerRef.current
+                              ? 'danger'
+                              : 'warning'
+                            : 'success'
+                        }
+                        onClick={() => handleStartRest(idx)}
+                        className="h-[40px] w-[60px]"
+                        disabled={idx !== groups.length - 1}
+                      >
+                        {group.restTime && group.restTime > 0 ? `${group.restTime}` : '计时'}
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -494,7 +584,7 @@ export const WorkoutForm = () => {
               block
               color="primary"
               onClick={handleAddGroup}
-              className="h-[56px] rounded-xl relative overflow-hidden group"
+              className="h-[48px] rounded-xl relative overflow-hidden group"
               style={
                 {
                   '--background-color': 'var(--adm-color-primary)',
