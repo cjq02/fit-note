@@ -34,7 +34,7 @@ export const getWorkout = async (id: string): Promise<ApiResponse<Workout>> => {
  * @returns {Promise<ApiResponse<Workout>>} 创建训练记录
  */
 export const createWorkout = async (data: CreateWorkoutRequest): Promise<ApiResponse<Workout>> => {
-  return http.post('/api/workouts', data);
+  return http.post('/api/workouts/create', data);
 };
 
 /**
@@ -44,7 +44,7 @@ export const createWorkout = async (data: CreateWorkoutRequest): Promise<ApiResp
  * @returns {Promise<ApiResponse<Workout>>} 更新训练记录
  */
 export const updateWorkout = async (data: UpdateWorkoutRequest): Promise<ApiResponse<Workout>> => {
-  return http.put(`/api/workouts/${data.id}`, data);
+  return http.put(`/api/workouts/update/${data.id}`, data);
 };
 
 /**

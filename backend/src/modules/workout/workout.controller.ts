@@ -138,17 +138,24 @@ export class WorkoutController {
     }
 
     /**
-     * 创建训练记录
+     * 创建新的训练记录
      * @param {CreateWorkoutDto} createWorkoutDto - 创建训练记录的数据
      * @param {Request} req - 请求对象
      * @returns {Promise<Workout>} 创建的训练记录
      */
-    @Post()
+    @Post('create')
     create(@Body() createWorkoutDto: CreateWorkoutDto, @Request() req): Promise<Workout> {
         return this.workoutService.create(createWorkoutDto, req.user.id);
     }
 
-    @Put(':id')
+    /**
+     * 更新训练记录
+     * @param {string} id - 训练记录ID
+     * @param {UpdateWorkoutDto} updateWorkoutDto - 更新训练记录的数据
+     * @param {Request} req - 请求对象
+     * @returns {Promise<Workout>} 更新后的训练记录
+     */
+    @Put('update/:id')
     update(
         @Param('id') id: string,
         @Body() updateWorkoutDto: UpdateWorkoutDto,

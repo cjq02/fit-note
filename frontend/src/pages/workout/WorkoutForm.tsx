@@ -410,13 +410,26 @@ export const WorkoutForm = () => {
         reps: parseInt(g.reps, 10),
         weight: parseFloat(g.weight),
         seqNo: g.seqNo,
+        restTime: g.restTime || 0,
       })),
     };
 
-    if (id) {
-      updateMutation.mutate({ ...data, id });
-    } else {
-      createMutation.mutate(data);
+    try {
+      if (id) {
+        await updateMutation.mutateAsync({ ...data, id });
+      } else {
+        const response = await createMutation.mutateAsync(data);
+        // 创建成功后重定向到编辑页面
+        navigate(`/workout/edit/${response.data.id}`, {
+          replace: true,
+          state: { from: fromPage },
+        });
+      }
+    } catch (error: any) {
+      Toast.show({
+        icon: 'fail',
+        content: error.response?.data?.message || (id ? '更新失败' : '创建失败'),
+      });
     }
   };
 
