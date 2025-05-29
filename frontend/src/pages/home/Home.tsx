@@ -193,8 +193,13 @@ export const Home = () => {
         <Card title="最近训练" className="mb-4">
           <Space direction="vertical" block>
             {recentWorkouts?.data?.data &&
-              Object.entries(recentWorkouts.data.data).map(([weekKey, projects]) => (
-                <WorkoutWeekGroup key={weekKey} weekKey={weekKey} projects={projects} />
+              Object.entries(recentWorkouts.data.data).map(([weekKey, projects], index) => (
+                <WorkoutWeekGroup
+                  key={weekKey}
+                  weekKey={weekKey}
+                  projects={projects}
+                  customTitle={index === 0 ? '本周训练' : index === 1 ? '上周训练' : undefined}
+                />
               ))}
           </Space>
         </Card>

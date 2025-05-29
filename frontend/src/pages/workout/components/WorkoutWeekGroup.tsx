@@ -11,6 +11,10 @@ interface WorkoutWeekGroupProps {
    * 该周的训练项目统计信息
    */
   projects: WorkoutWeekStats[];
+  /**
+   * 自定义标题
+   */
+  customTitle?: string;
 }
 
 /**
@@ -19,12 +23,18 @@ interface WorkoutWeekGroupProps {
  * @param {WorkoutWeekGroupProps} props - 组件属性
  * @returns {JSX.Element} 每周训练内容组件
  */
-export const WorkoutWeekGroup: React.FC<WorkoutWeekGroupProps> = ({ weekKey, projects }) => {
+export const WorkoutWeekGroup: React.FC<WorkoutWeekGroupProps> = ({
+  weekKey,
+  projects,
+  customTitle,
+}) => {
   // 将周一的日期转换为更友好的显示格式
   const weekDate = new Date(weekKey);
   const weekEnd = new Date(weekDate);
   weekEnd.setDate(weekDate.getDate() + 6);
-  const weekDisplay = `${weekDate.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })} - ${weekEnd.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}`;
+  const weekDisplay =
+    customTitle ||
+    `${weekDate.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })} - ${weekEnd.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}`;
 
   // 生成周颜色
   const weekColor = generateColorFromDate(weekKey);
@@ -33,14 +43,28 @@ export const WorkoutWeekGroup: React.FC<WorkoutWeekGroupProps> = ({ weekKey, pro
 
   return (
     <div className="mb-6">
-      <div
-        className="text-lg font-semibold mb-3 px-1 pl-3"
-        style={{
-          borderLeft: `4px solid ${weekColor}`,
-          color: weekColor,
-        }}
-      >
-        {weekDisplay}
+      <div className="relative mb-4">
+        <div
+          className="absolute -left-4 top-1/2 -translate-y-1/2 w-2 h-8 rounded-full"
+          style={{ background: weekColor }}
+        />
+        <div
+          className="text-lg font-semibold pl-6 pr-8 py-3 rounded-2xl relative overflow-hidden"
+          style={{
+            background: `linear-gradient(135deg, ${weekColorLight}, ${weekColor}20)`,
+            color: weekColor,
+          }}
+        >
+          <div
+            className="absolute -right-8 -top-8 w-16 h-16 rounded-full opacity-20"
+            style={{ background: weekColor }}
+          />
+          <div
+            className="absolute -left-4 -bottom-4 w-12 h-12 rounded-full opacity-20"
+            style={{ background: weekColor }}
+          />
+          <span className="relative z-10">{weekDisplay}</span>
+        </div>
       </div>
       <div className="space-y-3">
         {projects.map(project => (
