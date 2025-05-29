@@ -509,12 +509,37 @@ export const WorkoutForm = () => {
             {groups.map((group, idx) => (
               <SwipeAction
                 key={idx}
-                rightActions={[
+                leftActions={[
                   {
                     key: 'delete',
                     text: '删除',
                     color: 'danger',
                     onClick: () => handleRemoveGroup(idx),
+                  },
+                ]}
+                rightActions={[
+                  {
+                    key: 'clearTimer',
+                    text: '清空计时',
+                    color: 'warning',
+                    onClick: () => {
+                      Dialog.confirm({
+                        content: '确定要清空这组的休息时间吗？',
+                        onConfirm: () => {
+                          setGroups(currentGroups => {
+                            const newGroups = [...currentGroups];
+                            newGroups[idx] = { ...newGroups[idx], restTime: 0 };
+                            return newGroups;
+                          });
+                          // 如果正在计时，停止计时
+                          if (timerRef.current) {
+                            window.clearInterval(timerRef.current);
+                            timerRef.current = null;
+                            setIsPaused(false);
+                          }
+                        },
+                      });
+                    },
                   },
                 ]}
               >
