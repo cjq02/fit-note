@@ -19,6 +19,11 @@ export class WorkoutGroupDto {
     @Type(() => Number)
     @Min(1)
     seqNo: number;
+
+    @IsNumber()
+    @Type(() => Number)
+    @Min(0)
+    restTime?: number;
 }
 
 export class CreateWorkoutDto {

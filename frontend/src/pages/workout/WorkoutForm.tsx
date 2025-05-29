@@ -91,6 +91,7 @@ export const WorkoutForm = () => {
           reps: group.reps.toString(),
           weight: group.weight.toString(),
           seqNo: group.seqNo,
+          restTime: group.restTime || 0,
         })),
       );
     }
@@ -253,6 +254,8 @@ export const WorkoutForm = () => {
       // 如果是第一次开始计时，重置时间
       if (!groups[idx].restTime) {
         setRestTime(0);
+      } else {
+        setRestTime(groups[idx].restTime);
       }
       timerRef.current = window.setInterval(() => {
         setRestTime(prev => {

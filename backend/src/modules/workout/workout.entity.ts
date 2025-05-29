@@ -13,6 +13,9 @@ export class WorkoutGroup {
 
     @Prop({ required: true, type: Number, min: 1 })
     seqNo: number;
+
+    @Prop({ type: Number, default: 0, min: 0 })
+    restTime: number;
 }
 
 @Schema({ timestamps: true })
