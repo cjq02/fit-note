@@ -129,7 +129,7 @@ export const Schedule = () => {
         </Card>
 
         {/* 训练计划列表 */}
-        <Card title="训练计划" className="mb-4">
+        <Card title="训练记录" className="mb-4">
           {loading ? (
             <List.Item>加载中...</List.Item>
           ) : (
@@ -144,7 +144,23 @@ export const Schedule = () => {
                   }}
                 />
               ) : (
-                <List.Item>暂无训练计划</List.Item>
+                <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+                  <svg
+                    className="mb-4 h-16 w-16"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <p className="text-base">暂无训练记录</p>
+                </div>
               )}
             </>
           )}
