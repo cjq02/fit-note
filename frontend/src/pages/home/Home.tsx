@@ -1,3 +1,7 @@
+import type { ApiResponse, WorkoutStats, WorkoutWeekResponse } from '@/@typings/types.d.ts';
+import { getWorkoutsGroupByWeek, getWorkoutStats } from '@/api/workout.api';
+import TrophyIcon from '@/assets/svg/trophy.svg';
+import { useQuery } from '@tanstack/react-query';
 import { Card, Grid, Space } from 'antd-mobile';
 import {
   CalendarOutline,
@@ -8,18 +12,9 @@ import {
   StarOutline,
   VideoOutline,
 } from 'antd-mobile-icons';
-import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import type {
-  ApiResponse,
-  Workout as WorkoutType,
-  WorkoutStats,
-  WorkoutWeekResponse,
-} from '@/@typings/types.d.ts';
-import { getWorkoutsGroupByWeek, getWorkoutStats } from '@/api/workout.api';
-import { WorkoutWeekGroup } from '../workout/components/WorkoutWeekGroup';
 import React from 'react';
-import TrophyIcon from '@/assets/svg/trophy.svg';
+import { useNavigate } from 'react-router-dom';
+import { WorkoutWeekGroup } from '../workout/components/WorkoutWeekGroup';
 
 /**
  * 美化数字显示
