@@ -320,6 +320,52 @@ docker-compose -f docker-compose.prod.yml up -d --build
 - 使用 `--build` 参数会重新构建镜像，包括重新安装依赖
 - 使用 `-v` 参数会删除所有数据卷，包括数据库数据，请谨慎使用
 
+### 数据备份与恢复
+
+项目提供了 MongoDB 数据库的备份和恢复脚本，位于 `scripts` 目录下。
+
+#### 备份脚本 (backup-mongodb.sh)
+
+用于备份 MongoDB 数据库，备份文件将保存在 `/backup/mongodb` 目录下。
+
+```bash
+# 添加执行权限
+chmod +x scripts/backup-mongodb.sh
+
+# 执行备份
+./scripts/backup-mongodb.sh
+```
+
+备份脚本功能：
+- 自动创建带时间戳的备份文件
+- 备份文件以 `.tar.gz` 格式压缩存储
+- 自动清理 7 天前的旧备份文件
+- 备份文件保存在 `/backup/mongodb` 目录
+
+#### 恢复脚本 (restore-mongodb.sh)
+
+用于从备份文件恢复 MongoDB 数据库。
+
+```bash
+# 添加执行权限
+chmod +x scripts/restore-mongodb.sh
+
+# 执行恢复（需要指定备份文件路径）
+./scripts/restore-mongodb.sh /backup/mongodb/20240101_120000.tar.gz
+```
+
+恢复脚本功能：
+- 支持从压缩的备份文件恢复数据
+- 恢复前会自动清空目标数据库
+- 使用临时目录进行解压和恢复操作
+- 恢复完成后自动清理临时文件
+
+注意事项：
+- 执行脚本前请确保已添加执行权限
+- 恢复操作会覆盖现有数据，请谨慎操作
+- 建议在恢复前先备份当前数据
+- 确保有足够的磁盘空间存储备份文件
+
 ## 贡献指南
 
 1. Fork 项目
