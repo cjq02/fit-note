@@ -7,12 +7,12 @@ import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { QueryWorkoutDto } from './dto/query-workout.dto';
 import { Workout } from './workout.entity';
 
-@Controller('workouts')
+@Controller('workout')
 @UseGuards(JwtAuthGuard)
 export class WorkoutController {
     constructor(private readonly workoutService: WorkoutService) { }
 
-    @Get()
+    @Get('find-all')
     findAll(@Request() req): Promise<Workout[]> {
         return this.workoutService.findAll(req.user.id);
     }
@@ -89,7 +89,7 @@ export class WorkoutController {
      * @param {string} projectId - 项目ID
      * @returns {Promise<Workout | null>} 训练记录或null
      */
-    @Get('find')
+    @Get('find-by-date-and-project')
     findByDateAndProject(
         @Query('date') date: string,
         @Query('projectId') projectId: string,
@@ -132,7 +132,7 @@ export class WorkoutController {
         return this.workoutService.getWorkoutStats(req.user.id);
     }
 
-    @Get(':id')
+    @Get('get/:id')
     findOne(@Param('id') id: string, @Request() req): Promise<Workout> {
         return this.workoutService.findOne(id, req.user.id);
     }
@@ -164,7 +164,7 @@ export class WorkoutController {
         return this.workoutService.update(id, updateWorkoutDto, req.user.id);
     }
 
-    @Delete(':id')
+    @Delete('delete/:id')
     remove(@Param('id') id: string, @Request() req): Promise<void> {
         return this.workoutService.remove(id, req.user.id);
     }

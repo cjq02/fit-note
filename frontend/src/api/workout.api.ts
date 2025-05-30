@@ -14,7 +14,7 @@ import type {
  * @returns {Promise<ApiResponse<Workout[]>>} 训练记录列表
  */
 export const getWorkouts = async (): Promise<ApiResponse<Workout[]>> => {
-  return http.get('/api/workouts');
+  return http.get('/api/workout/find-all');
 };
 
 /**
@@ -24,7 +24,7 @@ export const getWorkouts = async (): Promise<ApiResponse<Workout[]>> => {
  * @returns {Promise<ApiResponse<Workout>>} 单个训练记录
  */
 export const getWorkout = async (id: string): Promise<ApiResponse<Workout>> => {
-  return http.get(`/api/workouts/${id}`);
+  return http.get(`/api/workout/get/${id}`);
 };
 
 /**
@@ -34,7 +34,7 @@ export const getWorkout = async (id: string): Promise<ApiResponse<Workout>> => {
  * @returns {Promise<ApiResponse<Workout>>} 创建训练记录
  */
 export const createWorkout = async (data: CreateWorkoutRequest): Promise<ApiResponse<Workout>> => {
-  return http.post('/api/workouts/create', data);
+  return http.post('/api/workout/create', data);
 };
 
 /**
@@ -44,7 +44,7 @@ export const createWorkout = async (data: CreateWorkoutRequest): Promise<ApiResp
  * @returns {Promise<ApiResponse<Workout>>} 更新训练记录
  */
 export const updateWorkout = async (data: UpdateWorkoutRequest): Promise<ApiResponse<Workout>> => {
-  return http.put(`/api/workouts/update/${data.id}`, data);
+  return http.put(`/api/workout/update/${data.id}`, data);
 };
 
 /**
@@ -54,7 +54,7 @@ export const updateWorkout = async (data: UpdateWorkoutRequest): Promise<ApiResp
  * @returns {Promise<ApiResponse<void>>} 删除训练记录
  */
 export const deleteWorkout = async (id: string): Promise<ApiResponse<void>> => {
-  return http.delete(`/api/workouts/${id}`);
+  return http.delete(`/api/workout/delete/${id}`);
 };
 
 /**
@@ -68,7 +68,7 @@ export const findByDateAndProject = async (
   date: string,
   projectId: string,
 ): Promise<ApiResponse<Workout | null>> => {
-  return http.get('/api/workouts/find', {
+  return http.get('/api/workout/find-by-date-and-project', {
     params: { date, projectId },
   });
 };
@@ -89,7 +89,7 @@ export const getWorkoutsGroupByDate = async (params?: {
   page?: number;
   pageSize?: number;
 }): Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>> => {
-  return http.get('/api/workouts/group-by-date', { params });
+  return http.get('/api/workout/group-by-date', { params });
 };
 
 /**
@@ -108,7 +108,7 @@ export const getWorkoutsByYearMonth = async (params: {
   month: string;
 }): Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>> => {
   const { year, month } = params;
-  return http.get('/api/workouts/by-year-month', {
+  return http.get('/api/workout/by-year-month', {
     params: {
       year,
       month,
@@ -122,7 +122,7 @@ export const getWorkoutsByYearMonth = async (params: {
  * @returns {Promise<ApiResponse<WorkoutStats>>} 训练统计信息
  */
 export const getWorkoutStats = async (): Promise<ApiResponse<WorkoutStats>> => {
-  return http.get('/api/workouts/stats');
+  return http.get('/api/workout/stats');
 };
 
 /**
@@ -141,5 +141,5 @@ export const getWorkoutsGroupByWeek = (params: {
   date?: string;
   project?: string;
 }): Promise<ApiResponse<WorkoutWeekResponse>> => {
-  return http.get('/api/workouts/group-by-week', { params });
+  return http.get('/api/workout/group-by-week', { params });
 };

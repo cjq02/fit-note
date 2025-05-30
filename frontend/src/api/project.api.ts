@@ -13,7 +13,7 @@ import type {
  * @returns {Promise<ApiResponse<Project[]>>} 训练项目列表
  */
 export const getProjects = async (): Promise<ApiResponse<Project[]>> => {
-  return http.get<Project[]>('/api/project/findAll');
+  return http.get<Project[]>('/api/project/find-all');
 };
 
 // 获取训练项目详情
@@ -24,7 +24,7 @@ export const getProjects = async (): Promise<ApiResponse<Project[]>> => {
  * @returns {Promise<ApiResponse<Project>>} 训练项目详情
  */
 export const getProject = async (id: string): Promise<ApiResponse<Project>> => {
-  const response = await http.get<Project>(`/api/project/findOne/${id}`);
+  const response = await http.get<Project>(`/api/project/get/${id}`);
   return response;
 };
 

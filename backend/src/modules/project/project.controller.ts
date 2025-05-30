@@ -11,12 +11,12 @@ import { Project } from './project.entity';
 export class ProjectController {
     constructor(private readonly projectService: ProjectService) { }
 
-    @Get('findAll')
+    @Get('find-all')
     findAll(@Request() req): Promise<Project[]> {
         return this.projectService.findAll(req.user.id);
     }
 
-    @Get('findOne/:id')
+    @Get('get/:id')
     findOne(@Param('id') id: string): Promise<Project> {
         return this.projectService.findOne(id);
     }
