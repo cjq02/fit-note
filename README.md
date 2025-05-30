@@ -200,7 +200,7 @@ chmod +x recompile.sh
 ./recompile.sh backend
 
 # 重新编译所有服务
-./recompile.sh all
+./recompile.sh
 ```
 
 注意：每次修改 `recompile.sh` 文件后，都需要先执行 `chmod -x recompile.sh` 移除执行权限，拉取代码后再执行 `chmod +x recompile.sh` 重新添加执行权限。

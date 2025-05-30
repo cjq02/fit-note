@@ -48,24 +48,28 @@ export const Home = () => {
   const navigate = useNavigate();
   const [groupType, setGroupType] = useState<'week' | 'month' | 'year'>('week');
 
-  // 获取最近训练记录
-  const { data: recentWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
-    queryKey: ['workouts', 'recent', groupType],
-    queryFn: () => {
-      const params = {
-        page: 1,
-        pageSize: 2,
-      };
-      switch (groupType) {
-        case 'week':
-          return getWorkoutsGroupByWeek(params);
-        case 'month':
-          return getWorkoutsGroupByMonth(params);
-        case 'year':
-          return getWorkoutsGroupByYear(params);
-      }
-    },
+  // 获取所有时间维度的训练记录
+  const { data: weekWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
+    queryKey: ['workouts', 'recent', 'week'],
+    queryFn: () => getWorkoutsGroupByWeek({ page: 1, pageSize: 2 }),
   });
+
+  const { data: monthWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
+    queryKey: ['workouts', 'recent', 'month'],
+    queryFn: () => getWorkoutsGroupByMonth({ page: 1, pageSize: 2 }),
+  });
+
+  const { data: yearWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
+    queryKey: ['workouts', 'recent', 'year'],
+    queryFn: () => getWorkoutsGroupByYear({ page: 1, pageSize: 2 }),
+  });
+
+  // 根据当前选择的时间维度获取对应的数据
+  const recentWorkouts = {
+    week: weekWorkouts,
+    month: monthWorkouts,
+    year: yearWorkouts,
+  }[groupType];
 
   // 获取训练统计信息
   const { data: workoutStats } = useQuery<ApiResponse<WorkoutStats>>({
