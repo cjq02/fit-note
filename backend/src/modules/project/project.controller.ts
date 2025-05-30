@@ -6,27 +6,27 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { Project } from './project.entity';
 
-@Controller('projects')
+@Controller('project')
 @UseGuards(JwtAuthGuard)
 export class ProjectController {
     constructor(private readonly projectService: ProjectService) { }
 
-    @Get()
+    @Get('findAll')
     findAll(@Request() req): Promise<Project[]> {
         return this.projectService.findAll(req.user.id);
     }
 
-    @Get(':id')
+    @Get('findOne/:id')
     findOne(@Param('id') id: string): Promise<Project> {
         return this.projectService.findOne(id);
     }
 
-    @Post()
+    @Post('create')
     create(@Body() createProjectDto: CreateProjectDto): Promise<Project> {
         return this.projectService.create(createProjectDto);
     }
 
-    @Put(':id')
+    @Put('update/:id')
     update(
         @Param('id') id: string,
         @Body() updateProjectDto: UpdateProjectDto,
@@ -34,7 +34,7 @@ export class ProjectController {
         return this.projectService.update(id, updateProjectDto);
     }
 
-    @Delete(':id')
+    @Delete('remove/:id')
     remove(@Param('id') id: string): Promise<void> {
         return this.projectService.remove(id);
     }
