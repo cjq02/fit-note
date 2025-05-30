@@ -22,8 +22,11 @@ export class ProjectController {
     }
 
     @Post('create')
-    create(@Body() createProjectDto: CreateProjectDto): Promise<Project> {
-        return this.projectService.create(createProjectDto);
+    create(
+        @Request() req,
+        @Body() createProjectDto: CreateProjectDto
+    ): Promise<Project> {
+        return this.projectService.create(createProjectDto, req.user.id);
     }
 
     @Put('update/:id')

@@ -33,10 +33,14 @@ export const getProject = async (id: string): Promise<ApiResponse<Project>> => {
  * 创建新的训练项目
  *
  * @param {CreateProjectRequest} data - 创建项目请求参数
+ * @param {string} userId - 用户ID
  * @returns {Promise<ApiResponse<Project>>} 创建的项目信息
  */
-export const createProject = async (data: CreateProjectRequest): Promise<ApiResponse<Project>> => {
-  const response = await http.post<Project>('/api/project/create', data);
+export const createProject = async (
+  data: CreateProjectRequest,
+  userId: string,
+): Promise<ApiResponse<Project>> => {
+  const response = await http.post<Project>('/api/project/create', { ...data, userId });
   return response;
 };
 

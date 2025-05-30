@@ -25,8 +25,8 @@ export class ProjectService {
     // @param {string} userId - 用户ID
     // @returns {Promise<Project[]>} 返回所有训练项目，每个项目包含当天的训练记录ID（如果存在）
     async findAll(userId: string): Promise<(Project & { todayWorkoutId?: string })[]> {
-        // 获取所有项目
-        const projects = await this.projectModel.find().sort({ createdAt: -1 }).exec();
+        // 获取当前用户的所有项目
+        const projects = await this.projectModel.find({ userId }).sort({ createdAt: -1 }).exec();
 
         // 获取今天的日期字符串
         const today = getTodayString();
@@ -59,9 +59,18 @@ export class ProjectService {
     }
 
     // 创建训练项目
-    async create(createProjectDto: CreateProjectDto): Promise<Project> {
+    /**
+     * 创建新的训练项目
+     * @param {CreateProjectDto} createProjectDto - 创建项目的数据
+     * @param {string} userId - 用户ID
+     * @returns {Promise<Project>} 创建的项目
+     */
+    async create(createProjectDto: CreateProjectDto, userId: string): Promise<Project> {
         try {
-            const project = new this.projectModel(createProjectDto);
+            const project = new this.projectModel({
+                ...createProjectDto,
+                userId
+            });
             return await project.save();
         } catch (error) {
             if (error.code === 11000) {
