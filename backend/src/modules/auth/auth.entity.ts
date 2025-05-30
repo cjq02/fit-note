@@ -4,13 +4,19 @@ import * as bcrypt from 'bcryptjs';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
     @Prop({ required: true, unique: true })
     username: string;
 
     @Prop({ required: true })
     password: string;
+
+    // 创建时间，由 timestamps 自动管理
+    createdAt?: Date;
+
+    // 更新时间，由 timestamps 自动管理
+    updatedAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -32,4 +38,4 @@ UserSchema.pre('save', async function (next) {
 // 添加验证密码的方法
 UserSchema.methods.validatePassword = async function (password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
-}; 
+};
