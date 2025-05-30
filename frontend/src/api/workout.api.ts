@@ -143,3 +143,41 @@ export const getWorkoutsGroupByWeek = (params: {
 }): Promise<ApiResponse<WorkoutWeekResponse>> => {
   return http.get('/api/workout/group-by-week', { params });
 };
+
+/**
+ * 获取按月分组的训练记录
+ *
+ * @param {object} params - 查询参数
+ * @param {number} params.page - 页码
+ * @param {number} params.pageSize - 每页数量
+ * @param {string} [params.date] - 日期
+ * @param {string} [params.project] - 项目
+ * @returns {Promise<ApiResponse<WorkoutWeekResponse>>} 按月分组的训练记录
+ */
+export const getWorkoutsGroupByMonth = (params: {
+  page: number;
+  pageSize: number;
+  date?: string;
+  project?: string;
+}): Promise<ApiResponse<WorkoutWeekResponse>> => {
+  return http.get('/api/workout/group-by-month', { params });
+};
+
+/**
+ * 获取按年分组的训练记录
+ *
+ * @param {object} params - 查询参数
+ * @param {number} params.page - 页码
+ * @param {number} params.pageSize - 每页数量
+ * @param {string} [params.date] - 日期
+ * @param {string} [params.project] - 项目
+ * @returns {Promise<ApiResponse<WorkoutWeekResponse>>} 按年分组的训练记录
+ */
+export const getWorkoutsGroupByYear = (params: {
+  page: number;
+  pageSize: number;
+  date?: string;
+  project?: string;
+}): Promise<ApiResponse<WorkoutWeekResponse>> => {
+  return http.get('/api/workout/group-by-year', { params });
+};

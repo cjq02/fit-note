@@ -1,8 +1,13 @@
 import type { ApiResponse, WorkoutStats, WorkoutWeekResponse } from '@/@typings/types.d.ts';
-import { getWorkoutsGroupByWeek, getWorkoutStats } from '@/api/workout.api';
+import {
+  getWorkoutsGroupByWeek,
+  getWorkoutStats,
+  getWorkoutsGroupByMonth,
+  getWorkoutsGroupByYear,
+} from '@/api/workout.api';
 import TrophyIcon from '@/assets/svg/trophy.svg';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Grid, Space } from 'antd-mobile';
+import { Card, Grid, Space, Tabs } from 'antd-mobile';
 import {
   CalendarOutline,
   HeartOutline,
@@ -11,9 +16,16 @@ import {
   StarOutline,
   VideoOutline,
 } from 'antd-mobile-icons';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WorkoutWeekGroup } from '../workout/components/WorkoutWeekGroup';
+
+/** 解决adm-card-header-title宽度问题 */
+if (typeof window !== 'undefined') {
+  const style = document.createElement('style');
+  style.innerHTML = `.adm-card-header-title { width: 100% !important; }`;
+  document.head.appendChild(style);
+}
 
 /**
  * 美化数字显示
@@ -34,15 +46,25 @@ const formatStatNumber = (value: number | undefined) => {
  */
 export const Home = () => {
   const navigate = useNavigate();
+  const [groupType, setGroupType] = useState<'week' | 'month' | 'year'>('week');
 
   // 获取最近训练记录
   const { data: recentWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
-    queryKey: ['workouts', 'recent'],
-    queryFn: () =>
-      getWorkoutsGroupByWeek({
+    queryKey: ['workouts', 'recent', groupType],
+    queryFn: () => {
+      const params = {
         page: 1,
         pageSize: 2,
-      }),
+      };
+      switch (groupType) {
+        case 'week':
+          return getWorkoutsGroupByWeek(params);
+        case 'month':
+          return getWorkoutsGroupByMonth(params);
+        case 'year':
+          return getWorkoutsGroupByYear(params);
+      }
+    },
   });
 
   // 获取训练统计信息
@@ -184,15 +206,49 @@ export const Home = () => {
         </Card>
 
         {/* 最近训练 */}
-        <Card title="最近训练" className="mb-4">
+        <Card
+          title={
+            <div className="flex justify-between items-center w-full">
+              <div>
+                <span className="text-base font-medium">最近训练</span>
+              </div>
+              <div>
+                <Tabs
+                  activeKey={groupType}
+                  onChange={key => setGroupType(key as 'week' | 'month' | 'year')}
+                  className="!w-auto [&_.adm-tabs-tab]:text-sm [&_.adm-tabs-tab]:px-2 [&_.adm-tabs-tab]:font-normal [&_.adm-tabs-header]:!border-none [&_.adm-tabs-tab-active]:!text-[var(--adm-color-primary)] [&_.adm-tabs-tab-active]:!font-medium"
+                >
+                  <Tabs.Tab title="按周" key="week" />
+                  <Tabs.Tab title="按月" key="month" />
+                  <Tabs.Tab title="按年" key="year" />
+                </Tabs>
+              </div>
+            </div>
+          }
+          className="mb-4"
+        >
           <Space direction="vertical" block>
             {recentWorkouts?.data?.data &&
-              Object.entries(recentWorkouts.data.data).map(([weekKey, projects], index) => (
+              Object.entries(recentWorkouts.data.data).map(([key, projects], index) => (
                 <WorkoutWeekGroup
-                  key={weekKey}
-                  weekKey={weekKey}
+                  key={key}
+                  weekKey={key}
                   projects={projects}
-                  customTitle={index === 0 ? '本周训练' : index === 1 ? '上周训练' : undefined}
+                  customTitle={
+                    index === 0
+                      ? groupType === 'week'
+                        ? '本周训练'
+                        : groupType === 'month'
+                          ? '本月训练'
+                          : '今年训练'
+                      : index === 1
+                        ? groupType === 'week'
+                          ? '上周训练'
+                          : groupType === 'month'
+                            ? '上月训练'
+                            : '去年训练'
+                        : undefined
+                  }
                 />
               ))}
           </Space>

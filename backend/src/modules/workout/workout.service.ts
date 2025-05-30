@@ -412,4 +412,303 @@ export class WorkoutService {
             withoutWorkoutDays
         };
     }
+
+    /**
+     * 获取按天分组的训练记录
+     * @param {QueryWorkoutDto} query - 查询参数
+     * @returns {Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按天分组的训练记录和分页信息
+     */
+    async findAllGroupByDay(query: QueryWorkoutDto): Promise<{
+        data: Record<string, Workout[]>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+        // 构建查询条件
+        const conditions: any = { userId: query.userId };
+        if (query.date) {
+            conditions.date = query.date;
+        }
+        if (query.project) {
+            conditions.project = query.project;
+        }
+
+        try {
+            // 1. 获取所有训练记录
+            const workouts = await this.workoutModel
+                .find(conditions)
+                .sort({ date: -1, _id: -1 })
+                .exec();
+
+            // 2. 按日期分组
+            const groupedWorkouts = workouts.reduce((acc, workout) => {
+                if (!acc[workout.date]) {
+                    acc[workout.date] = [];
+                }
+                acc[workout.date].push(workout);
+                return acc;
+            }, {} as Record<string, Workout[]>);
+
+            // 3. 获取所有日期的唯一键并排序
+            const uniqueDates = Object.keys(groupedWorkouts).sort((a, b) => b.localeCompare(a));
+
+            // 4. 计算分页
+            const startIndex = (query.page - 1) * query.pageSize;
+            const endIndex = startIndex + query.pageSize;
+            const paginatedDates = uniqueDates.slice(startIndex, endIndex);
+
+            // 5. 构建分页后的数据
+            const paginatedData: Record<string, Workout[]> = {};
+            paginatedDates.forEach(date => {
+                paginatedData[date] = groupedWorkouts[date];
+            });
+
+            // 6. 计算总数和是否有更多数据
+            const total = uniqueDates.length;
+            const hasMore = total > endIndex;
+
+            return {
+                data: paginatedData,
+                total,
+                page: query.page,
+                pageSize: query.pageSize,
+                hasMore,
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * 获取按月分组的训练记录
+     * @param {QueryWorkoutDto} query - 查询参数
+     * @returns {Promise<{ data: Record<string, { project: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按月分组的训练记录和分页信息
+     */
+    async findAllGroupByMonth(query: QueryWorkoutDto): Promise<{
+        data: Record<string, {
+            project: string;
+            totalGroups: number;
+            totalReps: number;
+            totalDays: number;
+        }[]>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+        // 构建查询条件
+        const conditions: any = { userId: query.userId };
+        if (query.date) {
+            const date = new Date(query.date);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+            const lastDay = new Date(year, month, 0).getDate();
+            const endDate = `${year}-${month.toString().padStart(2, '0')}-${lastDay}`;
+            conditions.date = { $gte: startDate, $lte: endDate };
+        }
+        if (query.project) {
+            conditions.project = query.project;
+        }
+
+        try {
+            // 1. 获取所有训练记录
+            const workouts = await this.workoutModel
+                .find(conditions)
+                .sort({ date: -1, _id: -1 })
+                .exec();
+
+            // 2. 按月和项目分组
+            const monthGroups: Record<string, Record<string, {
+                workouts: Workout[];
+                uniqueDates: Set<string>;
+            }>> = {};
+
+            workouts.forEach(workout => {
+                const date = new Date(workout.date);
+                const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+
+                if (!monthGroups[monthKey]) {
+                    monthGroups[monthKey] = {};
+                }
+                if (!monthGroups[monthKey][workout.project]) {
+                    monthGroups[monthKey][workout.project] = {
+                        workouts: [],
+                        uniqueDates: new Set()
+                    };
+                }
+                monthGroups[monthKey][workout.project].workouts.push(workout);
+                monthGroups[monthKey][workout.project].uniqueDates.add(workout.date);
+            });
+
+            // 3. 获取所有月份的唯一键并排序
+            const uniqueMonths = Object.keys(monthGroups).sort((a, b) => b.localeCompare(a));
+
+            // 4. 计算分页
+            const startIndex = (query.page - 1) * query.pageSize;
+            const endIndex = startIndex + query.pageSize;
+            const paginatedMonths = uniqueMonths.slice(startIndex, endIndex);
+
+            // 5. 构建分页后的数据，计算每月每个项目的统计信息
+            const paginatedData: Record<string, {
+                project: string;
+                totalGroups: number;
+                totalReps: number;
+                totalDays: number;
+            }[]> = {};
+
+            paginatedMonths.forEach(month => {
+                const monthStats = Object.entries(monthGroups[month]).map(([project, data]) => {
+                    // 计算总组数
+                    const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
+                    // 计算总次数
+                    const totalReps = data.workouts.reduce((sum, workout) =>
+                        sum + workout.groups.reduce((groupSum, group) => groupSum + group.reps, 0), 0);
+                    // 计算训练天数
+                    const totalDays = data.uniqueDates.size;
+
+                    return {
+                        project,
+                        totalGroups,
+                        totalReps,
+                        totalDays
+                    };
+                });
+
+                // 按项目名称排序
+                monthStats.sort((a, b) => a.project.localeCompare(b.project));
+                paginatedData[month] = monthStats;
+            });
+
+            // 6. 计算总数和是否有更多数据
+            const total = uniqueMonths.length;
+            const hasMore = total > endIndex;
+
+            return {
+                data: paginatedData,
+                total,
+                page: query.page,
+                pageSize: query.pageSize,
+                hasMore,
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * 获取按年分组的训练记录
+     * @param {QueryWorkoutDto} query - 查询参数
+     * @returns {Promise<{ data: Record<string, { project: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按年分组的训练记录和分页信息
+     */
+    async findAllGroupByYear(query: QueryWorkoutDto): Promise<{
+        data: Record<string, {
+            project: string;
+            totalGroups: number;
+            totalReps: number;
+            totalDays: number;
+        }[]>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+        // 构建查询条件
+        const conditions: any = { userId: query.userId };
+        if (query.date) {
+            const date = new Date(query.date);
+            const year = date.getFullYear();
+            const startDate = `${year}-01-01`;
+            const endDate = `${year}-12-31`;
+            conditions.date = { $gte: startDate, $lte: endDate };
+        }
+        if (query.project) {
+            conditions.project = query.project;
+        }
+
+        try {
+            // 1. 获取所有训练记录
+            const workouts = await this.workoutModel
+                .find(conditions)
+                .sort({ date: -1, _id: -1 })
+                .exec();
+
+            // 2. 按年和项目分组
+            const yearGroups: Record<string, Record<string, {
+                workouts: Workout[];
+                uniqueDates: Set<string>;
+            }>> = {};
+
+            workouts.forEach(workout => {
+                const date = new Date(workout.date);
+                const yearKey = date.getFullYear().toString();
+
+                if (!yearGroups[yearKey]) {
+                    yearGroups[yearKey] = {};
+                }
+                if (!yearGroups[yearKey][workout.project]) {
+                    yearGroups[yearKey][workout.project] = {
+                        workouts: [],
+                        uniqueDates: new Set()
+                    };
+                }
+                yearGroups[yearKey][workout.project].workouts.push(workout);
+                yearGroups[yearKey][workout.project].uniqueDates.add(workout.date);
+            });
+
+            // 3. 获取所有年份的唯一键并排序
+            const uniqueYears = Object.keys(yearGroups).sort((a, b) => b.localeCompare(a));
+
+            // 4. 计算分页
+            const startIndex = (query.page - 1) * query.pageSize;
+            const endIndex = startIndex + query.pageSize;
+            const paginatedYears = uniqueYears.slice(startIndex, endIndex);
+
+            // 5. 构建分页后的数据，计算每年每个项目的统计信息
+            const paginatedData: Record<string, {
+                project: string;
+                totalGroups: number;
+                totalReps: number;
+                totalDays: number;
+            }[]> = {};
+
+            paginatedYears.forEach(year => {
+                const yearStats = Object.entries(yearGroups[year]).map(([project, data]) => {
+                    // 计算总组数
+                    const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
+                    // 计算总次数
+                    const totalReps = data.workouts.reduce((sum, workout) =>
+                        sum + workout.groups.reduce((groupSum, group) => groupSum + group.reps, 0), 0);
+                    // 计算训练天数
+                    const totalDays = data.uniqueDates.size;
+
+                    return {
+                        project,
+                        totalGroups,
+                        totalReps,
+                        totalDays
+                    };
+                });
+
+                // 按项目名称排序
+                yearStats.sort((a, b) => a.project.localeCompare(b.project));
+                paginatedData[year] = yearStats;
+            });
+
+            // 6. 计算总数和是否有更多数据
+            const total = uniqueYears.length;
+            const hasMore = total > endIndex;
+
+            return {
+                data: paginatedData,
+                total,
+                page: query.page,
+                pageSize: query.pageSize,
+                hasMore,
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
 }

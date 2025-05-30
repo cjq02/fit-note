@@ -84,6 +84,84 @@ export class WorkoutController {
     }
 
     /**
+     * 获取按月分组的训练记录列表
+     * @param {string} page - 页码
+     * @param {string} pageSize - 每页数量
+     * @param {string} date - 日期
+     * @param {string} project - 项目
+     * @param {Request} req - 请求对象
+     * @returns {Promise<{ data: Record<string, { project: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按月分组的训练记录和分页信息
+     */
+    @Get('group-by-month')
+    findAllGroupByMonth(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+        @Query('date') date: string,
+        @Query('project') project: string,
+        @Request() req
+    ): Promise<{
+        data: Record<string, {
+            project: string;
+            totalGroups: number;
+            totalReps: number;
+            totalDays: number;
+        }[]>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+        const query: QueryWorkoutDto = {
+            page: Number(page) || 1,
+            pageSize: Number(pageSize) || 10,
+            date,
+            project,
+            userId: req.user.id
+        };
+
+        return this.workoutService.findAllGroupByMonth(query);
+    }
+
+    /**
+     * 获取按年分组的训练记录列表
+     * @param {string} page - 页码
+     * @param {string} pageSize - 每页数量
+     * @param {string} date - 日期
+     * @param {string} project - 项目
+     * @param {Request} req - 请求对象
+     * @returns {Promise<{ data: Record<string, { project: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按年分组的训练记录和分页信息
+     */
+    @Get('group-by-year')
+    findAllGroupByYear(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+        @Query('date') date: string,
+        @Query('project') project: string,
+        @Request() req
+    ): Promise<{
+        data: Record<string, {
+            project: string;
+            totalGroups: number;
+            totalReps: number;
+            totalDays: number;
+        }[]>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+        const query: QueryWorkoutDto = {
+            page: Number(page) || 1,
+            pageSize: Number(pageSize) || 10,
+            date,
+            project,
+            userId: req.user.id
+        };
+
+        return this.workoutService.findAllGroupByYear(query);
+    }
+
+    /**
      * 根据日期和项目ID查找训练记录
      * @param {string} date - 日期
      * @param {string} projectId - 项目ID

@@ -4,11 +4,11 @@ import { generateColorFromDate } from '@/utils/color.utils';
 
 interface WorkoutWeekGroupProps {
   /**
-   * 周一的日期
+   * 时间键值（周/月/年的开始日期）
    */
   weekKey: string;
   /**
-   * 该周的训练项目统计信息
+   * 该时间段的训练项目统计信息
    */
   projects: WorkoutWeekStats[];
   /**
@@ -18,52 +18,65 @@ interface WorkoutWeekGroupProps {
 }
 
 /**
- * 每周训练内容组件
+ * 训练内容分组组件
  *
  * @param {WorkoutWeekGroupProps} props - 组件属性
- * @returns {JSX.Element} 每周训练内容组件
+ * @returns {JSX.Element} 训练内容分组组件
  */
 export const WorkoutWeekGroup: React.FC<WorkoutWeekGroupProps> = ({
   weekKey,
   projects,
   customTitle,
 }) => {
-  // 将周一的日期转换为更友好的显示格式
-  const weekDate = new Date(weekKey);
-  const weekEnd = new Date(weekDate);
-  weekEnd.setDate(weekDate.getDate() + 6);
-  const weekDisplay =
-    customTitle ||
-    `${weekDate.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })} - ${weekEnd.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}`;
+  // 将日期转换为更友好的显示格式
+  const startDate = new Date(weekKey);
+  let endDate = new Date(startDate);
+  let dateDisplay = '';
 
-  // 生成周颜色
-  const weekColor = generateColorFromDate(weekKey);
-  const weekColorLight = `${weekColor}40`; // 增加透明度到40%
-  const weekColorMedium = `${weekColor}80`; // 增加透明度到80%
+  // 根据日期格式判断是周、月还是年
+  if (weekKey.includes('-W')) {
+    // 周格式：YYYY-WW
+    endDate.setDate(startDate.getDate() + 6);
+    dateDisplay =
+      customTitle ||
+      `${startDate.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })} - ${endDate.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}`;
+  } else if (weekKey.length === 7) {
+    // 月格式：YYYY-MM
+    endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+    dateDisplay = customTitle || `${startDate.getFullYear()}年${startDate.getMonth() + 1}月`;
+  } else {
+    // 年格式：YYYY
+    dateDisplay = customTitle || `${startDate.getFullYear()}年`;
+  }
+
+  // 生成颜色
+  const groupColor = generateColorFromDate(weekKey);
+  const groupColorLight = `${groupColor}40`; // 增加透明度到40%
+  const groupColorMedium = `${groupColor}80`; // 增加透明度到80%
 
   return (
     <div className="mb-6">
       <div className="relative mb-4">
         <div
           className="absolute -left-4 top-1/2 -translate-y-1/2 w-2 h-8 rounded-full"
-          style={{ background: weekColor }}
+          style={{ background: groupColor }}
         />
         <div
           className="text-lg font-semibold pl-6 pr-8 py-3 rounded-2xl relative overflow-hidden"
           style={{
-            background: `linear-gradient(135deg, ${weekColorLight}, ${weekColor}20)`,
-            color: weekColor,
+            background: `linear-gradient(135deg, ${groupColorLight}, ${groupColor}20)`,
+            color: groupColor,
           }}
         >
           <div
             className="absolute -right-8 -top-8 w-16 h-16 rounded-full opacity-20"
-            style={{ background: weekColor }}
+            style={{ background: groupColor }}
           />
           <div
             className="absolute -left-4 -bottom-4 w-12 h-12 rounded-full opacity-20"
-            style={{ background: weekColor }}
+            style={{ background: groupColor }}
           />
-          <span className="relative z-10">{weekDisplay}</span>
+          <span className="relative z-10">{dateDisplay}</span>
         </div>
       </div>
       <div className="space-y-3">
@@ -72,8 +85,8 @@ export const WorkoutWeekGroup: React.FC<WorkoutWeekGroupProps> = ({
             key={project.project}
             className="rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border"
             style={{
-              background: `linear-gradient(to bottom right, white, ${weekColorLight})`,
-              borderColor: weekColorMedium,
+              background: `linear-gradient(to bottom right, white, ${groupColorLight})`,
+              borderColor: groupColorMedium,
             }}
           >
             <div className="flex justify-between items-center mb-3">
@@ -83,8 +96,8 @@ export const WorkoutWeekGroup: React.FC<WorkoutWeekGroupProps> = ({
               <span
                 className="text-sm px-3 py-1 rounded-full font-medium"
                 style={{
-                  color: weekColor,
-                  background: weekColorLight,
+                  color: groupColor,
+                  background: groupColorLight,
                 }}
               >
                 训练{project.totalDays}天
@@ -94,18 +107,18 @@ export const WorkoutWeekGroup: React.FC<WorkoutWeekGroupProps> = ({
               <div className="flex items-center gap-2 text-gray-600">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center"
-                  style={{ background: weekColorLight }}
+                  style={{ background: groupColorLight }}
                 >
-                  <span style={{ color: weekColor, fontWeight: 600 }}>{project.totalGroups}</span>
+                  <span style={{ color: groupColor, fontWeight: 600 }}>{project.totalGroups}</span>
                 </div>
                 <span>组</span>
               </div>
               <div className="flex items-center gap-2 text-gray-600">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center"
-                  style={{ background: weekColorLight }}
+                  style={{ background: groupColorLight }}
                 >
-                  <span style={{ color: weekColor, fontWeight: 600 }}>{project.totalReps}</span>
+                  <span style={{ color: groupColor, fontWeight: 600 }}>{project.totalReps}</span>
                 </div>
                 <span>次</span>
               </div>
