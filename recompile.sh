@@ -39,11 +39,11 @@ if [ "$1" == "frontend" ]; then
     build_frontend
 elif [ "$1" == "backend" ]; then
     build_backend
-elif [ "$1" == "all" ]; then
+elif [ -z "$1" ]; then
     build_backend
     build_frontend
 else
-    echo "请提供参数: frontend, backend, 或 all"
+    echo "请提供参数: 空 或 frontend 或 backend"，空表示构建所有
     exit 1
 fi
 
