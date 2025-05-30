@@ -18,7 +18,7 @@ import {
 } from 'antd-mobile-icons';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WorkoutWeekGroup } from '../workout/components/WorkoutWeekGroup';
+import { WorkoutPeriodGroup } from '../workout/components/WorkoutPeriodGroup';
 
 /** 解决adm-card-header-title宽度问题 */
 if (typeof window !== 'undefined') {
@@ -230,7 +230,7 @@ export const Home = () => {
           <Space direction="vertical" block>
             {recentWorkouts?.data?.data &&
               Object.entries(recentWorkouts.data.data).map(([key, projects], index) => (
-                <WorkoutWeekGroup
+                <WorkoutPeriodGroup
                   key={key}
                   weekKey={key}
                   projects={projects}
