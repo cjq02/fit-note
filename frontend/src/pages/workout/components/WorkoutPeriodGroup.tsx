@@ -6,7 +6,7 @@ interface WorkoutPeriodGroupProps {
   /**
    * 时间键值（周/月/年的开始日期）
    */
-  weekKey: string;
+  periodKey: string;
   /**
    * 该时间段的训练项目统计信息
    */
@@ -24,23 +24,23 @@ interface WorkoutPeriodGroupProps {
  * @returns {JSX.Element} 训练内容分组组件
  */
 export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
-  weekKey,
+  periodKey,
   projects,
   customTitle,
 }) => {
   // 将日期转换为更友好的显示格式
-  const startDate = new Date(weekKey);
+  const startDate = new Date(periodKey);
   let endDate = new Date(startDate);
   let dateDisplay = '';
 
   // 根据日期格式判断是周、月还是年
-  if (weekKey.includes('-W')) {
+  if (periodKey.includes('-W')) {
     // 周格式：YYYY-WW
     endDate.setDate(startDate.getDate() + 6);
     dateDisplay =
       customTitle ||
       `${startDate.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })} - ${endDate.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}`;
-  } else if (weekKey.length === 7) {
+  } else if (periodKey.length === 7) {
     // 月格式：YYYY-MM
     endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
     dateDisplay = customTitle || `${startDate.getFullYear()}年${startDate.getMonth() + 1}月`;
@@ -50,7 +50,7 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
   }
 
   // 生成颜色
-  const groupColor = generateColorFromDate(weekKey);
+  const groupColor = generateColorFromDate(periodKey);
   const groupColorLight = `${groupColor}40`; // 增加透明度到40%
   const groupColorMedium = `${groupColor}80`; // 增加透明度到80%
 

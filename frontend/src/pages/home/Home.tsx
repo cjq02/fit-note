@@ -229,28 +229,41 @@ export const Home = () => {
         >
           <Space direction="vertical" block>
             {recentWorkouts?.data?.data &&
-              Object.entries(recentWorkouts.data.data).map(([key, projects], index) => (
-                <WorkoutPeriodGroup
-                  key={key}
-                  weekKey={key}
-                  projects={projects}
-                  customTitle={
-                    index === 0
-                      ? groupType === 'week'
-                        ? '本周训练'
-                        : groupType === 'month'
-                          ? '本月训练'
-                          : '今年训练'
-                      : index === 1
-                        ? groupType === 'week'
-                          ? '上周训练'
-                          : groupType === 'month'
-                            ? '上月训练'
-                            : '去年训练'
-                        : undefined
+              Object.entries(recentWorkouts.data.data).map(([key, projects], index) => {
+                // 根据分组类型和索引获取标题
+                const getCustomTitle = () => {
+                  if (index === 0) {
+                    switch (groupType) {
+                      case 'week':
+                        return '本周训练';
+                      case 'month':
+                        return '本月训练';
+                      case 'year':
+                        return '今年训练';
+                    }
                   }
-                />
-              ))}
+                  if (index === 1) {
+                    switch (groupType) {
+                      case 'week':
+                        return '上周训练';
+                      case 'month':
+                        return '上月训练';
+                      case 'year':
+                        return '去年训练';
+                    }
+                  }
+                  return undefined;
+                };
+
+                return (
+                  <WorkoutPeriodGroup
+                    key={key}
+                    periodKey={key}
+                    projects={projects}
+                    customTitle={getCustomTitle()}
+                  />
+                );
+              })}
           </Space>
         </Card>
       </div>
