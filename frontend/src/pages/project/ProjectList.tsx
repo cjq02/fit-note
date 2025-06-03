@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 
 import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
 import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
+import { getUserInfo } from '@/api/auth.api';
 import { ProjectForm } from './ProjectForm';
 
 /**
@@ -31,6 +32,15 @@ export const ProjectList = (): React.ReactElement => {
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const isFirstLoad = useRef(true);
+
+  // 获取用户信息
+  const { data: userInfo } = useQuery({
+    queryKey: ['userInfo'],
+    queryFn: async () => {
+      const response = await getUserInfo();
+      return response.data.user;
+    },
+  });
 
   // 获取训练项目列表
   const {
@@ -133,7 +143,7 @@ export const ProjectList = (): React.ReactElement => {
             content: '更新成功',
           });
         } else {
-          await createProject(data);
+          await createProject(data, userInfo?.id || '');
           Toast.show({
             icon: 'success',
             content: '创建成功',
