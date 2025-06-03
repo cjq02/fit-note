@@ -92,8 +92,8 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
             <img
               src={emptySvg}
               alt="暂无记录"
-              className="w-20 h-20 opacity-80"
-              style={{ color: '#6c757d' }}
+              className="w-20 h-20 opacity-40"
+              style={{ color: '#adb5bd' }}
             />
             <div className="text-center space-y-1">
               <div className="text-sm font-medium text-gray-400">这个时间段还没有训练记录</div>
