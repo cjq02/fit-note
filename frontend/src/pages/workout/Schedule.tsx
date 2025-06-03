@@ -4,6 +4,7 @@ import { Calendar, Card, List, Picker } from 'antd-mobile';
 import type { PickerValue } from 'antd-mobile/es/components/picker';
 import { useEffect, useState } from 'react';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
+import dayjs from 'dayjs';
 import './Schedule.css';
 
 /**
@@ -65,13 +66,13 @@ export const Schedule = () => {
 
   // 获取选中日期的训练计划
   const getSelectedDateSchedule = () => {
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    const dateStr = dayjs(selectedDate).format('YYYY-MM-DD');
     return workoutData[dateStr] || [];
   };
 
   // 渲染日历标签
   const renderLabel = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = dayjs(date).format('YYYY-MM-DD');
     const hasWorkout = workoutData[dateStr]?.length > 0;
 
     return hasWorkout ? (
@@ -117,7 +118,7 @@ export const Schedule = () => {
             }}
             weekStartsOn="Monday"
             renderDate={date => {
-              const dateStr = date.toISOString().split('T')[0];
+              const dateStr = dayjs(date).format('YYYY-MM-DD');
               const hasWorkout = workoutData[dateStr]?.length > 0;
               return (
                 <div className="relative flex h-full w-full items-center justify-center">
