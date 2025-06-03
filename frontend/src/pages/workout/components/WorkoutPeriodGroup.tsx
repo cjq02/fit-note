@@ -1,6 +1,7 @@
 import React from 'react';
 import type { WorkoutWeekStats } from '@/@typings/types.d.ts';
 import { generateColorFromDate } from '@/utils/color.utils';
+import emptySvg from '@/assets/svg/empty.svg';
 
 interface WorkoutPeriodGroupProps {
   /**
@@ -80,51 +81,73 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
         </div>
       </div>
       <div className="space-y-3">
-        {projects.map(project => (
+        {projects.length === 0 ? (
           <div
-            key={project.project}
-            className="rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border"
+            className="rounded-xl p-4 shadow-sm border flex flex-col items-center justify-center min-h-[100px]"
             style={{
-              background: `linear-gradient(to bottom right, white, ${groupColorLight})`,
-              borderColor: groupColorMedium,
+              background: 'linear-gradient(135deg, #f8f9fa, #e9ecef)',
+              borderColor: '#dee2e6',
             }}
           >
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-base font-medium text-gray-800 tracking-wide">
-                {project.project}
-              </span>
-              <span
-                className="text-sm px-3 py-1 rounded-full font-medium"
-                style={{
-                  color: groupColor,
-                  background: groupColorLight,
-                }}
-              >
-                训练{project.totalDays}天
-              </span>
-            </div>
-            <div className="flex gap-6 text-sm">
-              <div className="flex items-center gap-2 text-gray-600">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center"
-                  style={{ background: groupColorLight }}
-                >
-                  <span style={{ color: groupColor, fontWeight: 600 }}>{project.totalGroups}</span>
-                </div>
-                <span>组</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center"
-                  style={{ background: groupColorLight }}
-                >
-                  <span style={{ color: groupColor, fontWeight: 600 }}>{project.totalReps}</span>
-                </div>
-                <span>次</span>
-              </div>
+            <img
+              src={emptySvg}
+              alt="暂无记录"
+              className="w-20 h-20 opacity-80"
+              style={{ color: '#6c757d' }}
+            />
+            <div className="text-center space-y-1">
+              <div className="text-sm font-medium text-gray-400">这个时间段还没有训练记录</div>
             </div>
           </div>
-        ))}
+        ) : (
+          projects.map(project => (
+            <div
+              key={project.project}
+              className="rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border"
+              style={{
+                background: `linear-gradient(to bottom right, white, ${groupColorLight})`,
+                borderColor: groupColorMedium,
+              }}
+            >
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-base font-medium text-gray-800 tracking-wide">
+                  {project.project}
+                </span>
+                <span
+                  className="text-sm px-3 py-1 rounded-full font-medium"
+                  style={{
+                    color: groupColor,
+                    background: groupColorLight,
+                  }}
+                >
+                  训练{project.totalDays}天
+                </span>
+              </div>
+              <div className="flex gap-6 text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ background: groupColorLight }}
+                  >
+                    <span style={{ color: groupColor, fontWeight: 600 }}>
+                      {project.totalGroups}
+                    </span>
+                  </div>
+                  <span>组</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ background: groupColorLight }}
+                  >
+                    <span style={{ color: groupColor, fontWeight: 600 }}>{project.totalReps}</span>
+                  </div>
+                  <span>次</span>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
