@@ -144,7 +144,7 @@ export const Schedule = () => {
             <>
               {getSelectedDateSchedule().length > 0 ? (
                 <WorkoutDayGroup
-                  date={selectedDate.toISOString().split('T')[0]}
+                  date={dayjs(selectedDate).format('YYYY-MM-DD')}
                   workouts={getSelectedDateSchedule()}
                   onDeleteSuccess={() => {
                     // 删除成功后刷新数据
