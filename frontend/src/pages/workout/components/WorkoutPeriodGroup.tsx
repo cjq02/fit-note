@@ -1,7 +1,7 @@
 import React from 'react';
 import type { WorkoutWeekStats } from '@/@typings/types.d.ts';
 import { generateColorFromDate } from '@/utils/color.utils';
-import emptySvg from '@/assets/svg/empty.svg';
+import emptySvg from '@/assets/svg/date-empty.svg';
 
 interface WorkoutPeriodGroupProps {
   /**

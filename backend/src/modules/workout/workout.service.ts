@@ -517,20 +517,26 @@ export class WorkoutService {
     }> {
         // 构建查询条件
         const conditions: any = { userId: query.userId };
-        if (query.date) {
-            const date = new Date(query.date);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-            const lastDay = new Date(year, month, 0).getDate();
-            const endDate = `${year}-${month.toString().padStart(2, '0')}-${lastDay}`;
-            conditions.date = { $gte: startDate, $lte: endDate };
-        }
         if (query.project) {
-            conditions.project = query.project;
+            conditions.project = { $regex: query.project, $options: 'i' };
         }
 
         try {
+            // 获取当前日期
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+
+            // 计算往前推的月数
+            const monthsToShow = query.pageSize;
+            const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const endMonth = new Date(now.getFullYear(), now.getMonth() - (monthsToShow - 1), 1);
+
+            // 构建日期范围条件
+            conditions.date = {
+                $gte: endMonth.toISOString().split('T')[0],
+                $lte: today
+            };
+
             // 1. 获取所有训练记录
             const workouts = await this.workoutModel
                 .find(conditions)
@@ -543,13 +549,18 @@ export class WorkoutService {
                 uniqueDates: Set<string>;
             }>> = {};
 
+            // 初始化所有月的记录
+            for (let i = 0; i < monthsToShow; i++) {
+                const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthKey = `${monthDate.getFullYear()}-${(monthDate.getMonth() + 1).toString().padStart(2, '0')}`;
+                monthGroups[monthKey] = {};
+            }
+
+            // 填充训练记录
             workouts.forEach(workout => {
                 const date = new Date(workout.date);
                 const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
 
-                if (!monthGroups[monthKey]) {
-                    monthGroups[monthKey] = {};
-                }
                 if (!monthGroups[monthKey][workout.project]) {
                     monthGroups[monthKey][workout.project] = {
                         workouts: [],
@@ -563,12 +574,7 @@ export class WorkoutService {
             // 3. 获取所有月份的唯一键并排序
             const uniqueMonths = Object.keys(monthGroups).sort((a, b) => b.localeCompare(a));
 
-            // 4. 计算分页
-            const startIndex = (query.page - 1) * query.pageSize;
-            const endIndex = startIndex + query.pageSize;
-            const paginatedMonths = uniqueMonths.slice(startIndex, endIndex);
-
-            // 5. 构建分页后的数据，计算每月每个项目的统计信息
+            // 4. 构建分页后的数据，计算每月每个项目的统计信息
             const paginatedData: Record<string, {
                 project: string;
                 totalGroups: number;
@@ -576,7 +582,7 @@ export class WorkoutService {
                 totalDays: number;
             }[]> = {};
 
-            paginatedMonths.forEach(month => {
+            uniqueMonths.forEach(month => {
                 const monthStats = Object.entries(monthGroups[month]).map(([project, data]) => {
                     // 计算总组数
                     const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
@@ -599,9 +605,9 @@ export class WorkoutService {
                 paginatedData[month] = monthStats;
             });
 
-            // 6. 计算总数和是否有更多数据
+            // 5. 计算总数和是否有更多数据
             const total = uniqueMonths.length;
-            const hasMore = total > endIndex;
+            const hasMore = false; // 由于我们总是显示固定数量的月，所以这里总是返回 false
 
             return {
                 data: paginatedData,
