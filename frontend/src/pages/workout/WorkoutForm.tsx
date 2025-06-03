@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, DatePicker, Dialog, Form, Input, Radio, SwipeAction, Toast } from 'antd-mobile';
+import { Button, CalendarPicker, Dialog, Form, Radio, SwipeAction, Toast } from 'antd-mobile';
 import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import type {
@@ -51,6 +51,9 @@ export const WorkoutForm = () => {
   const [restTime, setRestTime] = useState<number>(0);
   const timerRef = useRef<number | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+
+  // 计算三个月前的日期作为最小值
+  const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
 
   // 获取训练记录详情（通过ID）
   const { data: workoutData } = useQuery<ApiResponse<Workout>, Error>({
@@ -332,14 +335,31 @@ export const WorkoutForm = () => {
   /**
    * 处理日期变化
    *
-   * @param {Date} newDate - 新的日期
+   * @param {Date | null | (Date | null)[]} newDate - 新的日期
    */
-  const handleDateChange = async (newDate: Date) => {
+  const handleDateChange = async (newDate: Date | null | (Date | null)[]) => {
+    // CalendarPicker的onChange会返回选中的日期或日期数组
+    let selectedDate: Date | null = null;
+    if (Array.isArray(newDate)) {
+      // 如果是日期范围选择，取第一个日期（或根据需求调整）
+      selectedDate = newDate[0];
+    } else {
+      selectedDate = newDate;
+    }
+
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+    // 隐藏日历选择器
     setDateVisible(false);
 
-    if (projectId) {
+    if (projectId && selectedDate) {
+      // 确保有projectId和选中的日期才执行后续逻辑
       try {
-        const response = await findByDateAndProject(dayjs(newDate).format('YYYY-MM-DD'), projectId);
+        const response = await findByDateAndProject(
+          dayjs(selectedDate).format('YYYY-MM-DD'),
+          projectId,
+        );
         const workout = response.data;
 
         if (workout) {
@@ -356,7 +376,7 @@ export const WorkoutForm = () => {
           }
         } else {
           // 如果没有找到记录，重定向到新建页面
-          const targetDate = dayjs(newDate).format('YYYY-MM-DD');
+          const targetDate = dayjs(selectedDate).format('YYYY-MM-DD');
           navigate(
             `/workout/new?projectName=${projectName}&projectId=${projectId}&date=${targetDate}`,
             {
@@ -367,7 +387,7 @@ export const WorkoutForm = () => {
           // 清空组数据
           setGroups([{ reps: '', weight: '0', seqNo: 1, isNew: true }]);
           // 更新日期状态
-          setDate(newDate);
+          // setDate(newDate); // 已在函数开头设置
         }
       } catch (error) {
         Toast.show({ icon: 'fail', content: '查询失败' });
@@ -464,16 +484,18 @@ export const WorkoutForm = () => {
               <Form.Item label="训练日期" style={{ flex: 1 }}>
                 <div
                   onClick={() => setDateVisible(true)}
-                  className="h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors"
+                  className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors"
                 >
                   {dayjs(date).format('YYYY-MM-DD')}
                 </div>
-                <DatePicker
+                <CalendarPicker
                   visible={dateVisible}
                   value={date}
-                  onClose={() => setDateVisible(false)}
-                  onConfirm={handleDateChange}
+                  onChange={handleDateChange}
                   max={new Date()}
+                  min={oneMonthAgo}
+                  selectionMode="single"
+                  onClose={() => setDateVisible(false)}
                 />
               </Form.Item>
               <Form.Item label="项目名称" style={{ flex: 1 }}>
