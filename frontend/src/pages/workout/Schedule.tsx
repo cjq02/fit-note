@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 import dayjs from 'dayjs';
 import './Schedule.css';
+import emptySvg from '@/assets/svg/empty-date.svg';
 
 /**
  * 训练日程页面组件
@@ -152,20 +153,12 @@ export const Schedule = () => {
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                  <svg
-                    className="mb-4 h-16 w-16"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
+                  <img
+                    src={emptySvg}
+                    alt="暂无记录"
+                    className="w-20 h-20 opacity-40"
+                    style={{ color: '#adb5bd' }}
+                  />
                   <p className="text-base">暂无训练记录</p>
                 </div>
               )}
