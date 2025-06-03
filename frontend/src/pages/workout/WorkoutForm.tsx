@@ -106,7 +106,7 @@ export const WorkoutForm = () => {
       isNew?: boolean;
       restTime?: number;
     }>
-  >([{ reps: '', weight: '0', seqNo: 1 }]);
+  >([{ reps: '', weight: '0', seqNo: 1, isNew: true }]);
 
   // 检查表单是否有修改
   const [isFormModified, setIsFormModified] = useState(false);
@@ -187,7 +187,7 @@ export const WorkoutForm = () => {
       queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
       Toast.show({ icon: 'success', content: '创建成功' });
       // 重置表单数据，但保持当前日期
-      setGroups([{ reps: '', weight: '0', seqNo: 1 }]);
+      setGroups([{ reps: '', weight: '0', seqNo: 1, isNew: true }]);
       // 重定向到编辑页面，替换当前历史记录，并传递来源页面
       navigate(`/workout/edit/${response.data.id}`, {
         replace: true,
@@ -212,7 +212,7 @@ export const WorkoutForm = () => {
       queryClient.invalidateQueries({ queryKey: ['workout', 'date'] });
       queryClient.invalidateQueries({ queryKey: ['workout', id] });
       Toast.show({ icon: 'success', content: '更新成功' });
-      setGroups([{ reps: '', weight: '0', seqNo: 1 }]);
+      setGroups([{ reps: '', weight: '0', seqNo: 1, isNew: true }]);
     },
     onError: (error: any) => {
       Toast.show({ icon: 'fail', content: error.response?.data?.message || '更新失败' });
@@ -363,7 +363,7 @@ export const WorkoutForm = () => {
           // 重新加载新建页面的数据
           refetchDateWorkout();
           // 清空组数据
-          setGroups([{ reps: '', weight: '0', seqNo: 1 }]);
+          setGroups([{ reps: '', weight: '0', seqNo: 1, isNew: true }]);
           // 更新日期状态
           setDate(newDate);
         }
