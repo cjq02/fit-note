@@ -364,16 +364,10 @@ export const WorkoutForm = () => {
 
         if (workout) {
           // 如果找到记录
-          if (id) {
-            // 如果当前是编辑页面，直接加载数据
-            queryClient.invalidateQueries({ queryKey: ['workout', workout.id] });
-          } else {
-            // 如果是新建页面，重定向到编辑页面
-            navigate(`/workout/edit/${workout.id}`, {
-              replace: false,
-              state: { from: fromPage },
-            });
-          }
+          navigate(`/workout/edit/${workout.id}`, {
+            replace: false,
+            state: { from: fromPage },
+          });
         } else {
           // 如果没有找到记录，重定向到新建页面
           const targetDate = dayjs(selectedDate).format('YYYY-MM-DD');
