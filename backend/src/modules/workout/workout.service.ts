@@ -1,18 +1,21 @@
 import { Injectable, NotFoundException, Inject, forwardRef, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-
-import { Workout, WorkoutDocument } from './workout.entity';
+import { Model, Types } from 'mongoose';
+import { Workout } from './workout.entity';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { QueryWorkoutDto } from './dto/query-workout.dto';
 import { ProjectService } from '../project/project.service';
+import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
+
+dayjs.extend(isoWeek);
 
 @Injectable()
 export class WorkoutService {
     constructor(
         @InjectModel(Workout.name)
-        private workoutModel: Model<WorkoutDocument>,
+        private workoutModel: Model<Workout>,
         @Inject(forwardRef(() => ProjectService))
         private projectService: ProjectService,
     ) { }
@@ -178,26 +181,17 @@ export class WorkoutService {
 
         try {
             // 获取当前日期
-            const now = new Date();
-            const today = now.toISOString().split('T')[0];
-
-            // 计算当前日期所在周的周一
-            const getMonday = (date: Date) => {
-                const day = date.getDay() || 7; // 将周日的0转换为7
-                const monday = new Date(date);
-                monday.setDate(date.getDate() - day + 1);
-                return monday.toISOString().split('T')[0];
-            };
+            const now = dayjs();
+            const today = now.format('YYYY-MM-DD');
 
             // 计算往前推的周数
             const weeksToShow = query.pageSize;
-            const startWeek = getMonday(now);
-            const startDate = new Date(startWeek);
-            startDate.setDate(startDate.getDate() - (weeksToShow - 1) * 7);
+            const startWeek = now.startOf('isoWeek').format('YYYY-MM-DD');
+            const startDate = dayjs(startWeek).subtract(weeksToShow - 1, 'week');
 
             // 构建日期范围条件
             conditions.date = {
-                $gte: startDate.toISOString().split('T')[0],
+                $gte: startDate.format('YYYY-MM-DD'),
                 $lte: today
             };
 
@@ -215,17 +209,14 @@ export class WorkoutService {
 
             // 初始化所有周的记录
             for (let i = 0; i < weeksToShow; i++) {
-                const weekDate = new Date(startDate);
-                weekDate.setDate(weekDate.getDate() + i * 7);
-                const weekKey = getMonday(weekDate);
+                const weekDate = startDate.add(i, 'week');
+                const weekKey = weekDate.format('YYYY-MM-DD');
                 weekGroups[weekKey] = {};
             }
 
             // 填充训练记录
             workouts.forEach(workout => {
-                const date = new Date(workout.date);
-                const weekKey = getMonday(date);
-
+                const weekKey = dayjs(workout.date).startOf('isoWeek').format('YYYY-MM-DD');
                 if (!weekGroups[weekKey][workout.project]) {
                     weekGroups[weekKey][workout.project] = {
                         workouts: [],
