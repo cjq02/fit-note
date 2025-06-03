@@ -153,17 +153,7 @@ export const Schedule = () => {
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                  <img
-                    src={emptySvg}
-                    alt="暂无记录"
-                    className="w-20 h-20 opacity-40"
-                    style={
-                      {
-                        color: '#adb5bd',
-                        '--svg-stroke-width': '2',
-                      } as React.CSSProperties
-                    }
-                  />
+                  <object data={emptySvg} type="image/svg+xml" className="w-20 h-20 opacity-40" />
                   <p className="text-base">暂无训练记录</p>
                 </div>
               )}
