@@ -143,7 +143,7 @@ export const ProjectList = (): React.ReactElement => {
             content: '更新成功',
           });
         } else {
-          await createProject(data, userInfo?.id || '');
+          await createProject(data);
           Toast.show({
             icon: 'success',
             content: '创建成功',
