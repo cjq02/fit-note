@@ -172,14 +172,35 @@ export class WorkoutService {
     }> {
         // 构建查询条件
         const conditions: any = { userId: query.userId };
-        if (query.date) {
-            conditions.date = query.date;
-        }
         if (query.project) {
             conditions.project = { $regex: query.project, $options: 'i' };
         }
 
         try {
+            // 获取当前日期
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+
+            // 计算当前日期所在周的周一
+            const getMonday = (date: Date) => {
+                const day = date.getDay() || 7; // 将周日的0转换为7
+                const monday = new Date(date);
+                monday.setDate(date.getDate() - day + 1);
+                return monday.toISOString().split('T')[0];
+            };
+
+            // 计算往前推的周数
+            const weeksToShow = query.pageSize;
+            const startWeek = getMonday(now);
+            const startDate = new Date(startWeek);
+            startDate.setDate(startDate.getDate() - (weeksToShow - 1) * 7);
+
+            // 构建日期范围条件
+            conditions.date = {
+                $gte: startDate.toISOString().split('T')[0],
+                $lte: today
+            };
+
             // 1. 获取所有训练记录
             const workouts = await this.workoutModel
                 .find(conditions)
@@ -192,17 +213,19 @@ export class WorkoutService {
                 uniqueDates: Set<string>;
             }>> = {};
 
+            // 初始化所有周的记录
+            for (let i = 0; i < weeksToShow; i++) {
+                const weekDate = new Date(startDate);
+                weekDate.setDate(weekDate.getDate() + i * 7);
+                const weekKey = getMonday(weekDate);
+                weekGroups[weekKey] = {};
+            }
+
+            // 填充训练记录
             workouts.forEach(workout => {
                 const date = new Date(workout.date);
-                // 获取本周一的日期
-                const day = date.getDay() || 7; // 将周日的0转换为7
-                const monday = new Date(date);
-                monday.setDate(date.getDate() - day + 1);
-                const weekKey = monday.toISOString().split('T')[0];
+                const weekKey = getMonday(date);
 
-                if (!weekGroups[weekKey]) {
-                    weekGroups[weekKey] = {};
-                }
                 if (!weekGroups[weekKey][workout.project]) {
                     weekGroups[weekKey][workout.project] = {
                         workouts: [],
@@ -216,12 +239,7 @@ export class WorkoutService {
             // 3. 获取所有周的唯一键并排序
             const uniqueWeeks = Object.keys(weekGroups).sort((a, b) => b.localeCompare(a));
 
-            // 4. 计算分页
-            const startIndex = (query.page - 1) * query.pageSize;
-            const endIndex = startIndex + query.pageSize;
-            const paginatedWeeks = uniqueWeeks.slice(startIndex, endIndex);
-
-            // 5. 构建分页后的数据，计算每周每个项目的统计信息
+            // 4. 构建分页后的数据，计算每周每个项目的统计信息
             const paginatedData: Record<string, {
                 project: string;
                 totalGroups: number;
@@ -229,7 +247,7 @@ export class WorkoutService {
                 totalDays: number;
             }[]> = {};
 
-            paginatedWeeks.forEach(week => {
+            uniqueWeeks.forEach(week => {
                 const weekStats = Object.entries(weekGroups[week]).map(([project, data]) => {
                     // 计算总组数
                     const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
@@ -252,9 +270,9 @@ export class WorkoutService {
                 paginatedData[week] = weekStats;
             });
 
-            // 6. 计算总数和是否有更多数据
+            // 5. 计算总数和是否有更多数据
             const total = uniqueWeeks.length;
-            const hasMore = total > endIndex;
+            const hasMore = false; // 由于我们总是显示固定数量的周，所以这里总是返回 false
 
             return {
                 data: paginatedData,
