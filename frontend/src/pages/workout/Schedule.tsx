@@ -157,7 +157,12 @@ export const Schedule = () => {
                     src={emptySvg}
                     alt="暂无记录"
                     className="w-20 h-20 opacity-40"
-                    style={{ color: '#adb5bd' }}
+                    style={
+                      {
+                        color: '#adb5bd',
+                        '--svg-stroke-width': '2',
+                      } as React.CSSProperties
+                    }
                   />
                   <p className="text-base">暂无训练记录</p>
                 </div>
