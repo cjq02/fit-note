@@ -30,6 +30,7 @@ export class ProjectService {
 
         // 获取今天的日期字符串
         const today = getTodayString();
+        console.log('today', today);
 
         // 为每个项目查询今天的训练记录
         const projectsWithWorkout = await Promise.all(
