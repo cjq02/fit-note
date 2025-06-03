@@ -20,9 +20,9 @@ instance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     // 添加调试日志
-    const requestUrl = `${config.baseURL || ''}${config.url || ''}`;
-    console.log('Request URL:', requestUrl);
-    console.log('Request Config:', config);
+    // const requestUrl = `${config.baseURL || ''}${config.url || ''}`;
+    // console.log('Request URL:', requestUrl);
+    // console.log('Request Config:', config);
     return config;
   },
   error => {

@@ -1,8 +1,8 @@
-import { Calendar, Card, List, Picker } from 'antd-mobile';
-import { useEffect, useState } from 'react';
-import { getWorkoutsByYearMonth } from '@/api/workout.api';
 import type { Workout } from '@/@typings/types.d.ts';
+import { getWorkoutsByYearMonth } from '@/api/workout.api';
+import { Calendar, Card, List, Picker } from 'antd-mobile';
 import type { PickerValue } from 'antd-mobile/es/components/picker';
+import { useEffect, useState } from 'react';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 import './Schedule.css';
 
@@ -43,10 +43,9 @@ export const Schedule = () => {
   });
 
   // 获取训练数据
-  const fetchWorkoutData = async () => {
+  const fetchWorkoutData = async (year: string, month: string) => {
     try {
       setLoading(true);
-      const { year, month } = selectedYearMonth;
       const response = await getWorkoutsByYearMonth({ year, month });
       if (response.code === 0 && response.data) {
         setWorkoutData(response.data.data);
@@ -60,7 +59,8 @@ export const Schedule = () => {
 
   // 年月变化时重新获取数据
   useEffect(() => {
-    fetchWorkoutData();
+    const { year, month } = selectedYearMonth;
+    fetchWorkoutData(year, month);
   }, [selectedYearMonth.year, selectedYearMonth.month]);
 
   // 获取选中日期的训练计划
@@ -109,6 +109,12 @@ export const Schedule = () => {
             selectionMode="single"
             value={selectedDate}
             onChange={val => val && setSelectedDate(val)}
+            onPageChange={(year: number, month: number) => {
+              setSelectedYearMonth({
+                year: year.toString(),
+                month: month.toString(),
+              });
+            }}
             weekStartsOn="Monday"
             renderDate={date => {
               const dateStr = date.toISOString().split('T')[0];
@@ -140,7 +146,7 @@ export const Schedule = () => {
                   workouts={getSelectedDateSchedule()}
                   onDeleteSuccess={() => {
                     // 删除成功后刷新数据
-                    fetchWorkoutData();
+                    fetchWorkoutData(selectedYearMonth.year, selectedYearMonth.month);
                   }}
                 />
               ) : (
