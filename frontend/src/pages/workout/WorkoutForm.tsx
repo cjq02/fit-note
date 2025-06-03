@@ -77,7 +77,7 @@ export const WorkoutForm = () => {
       return response.data || null;
     },
     queryKey: ['workout', 'date', projectId, dayjs(date).format('YYYY-MM-DD')],
-    enabled: !!projectId && !!date && !!id, // 只在编辑页面时启用查询
+    enabled: !!projectId && !!date && !id, // 只在新建页面且有projectId和date时启用查询
     staleTime: 0,
     gcTime: 0,
     retry: 1,
