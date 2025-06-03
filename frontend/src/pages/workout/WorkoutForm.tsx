@@ -74,7 +74,7 @@ export const WorkoutForm = () => {
       return response.data || null;
     },
     queryKey: ['workout', 'date', projectId, dayjs(date).format('YYYY-MM-DD')],
-    enabled: !!projectId && !!date,
+    enabled: !!projectId && !!date && !!id, // 只在编辑页面时启用查询
     staleTime: 0,
     gcTime: 0,
     retry: 1,
@@ -343,13 +343,17 @@ export const WorkoutForm = () => {
         const workout = response.data;
 
         if (workout) {
-          // 如果找到记录，重定向到编辑页面
-          navigate(`/workout/edit/${workout.id}`, {
-            replace: false,
-            state: { from: fromPage },
-          });
-          // 重新加载编辑页面的数据
-          queryClient.invalidateQueries({ queryKey: ['workout', workout.id] });
+          // 如果找到记录
+          if (id) {
+            // 如果当前是编辑页面，直接加载数据
+            queryClient.invalidateQueries({ queryKey: ['workout', workout.id] });
+          } else {
+            // 如果是新建页面，重定向到编辑页面
+            navigate(`/workout/edit/${workout.id}`, {
+              replace: false,
+              state: { from: fromPage },
+            });
+          }
         } else {
           // 如果没有找到记录，重定向到新建页面
           const targetDate = dayjs(newDate).format('YYYY-MM-DD');
@@ -360,8 +364,6 @@ export const WorkoutForm = () => {
               state: { from: fromPage },
             },
           );
-          // 重新加载新建页面的数据
-          refetchDateWorkout();
           // 清空组数据
           setGroups([{ reps: '', weight: '0', seqNo: 1, isNew: true }]);
           // 更新日期状态
