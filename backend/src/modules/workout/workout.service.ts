@@ -89,6 +89,42 @@ export class WorkoutService {
     }
 
     /**
+     * 获取项目名称映射
+     * @param {Workout[]} workouts - 训练记录列表
+     * @param {string} userId - 用户ID
+     * @returns {Promise<Map<string, string>>} 项目ID到项目名称的映射
+     */
+    private async getProjectNameMap(workouts: Workout[], userId: string): Promise<Map<string, string>> {
+        const projects = await this.projectService.findAll(userId);
+        return new Map(projects.map(p => [p.id.toString(), p.name]));
+    }
+
+    /**
+     * 计算项目统计信息
+     * @param {{ workouts: Workout[]; uniqueDates: Set<string> }} data - 项目训练数据
+     * @returns {{ totalGroups: number; totalReps: number; totalDays: number }} 项目统计信息
+     */
+    private calculateProjectStats(data: { workouts: Workout[]; uniqueDates: Set<string> }): {
+        totalGroups: number;
+        totalReps: number;
+        totalDays: number;
+    } {
+        // 计算总组数
+        const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
+        // 计算总次数
+        const totalReps = data.workouts.reduce((sum, workout) =>
+            sum + workout.groups.reduce((groupSum, group) => groupSum + group.reps, 0), 0);
+        // 计算训练天数
+        const totalDays = data.uniqueDates.size;
+
+        return {
+            totalGroups,
+            totalReps,
+            totalDays
+        };
+    }
+
+    /**
      * 按日期分组获取训练记录
      * @param {QueryWorkoutDto} query - 查询参数
      * @returns {Promise<{ data: Record<string, Workout[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按日期分组的训练记录和分页信息
@@ -211,10 +247,8 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 获取所有项目信息
-            const projectIds = [...new Set(workouts.map(w => w.projectId.toString()))];
-            const projects = await this.projectService.findAll(query.userId);
-            const projectMap = new Map(projects.map(p => [p.id.toString(), p.name]));
+            // 2. 获取项目名称映射
+            const projectMap = await this.getProjectNameMap(workouts, query.userId);
 
             // 3. 按周和项目分组
             const weekGroups: Record<string, Record<string, {
@@ -255,22 +289,10 @@ export class WorkoutService {
             }[]> = {};
 
             uniqueWeeks.forEach(week => {
-                const weekStats = Object.entries(weekGroups[week]).map(([project, data]) => {
-                    // 计算总组数
-                    const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
-                    // 计算总次数
-                    const totalReps = data.workouts.reduce((sum, workout) =>
-                        sum + workout.groups.reduce((groupSum, group) => groupSum + group.reps, 0), 0);
-                    // 计算训练天数
-                    const totalDays = data.uniqueDates.size;
-
-                    return {
-                        project,
-                        totalGroups,
-                        totalReps,
-                        totalDays
-                    };
-                });
+                const weekStats = Object.entries(weekGroups[week]).map(([project, data]) => ({
+                    project,
+                    ...this.calculateProjectStats(data)
+                }));
 
                 // 按项目名称排序
                 weekStats.sort((a, b) => a.project.localeCompare(b.project));
@@ -550,10 +572,8 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 获取所有项目信息
-            const projectIds = [...new Set(workouts.map(w => w.projectId.toString()))];
-            const projects = await this.projectService.findAll(query.userId);
-            const projectMap = new Map(projects.map(p => [p.id.toString(), p.name]));
+            // 2. 获取项目名称映射
+            const projectMap = await this.getProjectNameMap(workouts, query.userId);
 
             // 3. 按月和项目分组
             const monthGroups: Record<string, Record<string, {
@@ -596,22 +616,10 @@ export class WorkoutService {
             }[]> = {};
 
             uniqueMonths.forEach(month => {
-                const monthStats = Object.entries(monthGroups[month]).map(([project, data]) => {
-                    // 计算总组数
-                    const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
-                    // 计算总次数
-                    const totalReps = data.workouts.reduce((sum, workout) =>
-                        sum + workout.groups.reduce((groupSum, group) => groupSum + group.reps, 0), 0);
-                    // 计算训练天数
-                    const totalDays = data.uniqueDates.size;
-
-                    return {
-                        project,
-                        totalGroups,
-                        totalReps,
-                        totalDays
-                    };
-                });
+                const monthStats = Object.entries(monthGroups[month]).map(([project, data]) => ({
+                    project,
+                    ...this.calculateProjectStats(data)
+                }));
 
                 // 按项目名称排序
                 monthStats.sort((a, b) => a.project.localeCompare(b.project));
@@ -671,10 +679,8 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 获取所有项目信息
-            const projectIds = [...new Set(workouts.map(w => w.projectId.toString()))];
-            const projects = await this.projectService.findAll(query.userId);
-            const projectMap = new Map(projects.map(p => [p.id.toString(), p.name]));
+            // 2. 获取项目名称映射
+            const projectMap = await this.getProjectNameMap(workouts, query.userId);
 
             // 3. 按年和项目分组
             const yearGroups: Record<string, Record<string, {
@@ -717,22 +723,10 @@ export class WorkoutService {
             }[]> = {};
 
             paginatedYears.forEach(year => {
-                const yearStats = Object.entries(yearGroups[year]).map(([project, data]) => {
-                    // 计算总组数
-                    const totalGroups = data.workouts.reduce((sum, workout) => sum + workout.groups.length, 0);
-                    // 计算总次数
-                    const totalReps = data.workouts.reduce((sum, workout) =>
-                        sum + workout.groups.reduce((groupSum, group) => groupSum + group.reps, 0), 0);
-                    // 计算训练天数
-                    const totalDays = data.uniqueDates.size;
-
-                    return {
-                        project,
-                        totalGroups,
-                        totalReps,
-                        totalDays
-                    };
-                });
+                const yearStats = Object.entries(yearGroups[year]).map(([project, data]) => ({
+                    project,
+                    ...this.calculateProjectStats(data)
+                }));
 
                 // 按项目名称排序
                 yearStats.sort((a, b) => a.project.localeCompare(b.project));
