@@ -468,56 +468,55 @@ export const WorkoutForm = () => {
     }
   };
 
-  // 添加视口高度状态
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const originalViewportRef = useRef<string>('');
   const rootRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  // 监听视口大小变化
   useEffect(() => {
-    // 保存原始的 viewport meta 内容
-    const viewportMeta = document.querySelector('meta[name="viewport"]');
-    if (viewportMeta) {
-      originalViewportRef.current = viewportMeta.getAttribute('content') || '';
-    }
+    if (!rootRef.current || !contentRef.current || !footerRef.current) return;
 
-    const updateHeight = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-      setViewportHeight(window.innerHeight);
-    };
-
-    const handleResize = () => {
-      updateHeight();
-      const isKeyboard = window.innerHeight < window.outerHeight - 150;
-      setIsKeyboardVisible(isKeyboard);
-
-      if (rootRef.current) {
+    // 创建 ResizeObserver 监听视口变化
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const { height } = entry.contentRect;
+        const windowHeight = window.innerHeight;
+        const isKeyboard = height < windowHeight - 150;
+        setIsKeyboardVisible(isKeyboard);
         if (isKeyboard) {
-          rootRef.current.classList.add('keyboard-visible');
+          setKeyboardHeight(windowHeight - height);
         } else {
-          rootRef.current.classList.remove('keyboard-visible');
+          setKeyboardHeight(0);
         }
       }
-    };
+    });
 
-    // 初始化高度
-    updateHeight();
+    // 创建 IntersectionObserver 监听底部按钮可见性
+    const intersectionObserver = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            // 如果底部按钮不可见，说明键盘弹出
+            setIsKeyboardVisible(true);
+          } else {
+            setIsKeyboardVisible(false);
+          }
+        }
+      },
+      {
+        threshold: 0,
+        rootMargin: '0px 0px 0px 0px'
+      }
+    );
 
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('focusin', handleResize);
-    window.addEventListener('focusout', handleResize);
+    // 开始观察
+    resizeObserver.observe(rootRef.current);
+    intersectionObserver.observe(footerRef.current);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('focusin', handleResize);
-      window.removeEventListener('focusout', handleResize);
-
-      // 恢复原始的 viewport meta
-      if (viewportMeta) {
-        viewportMeta.setAttribute('content', originalViewportRef.current);
-      }
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
     };
   }, []);
 
@@ -526,7 +525,7 @@ export const WorkoutForm = () => {
       ref={rootRef}
       className="fixed inset-0 flex flex-col bg-[var(--adm-color-background)]"
       style={{
-        height: 'calc(var(--vh, 1vh) * 100)',
+        height: '100%',
         position: 'fixed',
         top: 0,
         left: 0,
@@ -538,9 +537,10 @@ export const WorkoutForm = () => {
       }}
     >
       <div
+        ref={contentRef}
         className="flex-1 overflow-y-auto overscroll-contain"
         style={{
-          height: isKeyboardVisible ? 'calc(calc(var(--vh, 1vh) * 100) - 80px)' : 'calc(var(--vh, 1vh) * 100)',
+          height: isKeyboardVisible ? `calc(100% - ${80 + keyboardHeight}px)` : '100%',
           transition: 'height 0.3s ease',
           WebkitOverflowScrolling: 'touch',
           position: 'relative'
@@ -742,6 +742,7 @@ export const WorkoutForm = () => {
 
       {/* 底部按钮 */}
       <div
+        ref={footerRef}
         className="flex-none bg-white flex gap-3 px-4 py-3 border-t border-gray-200 shadow-lg"
         style={{
           borderTopLeftRadius: 16,
@@ -754,7 +755,8 @@ export const WorkoutForm = () => {
           transform: 'translateZ(0)',
           willChange: 'transform',
           zIndex: 1000,
-          height: '80px'
+          height: '80px',
+          transition: 'transform 0.3s ease'
         }}
       >
         <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">
