@@ -309,6 +309,13 @@ export class WorkoutService {
                 this.getProjectSeqNoMap(workouts, query.userId)
             ]);
 
+            // 打印项目名称和排序号
+            console.log('项目名称和排序号映射：');
+            projectNameMap.forEach((name, id) => {
+                const seqNo = projectSeqNoMap.get(id) || 0;
+                console.log(`项目名称: ${name}, 排序号: ${seqNo}`);
+            });
+
             // 3. 按周和项目分组
             const weekGroups: Record<string, Record<string, {
                 workouts: Workout[];
@@ -348,20 +355,30 @@ export class WorkoutService {
             }[]> = {};
 
             uniqueWeeks.forEach(week => {
-                const weekStats = Object.entries(weekGroups[week]).map(([projectName, data]) => ({
-                    projectName,
-                    ...this.calculateProjectStats(data)
-                }));
+                const weekStats = Object.entries(weekGroups[week]).map(([projectName, data]) => {
+                    // 找到该项目的第一个训练记录以获取projectId
+                    const firstWorkout = data.workouts[0];
+                    const projectId = firstWorkout.projectId.toString();
+                    const seqNo = projectSeqNoMap.get(projectId) || 0;
+                    return {
+                        projectName,
+                        seqNo,
+                        ...this.calculateProjectStats(data)
+                    };
+                });
 
                 // 按项目排序号排序
-                weekStats.sort((a, b) => {
-                    const projectA = workouts.find(w => w.projectName === a.projectName);
-                    const projectB = workouts.find(w => w.projectName === b.projectName);
-                    const seqNoA = projectA ? projectSeqNoMap.get(projectA.projectId.toString()) || 0 : 0;
-                    const seqNoB = projectB ? projectSeqNoMap.get(projectB.projectId.toString()) || 0 : 0;
-                    return seqNoA - seqNoB;
+                weekStats.sort((a, b) => a.seqNo - b.seqNo);
+
+                // 打印每周的项目排序结果
+                console.log(`\n周 ${week} 的项目排序结果：`);
+                weekStats.forEach(stat => {
+                    console.log(`项目名称: ${stat.projectName}, 排序号: ${stat.seqNo}, 总组数: ${stat.totalGroups}, 总次数: ${stat.totalReps}, 训练天数: ${stat.totalDays}`);
                 });
-                paginatedData[week] = weekStats;
+
+                // 移除seqNo字段，只保留需要返回给前端的数据
+                const finalStats = weekStats.map(({ seqNo, ...rest }) => rest);
+                paginatedData[week] = finalStats;
             });
 
             // 6. 计算总数和是否有更多数据
