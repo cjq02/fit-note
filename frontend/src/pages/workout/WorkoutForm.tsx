@@ -472,6 +472,7 @@ export const WorkoutForm = () => {
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const originalViewportRef = useRef<string>('');
+  const rootRef = useRef<HTMLDivElement>(null);
 
   // 监听视口大小变化
   useEffect(() => {
@@ -481,24 +482,28 @@ export const WorkoutForm = () => {
       originalViewportRef.current = viewportMeta.getAttribute('content') || '';
     }
 
+    const updateHeight = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      setViewportHeight(window.innerHeight);
+    };
+
     const handleResize = () => {
-      const newHeight = window.innerHeight;
-      setViewportHeight(newHeight);
+      updateHeight();
       const isKeyboard = window.innerHeight < window.outerHeight - 150;
       setIsKeyboardVisible(isKeyboard);
 
-      // 动态修改 viewport meta
-      if (viewportMeta) {
+      if (rootRef.current) {
         if (isKeyboard) {
-          viewportMeta.setAttribute(
-            'content',
-            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, height=device-height'
-          );
+          rootRef.current.classList.add('keyboard-visible');
         } else {
-          viewportMeta.setAttribute('content', originalViewportRef.current);
+          rootRef.current.classList.remove('keyboard-visible');
         }
       }
     };
+
+    // 初始化高度
+    updateHeight();
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('focusin', handleResize);
@@ -518,9 +523,10 @@ export const WorkoutForm = () => {
 
   return (
     <div
+      ref={rootRef}
       className="fixed inset-0 flex flex-col bg-[var(--adm-color-background)]"
       style={{
-        height: viewportHeight,
+        height: 'calc(var(--vh, 1vh) * 100)',
         position: 'fixed',
         top: 0,
         left: 0,
@@ -534,9 +540,10 @@ export const WorkoutForm = () => {
       <div
         className="flex-1 overflow-y-auto overscroll-contain"
         style={{
-          height: isKeyboardVisible ? 'calc(100% - 80px)' : '100%',
+          height: isKeyboardVisible ? 'calc(calc(var(--vh, 1vh) * 100) - 80px)' : 'calc(var(--vh, 1vh) * 100)',
           transition: 'height 0.3s ease',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          position: 'relative'
         }}
       >
         <div className="p-4 pb-24">
@@ -740,13 +747,14 @@ export const WorkoutForm = () => {
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
           paddingBottom: 'env(safe-area-inset-bottom, 16px)',
-          position: 'fixed',
+          position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
           transform: 'translateZ(0)',
           willChange: 'transform',
-          zIndex: 1000
+          zIndex: 1000,
+          height: '80px'
         }}
       >
         <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">
