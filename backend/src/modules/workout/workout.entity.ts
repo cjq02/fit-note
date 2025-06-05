@@ -4,6 +4,7 @@ import { Document, Types } from 'mongoose';
 export type WorkoutDocument = Workout & Document;
 
 // 训练组类型
+@Schema()
 export class WorkoutGroup {
     @Prop({ required: true, type: Number, min: 1, max: 1000 })
     reps: number;

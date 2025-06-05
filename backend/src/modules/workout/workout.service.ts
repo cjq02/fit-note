@@ -1,13 +1,14 @@
-import { Injectable, NotFoundException, Inject, forwardRef, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Workout } from './workout.entity';
-import { CreateWorkoutDto } from './dto/create-workout.dto';
-import { UpdateWorkoutDto } from './dto/update-workout.dto';
-import { QueryWorkoutDto } from './dto/query-workout.dto';
-import { ProjectService } from '../project/project.service';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import { Model } from 'mongoose';
+import { ProjectService } from '../project/project.service';
+import { CreateWorkoutDto } from './dto/create-workout.dto';
+import { QueryWorkoutDto } from './dto/query-workout.dto';
+import { UpdateWorkoutDto } from './dto/update-workout.dto';
+import { Workout } from './workout.entity';
+import { Project } from '../project/project.entity';
 
 dayjs.extend(isoWeek);
 
@@ -131,16 +132,25 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 4. 按日期分组
+            // 4. 获取所有项目信息
+            const projects = await this.projectService.findAll(query.userId);
+            const projectMap = new Map(projects.map(p => [p.id.toString(), p.name]));
+
+            // 5. 按日期分组
             const groupedWorkouts = workouts.reduce((acc, workout) => {
                 if (!acc[workout.date]) {
                     acc[workout.date] = [];
+                }
+                // 使用项目名称替换 project 字段
+                const projectName = projectMap.get(workout.projectId.toString());
+                if (projectName) {
+                    workout.project = projectName;
                 }
                 acc[workout.date].push(workout);
                 return acc;
             }, {} as Record<string, Workout[]>);
 
-            // 5. 计算总数和是否有更多数据
+            // 6. 计算总数和是否有更多数据
             const total = uniqueDates.length;
             const hasMore = total > endIndex;
 
