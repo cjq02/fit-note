@@ -7,7 +7,13 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import VConsole from 'vconsole';
 
 // 初始化 vConsole
-const vConsole = new VConsole();
+let vConsole: any = null;
+// 检查 URL 中是否包含 debug 参数
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('debug') === 'true') {
+  vConsole = new VConsole({ theme: 'dark' });
+  console.log('vConsole 已初始化');
+}
 
 import type {
   ApiResponse,
@@ -512,7 +518,7 @@ export const WorkoutForm = () => {
       if (heightDiff > 150) {
         setIsKeyboardVisible(true);
         setKeyboardHeight(heightDiff);
-        vConsole.log('键盘弹出', {
+        console.log('键盘弹出', {
           currentHeight,
           initialHeight: initialHeightRef.current,
           heightDiff,
@@ -521,7 +527,7 @@ export const WorkoutForm = () => {
       } else {
         setIsKeyboardVisible(false);
         setKeyboardHeight(0);
-        vConsole.log('键盘收起', {
+        console.log('键盘收起', {
           currentHeight,
           initialHeight: initialHeightRef.current,
           heightDiff,
@@ -533,7 +539,7 @@ export const WorkoutForm = () => {
     // 监听窗口大小变化
     const handleResize = () => {
       initialHeightRef.current = window.innerHeight;
-      vConsole.log('窗口大小变化', {
+      console.log('窗口大小变化', {
         newHeight: window.innerHeight,
         initialHeight: initialHeightRef.current
       });
@@ -541,7 +547,7 @@ export const WorkoutForm = () => {
 
     // 监听输入框聚焦
     const handleFocus = (e: FocusEvent) => {
-      vConsole.log('输入框聚焦', {
+      console.log('输入框聚焦', {
         target: e.target,
         type: e.type,
         timestamp: new Date().toISOString()
@@ -550,7 +556,7 @@ export const WorkoutForm = () => {
 
     // 监听输入框失焦
     const handleBlur = (e: FocusEvent) => {
-      vConsole.log('输入框失焦', {
+      console.log('输入框失焦', {
         target: e.target,
         type: e.type,
         timestamp: new Date().toISOString()
@@ -564,6 +570,11 @@ export const WorkoutForm = () => {
     window.addEventListener('resize', handleResize);
     document.addEventListener('focusin', handleFocus);
     document.addEventListener('focusout', handleBlur);
+
+    // 添加调试信息
+    console.log('组件挂载，当前视口高度：', window.innerHeight);
+    console.log('组件挂载，当前设备像素比：', window.devicePixelRatio);
+    console.log('组件挂载，当前用户代理：', navigator.userAgent);
 
     return () => {
       resizeObserver.disconnect();
