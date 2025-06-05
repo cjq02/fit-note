@@ -471,14 +471,33 @@ export const WorkoutForm = () => {
   // 添加视口高度状态
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const originalViewportRef = useRef<string>('');
 
   // 监听视口大小变化
   useEffect(() => {
+    // 保存原始的 viewport meta 内容
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (viewportMeta) {
+      originalViewportRef.current = viewportMeta.getAttribute('content') || '';
+    }
+
     const handleResize = () => {
       const newHeight = window.innerHeight;
       setViewportHeight(newHeight);
-      // 如果高度变化超过 150px，认为是键盘弹出
-      setIsKeyboardVisible(window.innerHeight < window.outerHeight - 150);
+      const isKeyboard = window.innerHeight < window.outerHeight - 150;
+      setIsKeyboardVisible(isKeyboard);
+
+      // 动态修改 viewport meta
+      if (viewportMeta) {
+        if (isKeyboard) {
+          viewportMeta.setAttribute(
+            'content',
+            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, height=device-height'
+          );
+        } else {
+          viewportMeta.setAttribute('content', originalViewportRef.current);
+        }
+      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -489,6 +508,11 @@ export const WorkoutForm = () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('focusin', handleResize);
       window.removeEventListener('focusout', handleResize);
+
+      // 恢复原始的 viewport meta
+      if (viewportMeta) {
+        viewportMeta.setAttribute('content', originalViewportRef.current);
+      }
     };
   }, []);
 
@@ -503,14 +527,16 @@ export const WorkoutForm = () => {
         right: 0,
         bottom: 0,
         transform: 'translateZ(0)',
-        willChange: 'transform'
+        willChange: 'transform',
+        overflow: 'hidden'
       }}
     >
       <div
         className="flex-1 overflow-y-auto overscroll-contain"
         style={{
           height: isKeyboardVisible ? 'calc(100% - 80px)' : '100%',
-          transition: 'height 0.3s ease'
+          transition: 'height 0.3s ease',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         <div className="p-4 pb-24">
@@ -719,7 +745,8 @@ export const WorkoutForm = () => {
           left: 0,
           right: 0,
           transform: 'translateZ(0)',
-          willChange: 'transform'
+          willChange: 'transform',
+          zIndex: 1000
         }}
       >
         <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">
