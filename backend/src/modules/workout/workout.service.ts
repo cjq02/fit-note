@@ -168,16 +168,21 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 4. 按日期分组
+            // 4. 获取项目名称映射
+            const projectMap = await this.getProjectNameMap(workouts, query.userId);
+
+            // 5. 按日期分组，并设置项目名称
             const groupedWorkouts = workouts.reduce((acc, workout) => {
                 if (!acc[workout.date]) {
                     acc[workout.date] = [];
                 }
+                // 设置项目名称
+                workout.projectName = projectMap.get(workout.projectId.toString()) || workout.projectName;
                 acc[workout.date].push(workout);
                 return acc;
             }, {} as Record<string, Workout[]>);
 
-            // 5. 计算总数和是否有更多数据
+            // 6. 计算总数和是否有更多数据
             const total = uniqueDates.length;
             const hasMore = total > endIndex;
 
