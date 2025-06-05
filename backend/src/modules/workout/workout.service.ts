@@ -95,8 +95,41 @@ export class WorkoutService {
      * @returns {Promise<Map<string, string>>} 项目ID到项目名称的映射
      */
     private async getProjectNameMap(workouts: Workout[], userId: string): Promise<Map<string, string>> {
+        // 获取所有唯一的项目ID
+        const projectIds = [...new Set(workouts.map(w => w.projectId.toString()))];
+
+        // 查询项目信息
         const projects = await this.projectService.findAll(userId);
-        return new Map(projects.map(p => [p.id.toString(), p.name]));
+
+        // 创建映射
+        const projectMap = new Map<string, string>();
+        projects.forEach(project => {
+            projectMap.set(project.id.toString(), project.name);
+        });
+
+        return projectMap;
+    }
+
+    /**
+     * 获取项目排序映射
+     * @param {Workout[]} workouts - 训练记录列表
+     * @param {string} userId - 用户ID
+     * @returns {Promise<Map<string, number>>} 项目ID到项目排序号的映射
+     */
+    private async getProjectSeqNoMap(workouts: Workout[], userId: string): Promise<Map<string, number>> {
+        // 获取所有唯一的项目ID
+        const projectIds = [...new Set(workouts.map(w => w.projectId.toString()))];
+
+        // 查询项目信息
+        const projects = await this.projectService.findAll(userId);
+
+        // 创建映射
+        const projectMap = new Map<string, number>();
+        projects.forEach(project => {
+            projectMap.set(project.id.toString(), project.seqNo);
+        });
+
+        return projectMap;
     }
 
     /**
@@ -168,8 +201,18 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 4. 获取项目名称映射
-            const projectMap = await this.getProjectNameMap(workouts, query.userId);
+            // 4. 获取项目名称映射和排序映射
+            const [projectNameMap, projectSeqNoMap] = await Promise.all([
+                this.getProjectNameMap(workouts, query.userId),
+                this.getProjectSeqNoMap(workouts, query.userId)
+            ]);
+
+            // 打印项目名称和排序号
+            console.log('项目名称和排序号映射：');
+            projectNameMap.forEach((name, id) => {
+                const seqNo = projectSeqNoMap.get(id) || 0;
+                console.log(`项目名称: ${name}, 排序号: ${seqNo}`);
+            });
 
             // 5. 按日期分组，并设置项目名称
             const groupedWorkouts = workouts.reduce((acc, workout) => {
@@ -177,12 +220,28 @@ export class WorkoutService {
                     acc[workout.date] = [];
                 }
                 // 设置项目名称
-                workout.projectName = projectMap.get(workout.projectId.toString()) || workout.projectName;
+                workout.projectName = projectNameMap.get(workout.projectId.toString()) || workout.projectName;
                 acc[workout.date].push(workout);
                 return acc;
             }, {} as Record<string, Workout[]>);
 
-            // 6. 计算总数和是否有更多数据
+            // 6. 对每个日期的训练记录按项目排序号排序
+            Object.keys(groupedWorkouts).forEach(date => {
+                groupedWorkouts[date].sort((a, b) => {
+                    const seqNoA = projectSeqNoMap.get(a.projectId.toString()) || 0;
+                    const seqNoB = projectSeqNoMap.get(b.projectId.toString()) || 0;
+                    return seqNoA - seqNoB;
+                });
+
+                // 打印每个日期的排序结果
+                console.log(`\n日期 ${date} 的排序结果：`);
+                groupedWorkouts[date].forEach(workout => {
+                    const seqNo = projectSeqNoMap.get(workout.projectId.toString()) || 0;
+                    console.log(`项目名称: ${workout.projectName}, 排序号: ${seqNo}`);
+                });
+            });
+
+            // 7. 计算总数和是否有更多数据
             const total = uniqueDates.length;
             const hasMore = total > endIndex;
 
@@ -244,8 +303,11 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 获取项目名称映射
-            const projectMap = await this.getProjectNameMap(workouts, query.userId);
+            // 2. 获取项目名称映射和排序映射
+            const [projectNameMap, projectSeqNoMap] = await Promise.all([
+                this.getProjectNameMap(workouts, query.userId),
+                this.getProjectSeqNoMap(workouts, query.userId)
+            ]);
 
             // 3. 按周和项目分组
             const weekGroups: Record<string, Record<string, {
@@ -263,7 +325,7 @@ export class WorkoutService {
             // 填充训练记录
             workouts.forEach(workout => {
                 const weekKey = dayjs(workout.date).startOf('isoWeek').format('YYYY-MM-DD');
-                const projectName = projectMap.get(workout.projectId.toString()) || workout.projectName;
+                const projectName = projectNameMap.get(workout.projectId.toString()) || workout.projectName;
                 if (!weekGroups[weekKey][projectName]) {
                     weekGroups[weekKey][projectName] = {
                         workouts: [],
@@ -291,8 +353,14 @@ export class WorkoutService {
                     ...this.calculateProjectStats(data)
                 }));
 
-                // 按项目名称排序
-                weekStats.sort((a, b) => a.projectName.localeCompare(b.projectName));
+                // 按项目排序号排序
+                weekStats.sort((a, b) => {
+                    const projectA = workouts.find(w => w.projectName === a.projectName);
+                    const projectB = workouts.find(w => w.projectName === b.projectName);
+                    const seqNoA = projectA ? projectSeqNoMap.get(projectA.projectId.toString()) || 0 : 0;
+                    const seqNoB = projectB ? projectSeqNoMap.get(projectB.projectId.toString()) || 0 : 0;
+                    return seqNoA - seqNoB;
+                });
                 paginatedData[week] = weekStats;
             });
 
@@ -574,8 +642,11 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 获取项目名称映射
-            const projectMap = await this.getProjectNameMap(workouts, query.userId);
+            // 2. 获取项目名称映射和排序映射
+            const [projectNameMap, projectSeqNoMap] = await Promise.all([
+                this.getProjectNameMap(workouts, query.userId),
+                this.getProjectSeqNoMap(workouts, query.userId)
+            ]);
 
             // 3. 按月和项目分组
             const monthGroups: Record<string, Record<string, {
@@ -594,7 +665,7 @@ export class WorkoutService {
             workouts.forEach(workout => {
                 const date = new Date(workout.date);
                 const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-                const projectName = projectMap.get(workout.projectId.toString()) || workout.projectName;
+                const projectName = projectNameMap.get(workout.projectId.toString()) || workout.projectName;
 
                 if (!monthGroups[monthKey][projectName]) {
                     monthGroups[monthKey][projectName] = {
@@ -623,8 +694,14 @@ export class WorkoutService {
                     ...this.calculateProjectStats(data)
                 }));
 
-                // 按项目名称排序
-                monthStats.sort((a, b) => a.projectName.localeCompare(b.projectName));
+                // 按项目排序号排序
+                monthStats.sort((a, b) => {
+                    const projectA = workouts.find(w => w.projectName === a.projectName);
+                    const projectB = workouts.find(w => w.projectName === b.projectName);
+                    const seqNoA = projectA ? projectSeqNoMap.get(projectA.projectId.toString()) || 0 : 0;
+                    const seqNoB = projectB ? projectSeqNoMap.get(projectB.projectId.toString()) || 0 : 0;
+                    return seqNoA - seqNoB;
+                });
                 paginatedData[month] = monthStats;
             });
 
@@ -681,8 +758,11 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 获取项目名称映射
-            const projectMap = await this.getProjectNameMap(workouts, query.userId);
+            // 2. 获取项目名称映射和排序映射
+            const [projectNameMap, projectSeqNoMap] = await Promise.all([
+                this.getProjectNameMap(workouts, query.userId),
+                this.getProjectSeqNoMap(workouts, query.userId)
+            ]);
 
             // 3. 按年和项目分组
             const yearGroups: Record<string, Record<string, {
@@ -693,7 +773,7 @@ export class WorkoutService {
             workouts.forEach(workout => {
                 const date = new Date(workout.date);
                 const yearKey = date.getFullYear().toString();
-                const projectName = projectMap.get(workout.projectId.toString()) || workout.projectName;
+                const projectName = projectNameMap.get(workout.projectId.toString()) || workout.projectName;
 
                 if (!yearGroups[yearKey]) {
                     yearGroups[yearKey] = {};
@@ -730,8 +810,14 @@ export class WorkoutService {
                     ...this.calculateProjectStats(data)
                 }));
 
-                // 按项目名称排序
-                yearStats.sort((a, b) => a.projectName.localeCompare(b.projectName));
+                // 按项目排序号排序
+                yearStats.sort((a, b) => {
+                    const projectA = workouts.find(w => w.projectName === a.projectName);
+                    const projectB = workouts.find(w => w.projectName === b.projectName);
+                    const seqNoA = projectA ? projectSeqNoMap.get(projectA.projectId.toString()) || 0 : 0;
+                    const seqNoB = projectB ? projectSeqNoMap.get(projectB.projectId.toString()) || 0 : 0;
+                    return seqNoA - seqNoB;
+                });
                 paginatedData[year] = yearStats;
             });
 
