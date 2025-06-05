@@ -102,7 +102,7 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
         ) : (
           projects.map(project => (
             <div
-              key={project.project}
+              key={project.projectName}
               className="rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border"
               style={{
                 background: `linear-gradient(to bottom right, white, ${groupColorLight})`,
@@ -111,7 +111,7 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
             >
               <div className="flex justify-between items-center mb-3">
                 <span className="text-base font-medium text-gray-800 tracking-wide">
-                  {project.project}
+                  {project.projectName}
                 </span>
                 <span
                   className="text-sm px-3 py-1 rounded-full font-medium"

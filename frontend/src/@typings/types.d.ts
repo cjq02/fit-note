@@ -103,7 +103,7 @@ export interface WorkoutStats {
 }
 
 export interface WorkoutWeekStats {
-  project: string;
+  projectName: string;
   totalGroups: number;
   totalReps: number;
   totalDays: number;
