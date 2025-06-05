@@ -211,7 +211,12 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 按周和项目分组
+            // 2. 获取所有项目信息
+            const projectIds = [...new Set(workouts.map(w => w.projectId.toString()))];
+            const projects = await this.projectService.findAll(query.userId);
+            const projectMap = new Map(projects.map(p => [p.id.toString(), p.name]));
+
+            // 3. 按周和项目分组
             const weekGroups: Record<string, Record<string, {
                 workouts: Workout[];
                 uniqueDates: Set<string>;
@@ -227,20 +232,21 @@ export class WorkoutService {
             // 填充训练记录
             workouts.forEach(workout => {
                 const weekKey = dayjs(workout.date).startOf('isoWeek').format('YYYY-MM-DD');
-                if (!weekGroups[weekKey][workout.projectName]) {
-                    weekGroups[weekKey][workout.projectName] = {
+                const projectName = projectMap.get(workout.projectId.toString()) || workout.projectName;
+                if (!weekGroups[weekKey][projectName]) {
+                    weekGroups[weekKey][projectName] = {
                         workouts: [],
                         uniqueDates: new Set()
                     };
                 }
-                weekGroups[weekKey][workout.projectName].workouts.push(workout);
-                weekGroups[weekKey][workout.projectName].uniqueDates.add(workout.date);
+                weekGroups[weekKey][projectName].workouts.push(workout);
+                weekGroups[weekKey][projectName].uniqueDates.add(workout.date);
             });
 
-            // 3. 获取所有周的唯一键并排序
+            // 4. 获取所有周的唯一键并排序
             const uniqueWeeks = Object.keys(weekGroups).sort((a, b) => b.localeCompare(a));
 
-            // 4. 构建分页后的数据，计算每周每个项目的统计信息
+            // 5. 构建分页后的数据，计算每周每个项目的统计信息
             const paginatedData: Record<string, {
                 project: string;
                 totalGroups: number;
@@ -271,7 +277,7 @@ export class WorkoutService {
                 paginatedData[week] = weekStats;
             });
 
-            // 5. 计算总数和是否有更多数据
+            // 6. 计算总数和是否有更多数据
             const total = uniqueWeeks.length;
             const hasMore = false; // 由于我们总是显示固定数量的周，所以这里总是返回 false
 
@@ -544,7 +550,12 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 按月和项目分组
+            // 2. 获取所有项目信息
+            const projectIds = [...new Set(workouts.map(w => w.projectId.toString()))];
+            const projects = await this.projectService.findAll(query.userId);
+            const projectMap = new Map(projects.map(p => [p.id.toString(), p.name]));
+
+            // 3. 按月和项目分组
             const monthGroups: Record<string, Record<string, {
                 workouts: Workout[];
                 uniqueDates: Set<string>;
@@ -561,21 +572,22 @@ export class WorkoutService {
             workouts.forEach(workout => {
                 const date = new Date(workout.date);
                 const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                const projectName = projectMap.get(workout.projectId.toString()) || workout.projectName;
 
-                if (!monthGroups[monthKey][workout.projectName]) {
-                    monthGroups[monthKey][workout.projectName] = {
+                if (!monthGroups[monthKey][projectName]) {
+                    monthGroups[monthKey][projectName] = {
                         workouts: [],
                         uniqueDates: new Set()
                     };
                 }
-                monthGroups[monthKey][workout.projectName].workouts.push(workout);
-                monthGroups[monthKey][workout.projectName].uniqueDates.add(workout.date);
+                monthGroups[monthKey][projectName].workouts.push(workout);
+                monthGroups[monthKey][projectName].uniqueDates.add(workout.date);
             });
 
-            // 3. 获取所有月份的唯一键并排序
+            // 4. 获取所有月份的唯一键并排序
             const uniqueMonths = Object.keys(monthGroups).sort((a, b) => b.localeCompare(a));
 
-            // 4. 构建分页后的数据，计算每月每个项目的统计信息
+            // 5. 构建分页后的数据，计算每月每个项目的统计信息
             const paginatedData: Record<string, {
                 project: string;
                 totalGroups: number;
@@ -606,7 +618,7 @@ export class WorkoutService {
                 paginatedData[month] = monthStats;
             });
 
-            // 5. 计算总数和是否有更多数据
+            // 6. 计算总数和是否有更多数据
             const total = uniqueMonths.length;
             const hasMore = false; // 由于我们总是显示固定数量的月，所以这里总是返回 false
 
@@ -659,7 +671,12 @@ export class WorkoutService {
                 .sort({ date: -1, _id: -1 })
                 .exec();
 
-            // 2. 按年和项目分组
+            // 2. 获取所有项目信息
+            const projectIds = [...new Set(workouts.map(w => w.projectId.toString()))];
+            const projects = await this.projectService.findAll(query.userId);
+            const projectMap = new Map(projects.map(p => [p.id.toString(), p.name]));
+
+            // 3. 按年和项目分组
             const yearGroups: Record<string, Record<string, {
                 workouts: Workout[];
                 uniqueDates: Set<string>;
@@ -668,29 +685,30 @@ export class WorkoutService {
             workouts.forEach(workout => {
                 const date = new Date(workout.date);
                 const yearKey = date.getFullYear().toString();
+                const projectName = projectMap.get(workout.projectId.toString()) || workout.projectName;
 
                 if (!yearGroups[yearKey]) {
                     yearGroups[yearKey] = {};
                 }
-                if (!yearGroups[yearKey][workout.projectName]) {
-                    yearGroups[yearKey][workout.projectName] = {
+                if (!yearGroups[yearKey][projectName]) {
+                    yearGroups[yearKey][projectName] = {
                         workouts: [],
                         uniqueDates: new Set()
                     };
                 }
-                yearGroups[yearKey][workout.projectName].workouts.push(workout);
-                yearGroups[yearKey][workout.projectName].uniqueDates.add(workout.date);
+                yearGroups[yearKey][projectName].workouts.push(workout);
+                yearGroups[yearKey][projectName].uniqueDates.add(workout.date);
             });
 
-            // 3. 获取所有年份的唯一键并排序
+            // 4. 获取所有年份的唯一键并排序
             const uniqueYears = Object.keys(yearGroups).sort((a, b) => b.localeCompare(a));
 
-            // 4. 计算分页
+            // 5. 计算分页
             const startIndex = (query.page - 1) * query.pageSize;
             const endIndex = startIndex + query.pageSize;
             const paginatedYears = uniqueYears.slice(startIndex, endIndex);
 
-            // 5. 构建分页后的数据，计算每年每个项目的统计信息
+            // 6. 构建分页后的数据，计算每年每个项目的统计信息
             const paginatedData: Record<string, {
                 project: string;
                 totalGroups: number;
@@ -721,7 +739,7 @@ export class WorkoutService {
                 paginatedData[year] = yearStats;
             });
 
-            // 6. 计算总数和是否有更多数据
+            // 7. 计算总数和是否有更多数据
             const total = uniqueYears.length;
             const hasMore = total > endIndex;
 
