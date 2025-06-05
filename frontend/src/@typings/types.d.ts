@@ -45,6 +45,7 @@ export interface Project {
   id: string;
   name: string;
   description?: string;
+  seqNo: number;
   todayWorkoutId: string | null; // 当天的训练记录ID，如果没有则为null
   createdAt: string;
   updatedAt: string;
@@ -54,6 +55,7 @@ export interface Project {
 export interface CreateProjectRequest {
   name: string;
   description?: string;
+  seqNo: number;
 }
 
 // 更新训练项目请求参数

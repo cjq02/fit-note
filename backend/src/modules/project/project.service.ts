@@ -26,7 +26,7 @@ export class ProjectService {
     // @returns {Promise<Project[]>} 返回所有训练项目，每个项目包含当天的训练记录ID（如果存在）
     async findAll(userId: string): Promise<(Project & { todayWorkoutId?: string })[]> {
         // 获取当前用户的所有项目
-        const projects = await this.projectModel.find({ userId }).sort({ createdAt: -1 }).exec();
+        const projects = await this.projectModel.find({ userId }).sort({ seqNo: 1, createdAt: -1 }).exec();
 
         // 获取今天的日期字符串
         const today = getTodayString();

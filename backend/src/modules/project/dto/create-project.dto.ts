@@ -1,4 +1,4 @@
-import { IsString, IsOptional, Length } from 'class-validator';
+import { IsString, IsOptional, Length, IsNumber, Min } from 'class-validator';
 
 export class CreateProjectDto {
     @IsString()
@@ -9,4 +9,8 @@ export class CreateProjectDto {
     @IsOptional()
     @Length(0, 200)
     description?: string;
-} 
+
+    @IsNumber()
+    @Min(0)
+    seqNo: number;
+}

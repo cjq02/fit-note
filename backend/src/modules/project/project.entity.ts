@@ -17,6 +17,9 @@ export class Project {
     @Prop({ required: true })
     userId: string;
 
+    @Prop({ required: true, default: 0 })
+    seqNo: number;
+
     // 当天的训练记录ID，由 service 层处理
     todayWorkoutId?: string;
 
