@@ -469,8 +469,8 @@ export const WorkoutForm = () => {
   };
 
   return (
-    <div className="page-container bg-[var(--adm-color-background)]">
-      <div className="flex-1 p-4 pb-24">
+    <div className="page-container bg-[var(--adm-color-background)] flex flex-col h-screen">
+      <div className="flex-1 p-4 pb-24 overflow-y-auto">
         <Form form={form} layout="vertical" footer={null}>
           {/* 日期和项目名称卡片 */}
           <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
@@ -665,7 +665,7 @@ export const WorkoutForm = () => {
 
       {/* 底部按钮 */}
       <div
-        className="fixed left-0 right-0 bottom-0 bg-white flex gap-3 px-4 py-3 border-t border-gray-200 shadow-lg z-10"
+        className="sticky bottom-0 left-0 right-0 bg-white flex gap-3 px-4 py-3 border-t border-gray-200 shadow-lg z-10"
         style={{
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
