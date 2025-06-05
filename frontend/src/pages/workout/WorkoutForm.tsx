@@ -67,7 +67,7 @@ export const WorkoutForm = () => {
 
   // 根据当前页面类型获取 projectId
   const projectId = id ? workoutData?.data?.projectId : searchParams.get('projectId');
-  const projectName = id ? workoutData?.data?.project : searchParams.get('projectName');
+  const projectName = id ? workoutData?.data?.projectName : searchParams.get('projectName');
 
   // 根据日期和项目ID查询训练记录
   const { data: dateWorkoutData, refetch: refetchDateWorkout } = useQuery<Workout | null, Error>({
@@ -422,7 +422,7 @@ export const WorkoutForm = () => {
 
     const data: CreateWorkoutRequest = {
       date: dayjs(date).format('YYYY-MM-DD'),
-      project: projectName || workoutData?.data.project || '',
+      projectName: projectName || workoutData?.data.projectName || '',
       projectId: projectId || undefined,
       unit,
       groups: groups.map(g => ({
@@ -495,8 +495,8 @@ export const WorkoutForm = () => {
               <Form.Item label="项目名称" style={{ flex: 1 }}>
                 <div className="h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
                   {decodeURIComponent(projectName || '') ||
-                    workoutData?.data.project ||
-                    '未选择项目'}
+                    workoutData?.data.projectName ||
+                    '新训练'}
                 </div>
               </Form.Item>
             </div>

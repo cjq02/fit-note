@@ -8,7 +8,7 @@ export class QueryWorkoutDto {
 
     @IsOptional()
     @IsString()
-    project?: string;
+    projectName?: string;
 
     @IsOptional()
     @IsMongoId()
