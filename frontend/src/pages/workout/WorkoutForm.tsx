@@ -666,7 +666,11 @@ export const WorkoutForm = () => {
       {/* 底部按钮 */}
       <div
         className="fixed left-0 right-0 bottom-0 bg-white flex gap-3 px-4 py-3 border-t border-gray-200 shadow-lg z-10"
-        style={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
+        style={{
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          paddingBottom: 'env(safe-area-inset-bottom, 16px)'
+        }}
       >
         <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">
           关闭
