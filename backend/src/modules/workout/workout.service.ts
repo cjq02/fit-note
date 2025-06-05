@@ -106,7 +106,7 @@ export class WorkoutService {
             conditions.date = query.date;
         }
         if (query.project) {
-            conditions.project = { $regex: query.project, $options: 'i' };
+            conditions.projectName = { $regex: query.project, $options: 'i' };
         }
 
         try {
@@ -144,7 +144,7 @@ export class WorkoutService {
                 // 使用项目名称替换 project 字段
                 const projectName = projectMap.get(workout.projectId.toString());
                 if (projectName) {
-                    workout.project = projectName;
+                    workout.projectName = projectName;
                 }
                 acc[workout.date].push(workout);
                 return acc;
@@ -186,7 +186,7 @@ export class WorkoutService {
         // 构建查询条件
         const conditions: any = { userId: query.userId };
         if (query.project) {
-            conditions.project = { $regex: query.project, $options: 'i' };
+            conditions.projectName = { $regex: query.project, $options: 'i' };
         }
 
         try {
@@ -227,14 +227,14 @@ export class WorkoutService {
             // 填充训练记录
             workouts.forEach(workout => {
                 const weekKey = dayjs(workout.date).startOf('isoWeek').format('YYYY-MM-DD');
-                if (!weekGroups[weekKey][workout.project]) {
-                    weekGroups[weekKey][workout.project] = {
+                if (!weekGroups[weekKey][workout.projectName]) {
+                    weekGroups[weekKey][workout.projectName] = {
                         workouts: [],
                         uniqueDates: new Set()
                     };
                 }
-                weekGroups[weekKey][workout.project].workouts.push(workout);
-                weekGroups[weekKey][workout.project].uniqueDates.add(workout.date);
+                weekGroups[weekKey][workout.projectName].workouts.push(workout);
+                weekGroups[weekKey][workout.projectName].uniqueDates.add(workout.date);
             });
 
             // 3. 获取所有周的唯一键并排序
@@ -450,7 +450,7 @@ export class WorkoutService {
             conditions.date = query.date;
         }
         if (query.project) {
-            conditions.project = query.project;
+            conditions.projectName = query.project;
         }
 
         try {
@@ -519,7 +519,7 @@ export class WorkoutService {
         // 构建查询条件
         const conditions: any = { userId: query.userId };
         if (query.project) {
-            conditions.project = { $regex: query.project, $options: 'i' };
+            conditions.projectName = { $regex: query.project, $options: 'i' };
         }
 
         try {
@@ -562,14 +562,14 @@ export class WorkoutService {
                 const date = new Date(workout.date);
                 const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
 
-                if (!monthGroups[monthKey][workout.project]) {
-                    monthGroups[monthKey][workout.project] = {
+                if (!monthGroups[monthKey][workout.projectName]) {
+                    monthGroups[monthKey][workout.projectName] = {
                         workouts: [],
                         uniqueDates: new Set()
                     };
                 }
-                monthGroups[monthKey][workout.project].workouts.push(workout);
-                monthGroups[monthKey][workout.project].uniqueDates.add(workout.date);
+                monthGroups[monthKey][workout.projectName].workouts.push(workout);
+                monthGroups[monthKey][workout.projectName].uniqueDates.add(workout.date);
             });
 
             // 3. 获取所有月份的唯一键并排序
@@ -649,7 +649,7 @@ export class WorkoutService {
             conditions.date = { $gte: startDate, $lte: endDate };
         }
         if (query.project) {
-            conditions.project = query.project;
+            conditions.projectName = query.project;
         }
 
         try {
@@ -672,14 +672,14 @@ export class WorkoutService {
                 if (!yearGroups[yearKey]) {
                     yearGroups[yearKey] = {};
                 }
-                if (!yearGroups[yearKey][workout.project]) {
-                    yearGroups[yearKey][workout.project] = {
+                if (!yearGroups[yearKey][workout.projectName]) {
+                    yearGroups[yearKey][workout.projectName] = {
                         workouts: [],
                         uniqueDates: new Set()
                     };
                 }
-                yearGroups[yearKey][workout.project].workouts.push(workout);
-                yearGroups[yearKey][workout.project].uniqueDates.add(workout.date);
+                yearGroups[yearKey][workout.projectName].workouts.push(workout);
+                yearGroups[yearKey][workout.projectName].uniqueDates.add(workout.date);
             });
 
             // 3. 获取所有年份的唯一键并排序

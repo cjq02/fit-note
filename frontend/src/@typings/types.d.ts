@@ -10,7 +10,7 @@ export interface ApiResponse<T> {
 export interface Workout {
   id: string;
   date: string;
-  project: string;
+  projectName: string;
   projectId: string;
   unit: 'kg' | 'lb';
   groups: WorkoutGroup[];
@@ -29,7 +29,7 @@ export interface WorkoutGroup {
 // 创建训练记录的请求参数
 export interface CreateWorkoutRequest {
   date: string;
-  project: string;
+  projectName: string;
   projectId?: string;
   unit: 'kg' | 'lb';
   groups: WorkoutGroup[];

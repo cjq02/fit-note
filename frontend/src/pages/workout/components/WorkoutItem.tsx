@@ -5,19 +5,18 @@ import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { deleteWorkout } from '@/api/workout.api';
 
 /**
- * 计算训练项目的总训练量（组数 × 次数）
- *
- * @param {WorkoutType[]} workouts - 当前日期的训练记录
- * @param {string} project - 训练项目名称
- * @returns {number} 总训练量
+ * 计算指定项目的总次数
+ * @param {WorkoutType[]} workouts - 训练记录列表
+ * @param {string} projectName - 项目名称
+ * @returns {number} 总次数
  */
-const calculateProjectTotal = (workouts: WorkoutType[], project: string): number => {
+const calculateProjectTotal = (workouts: WorkoutType[], projectName: string): number => {
   return workouts
-    .filter(workout => workout.project === project)
+    .filter(workout => workout.projectName === projectName)
     .reduce((total, workout) => {
       // 计算每组的总次数
-      const groupTotal = workout.groups.reduce((sum, group) => sum + group.reps, 0);
-      return total + groupTotal;
+      const workoutTotal = workout.groups.reduce((groupTotal, group) => groupTotal + group.reps, 0);
+      return total + workoutTotal;
     }, 0);
 };
 
@@ -116,7 +115,7 @@ export const WorkoutItem = ({
                     className="font-semibold text-[16px] tracking-wide"
                     style={{ color: dateColor }}
                   >
-                    {workout.project}
+                    {workout.projectName}
                   </div>
                 </div>
               </div>
@@ -128,7 +127,7 @@ export const WorkoutItem = ({
                     boxShadow: `0 2px 8px ${dateColor}44`,
                   }}
                 >
-                  {calculateProjectTotal(workouts, workout.project)}次
+                  {calculateProjectTotal(workouts, workout.projectName)}次
                 </span>
               </div>
             </div>

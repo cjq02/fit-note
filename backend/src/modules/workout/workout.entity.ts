@@ -19,25 +19,28 @@ export class WorkoutGroup {
     restTime: number;
 }
 
-@Schema({ timestamps: true })
+@Schema()
 export class Workout {
-    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-    userId: Types.ObjectId;
+    @Prop({ required: true })
+    userId: string;
 
     @Prop({ required: true })
     date: string;
 
-    @Prop({ required: true })
-    project: string;
-
-    @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
+    @Prop({ required: true, type: Types.ObjectId, ref: 'Project' })
     projectId: Types.ObjectId;
 
-    @Prop({ required: true, enum: ['kg', 'lb'] })
-    unit: 'kg' | 'lb';
+    @Prop({ required: true })
+    projectName: string;
 
-    @Prop({ type: [WorkoutGroup], required: true })
+    @Prop({ required: true, type: [WorkoutGroup] })
     groups: WorkoutGroup[];
+
+    @Prop({ default: Date.now })
+    createdAt: Date;
+
+    @Prop({ default: Date.now })
+    updatedAt: Date;
 }
 
 export const WorkoutSchema = SchemaFactory.createForClass(Workout);

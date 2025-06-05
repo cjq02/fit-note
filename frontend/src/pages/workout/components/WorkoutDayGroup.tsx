@@ -21,7 +21,7 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
   const dateColor = generateColorFromDate(date);
 
   // 按项目名称字母顺序排序
-  const sortedWorkouts = [...workouts].sort((a, b) => a.project.localeCompare(b.project));
+  const sortedWorkouts = [...workouts].sort((a, b) => a.projectName.localeCompare(b.projectName));
 
   return (
     <div className="mb-6">
