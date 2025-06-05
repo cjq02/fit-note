@@ -10,6 +10,9 @@ import { useLocation, useNavigate, Outlet, matchRoutes } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom';
 import { router } from './router';
 
+// TabBar 相关路由路径
+const tabRoutes = ['/', '/schedule', '/project', '/workout', '/profile'];
+
 const tabs = [
   {
     key: '/',
@@ -60,8 +63,8 @@ export const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 在登录和注册页面不显示底部导航栏
-  if (location.pathname === '/login' || location.pathname === '/register') {
+  // 在登录、注册页面或非 TabBar 相关页面不显示底部导航栏
+  if (location.pathname === '/login' || location.pathname === '/register' || !tabRoutes.includes(location.pathname)) {
     return <Outlet />;
   }
 
@@ -96,20 +99,22 @@ export const App = () => {
       <div className="flex-1 overflow-y-auto pb-[50px] body">
         <Outlet />
       </div>
-      <TabBar
-        activeKey={location.pathname}
-        onChange={value => navigate(value)}
-        className="flex-none bg-white border-t border-[var(--adm-color-border)] fixed bottom-0 left-0 right-0"
-      >
-        {tabs.map(item => (
-          <TabBar.Item
-            key={item.key}
-            icon={item.icon}
-            title={item.key === '/project' ? '' : item.title}
-            className={item.key === '/project' ? 'scale-110' : ''}
-          />
-        ))}
-      </TabBar>
+      {tabRoutes.includes(location.pathname) && (
+        <TabBar
+          activeKey={location.pathname}
+          onChange={value => navigate(value)}
+          className="flex-none bg-white border-t border-[var(--adm-color-border)] fixed bottom-0 left-0 right-0"
+        >
+          {tabs.map(item => (
+            <TabBar.Item
+              key={item.key}
+              icon={item.icon}
+              title={item.key === '/project' ? '' : item.title}
+              className={item.key === '/project' ? 'scale-110' : ''}
+            />
+          ))}
+        </TabBar>
+      )}
     </div>
   );
 };

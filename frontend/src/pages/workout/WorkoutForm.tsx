@@ -469,203 +469,205 @@ export const WorkoutForm = () => {
   };
 
   return (
-    <div className="page-container bg-[var(--adm-color-background)] flex flex-col h-screen">
-      <div className="flex-1 p-4 pb-24 overflow-y-auto">
-        <Form form={form} layout="vertical" footer={null}>
-          {/* 日期和项目名称卡片 */}
-          <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
-            <div className="flex gap-3">
-              <Form.Item label="训练日期" style={{ flex: 1 }}>
-                <div
-                  onClick={() => setDateVisible(true)}
-                  className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors"
-                >
-                  {dayjs(date).format('YYYY-MM-DD')}
-                </div>
-                <CalendarPicker
-                  visible={dateVisible}
-                  value={date}
-                  onChange={handleDateChange}
-                  max={new Date()}
-                  min={oneMonthAgo}
-                  selectionMode="single"
-                  onClose={() => setDateVisible(false)}
-                />
-              </Form.Item>
-              <Form.Item label="项目名称" style={{ flex: 1 }}>
-                <div className="h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
-                  {decodeURIComponent(projectName || '') ||
-                    workoutData?.data.projectName ||
-                    '新训练'}
-                </div>
-              </Form.Item>
-            </div>
-          </div>
-
-          {/* 重量单位卡片 */}
-          <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
-            <div className="flex items-center gap-6">
-              <span className="text-[var(--adm-color-text)] whitespace-nowrap">重量单位</span>
-              <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
-                <div className="flex gap-6">
-                  {UNIT_OPTIONS.map(opt => (
-                    <Radio
-                      key={opt.value}
-                      value={opt.value}
-                      className="flex-1 h-[32px] rounded-lg data-[checked=true]:bg-[var(--adm-color-primary-light)]"
-                    >
-                      {opt.label}
-                    </Radio>
-                  ))}
-                </div>
-              </Radio.Group>
-            </div>
-          </div>
-
-          {/* 训练组列表 */}
-          <div className="space-y-3">
-            {groups.map((group, idx) => (
-              <SwipeAction
-                key={idx}
-                leftActions={[
-                  {
-                    key: 'delete',
-                    text: '删除',
-                    color: 'danger',
-                    onClick: () => handleRemoveGroup(idx),
-                  },
-                ]}
-                rightActions={[
-                  {
-                    key: 'clearTimer',
-                    text: '清空计时',
-                    color: 'warning',
-                    onClick: () => {
-                      Dialog.confirm({
-                        content: '确定要清空这组的休息时间吗？',
-                        onConfirm: () => {
-                          setGroups(currentGroups => {
-                            const newGroups = [...currentGroups];
-                            newGroups[idx] = { ...newGroups[idx], restTime: 0 };
-                            return newGroups;
-                          });
-                          // 如果正在计时，停止计时
-                          if (timerRef.current) {
-                            window.clearInterval(timerRef.current);
-                            timerRef.current = null;
-                            setIsPaused(false);
-                          }
-                        },
-                      });
-                    },
-                  },
-                ]}
-              >
-                <div className="p-4 rounded-xl bg-white shadow-sm transition-all hover:shadow-md relative">
-                  {group.isNew && (
-                    <div className="absolute -right-2 -top-2 w-28 h-28 overflow-hidden">
-                      <div className="absolute right-0 top-0 w-28 h-28 bg-[#00B894] transform rotate-45 translate-x-14 -translate-y-14" />
-                      <span className="absolute right-4 top-4 text-base text-white font-bold transform rotate-45">
-                        NEW
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-1">
-                      <span className="text-[var(--adm-color-text)]">第</span>
-                      <span className="font-extrabold text-[var(--adm-color-primary)]">
-                        {group.seqNo}
-                      </span>
-                      <span className="text-[var(--adm-color-text)]">组</span>
-                    </div>
-                    <Button
-                      color="danger"
-                      fill="none"
-                      size="mini"
-                      onClick={() => handleRemoveGroup(idx)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <DeleteOutline />
-                    </Button>
+    <div className="fixed inset-0 flex flex-col bg-[var(--adm-color-background)]">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="p-4 pb-24">
+          <Form form={form} layout="vertical" footer={null}>
+            {/* 日期和项目名称卡片 */}
+            <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
+              <div className="flex gap-3">
+                <Form.Item label="训练日期" style={{ flex: 1 }}>
+                  <div
+                    onClick={() => setDateVisible(true)}
+                    className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors"
+                  >
+                    {dayjs(date).format('YYYY-MM-DD')}
                   </div>
-                  <div className="flex gap-3">
-                    <div className="flex flex-col flex-[2]">
-                      <span className="text-sm text-[var(--adm-color-text-light)] mb-1">次数</span>
-                      <NumberInput
-                        value={group.reps}
-                        onChange={val => handleGroupChange(idx, 'reps', val)}
-                        min={0}
-                        max={999}
-                        step={1}
-                        allowDecimal={false}
-                      />
-                    </div>
-                    <div className="flex flex-col flex-[2]">
-                      <span className="text-sm text-[var(--adm-color-text-light)] mb-1">重量</span>
-                      <NumberInput
-                        value={group.weight}
-                        onChange={val => handleGroupChange(idx, 'weight', val)}
-                        min={0}
-                        max={999}
-                        step={0.5}
-                        allowDecimal={true}
-                      />
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="text-sm text-[var(--adm-color-text-light)] mb-1">休息</span>
-                      <Button
-                        size="small"
-                        color={
-                          idx === groups.length - 1
-                            ? timerRef.current
-                              ? 'danger'
-                              : 'warning'
-                            : 'success'
-                        }
-                        onClick={() => handleStartRest(idx)}
-                        className="h-[40px] w-[60px]"
-                        disabled={idx !== groups.length - 1}
+                  <CalendarPicker
+                    visible={dateVisible}
+                    value={date}
+                    onChange={handleDateChange}
+                    max={new Date()}
+                    min={oneMonthAgo}
+                    selectionMode="single"
+                    onClose={() => setDateVisible(false)}
+                  />
+                </Form.Item>
+                <Form.Item label="项目名称" style={{ flex: 1 }}>
+                  <div className="h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
+                    {decodeURIComponent(projectName || '') ||
+                      workoutData?.data.projectName ||
+                      '新训练'}
+                  </div>
+                </Form.Item>
+              </div>
+            </div>
+
+            {/* 重量单位卡片 */}
+            <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
+              <div className="flex items-center gap-6">
+                <span className="text-[var(--adm-color-text)] whitespace-nowrap">重量单位</span>
+                <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
+                  <div className="flex gap-6">
+                    {UNIT_OPTIONS.map(opt => (
+                      <Radio
+                        key={opt.value}
+                        value={opt.value}
+                        className="flex-1 h-[32px] rounded-lg data-[checked=true]:bg-[var(--adm-color-primary-light)]"
                       >
-                        {group.restTime && group.restTime > 0 ? `${group.restTime}` : '计时'}
+                        {opt.label}
+                      </Radio>
+                    ))}
+                  </div>
+                </Radio.Group>
+              </div>
+            </div>
+
+            {/* 训练组列表 */}
+            <div className="space-y-3">
+              {groups.map((group, idx) => (
+                <SwipeAction
+                  key={idx}
+                  leftActions={[
+                    {
+                      key: 'delete',
+                      text: '删除',
+                      color: 'danger',
+                      onClick: () => handleRemoveGroup(idx),
+                    },
+                  ]}
+                  rightActions={[
+                    {
+                      key: 'clearTimer',
+                      text: '清空计时',
+                      color: 'warning',
+                      onClick: () => {
+                        Dialog.confirm({
+                          content: '确定要清空这组的休息时间吗？',
+                          onConfirm: () => {
+                            setGroups(currentGroups => {
+                              const newGroups = [...currentGroups];
+                              newGroups[idx] = { ...newGroups[idx], restTime: 0 };
+                              return newGroups;
+                            });
+                            // 如果正在计时，停止计时
+                            if (timerRef.current) {
+                              window.clearInterval(timerRef.current);
+                              timerRef.current = null;
+                              setIsPaused(false);
+                            }
+                          },
+                        });
+                      },
+                    },
+                  ]}
+                >
+                  <div className="p-4 rounded-xl bg-white shadow-sm transition-all hover:shadow-md relative">
+                    {group.isNew && (
+                      <div className="absolute -right-2 -top-2 w-28 h-28 overflow-hidden">
+                        <div className="absolute right-0 top-0 w-28 h-28 bg-[#00B894] transform rotate-45 translate-x-14 -translate-y-14" />
+                        <span className="absolute right-4 top-4 text-base text-white font-bold transform rotate-45">
+                          NEW
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-1">
+                        <span className="text-[var(--adm-color-text)]">第</span>
+                        <span className="font-extrabold text-[var(--adm-color-primary)]">
+                          {group.seqNo}
+                        </span>
+                        <span className="text-[var(--adm-color-text)]">组</span>
+                      </div>
+                      <Button
+                        color="danger"
+                        fill="none"
+                        size="mini"
+                        onClick={() => handleRemoveGroup(idx)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <DeleteOutline />
                       </Button>
                     </div>
+                    <div className="flex gap-3">
+                      <div className="flex flex-col flex-[2]">
+                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">次数</span>
+                        <NumberInput
+                          value={group.reps}
+                          onChange={val => handleGroupChange(idx, 'reps', val)}
+                          min={0}
+                          max={999}
+                          step={1}
+                          allowDecimal={false}
+                        />
+                      </div>
+                      <div className="flex flex-col flex-[2]">
+                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">重量</span>
+                        <NumberInput
+                          value={group.weight}
+                          onChange={val => handleGroupChange(idx, 'weight', val)}
+                          min={0}
+                          max={999}
+                          step={0.5}
+                          allowDecimal={true}
+                        />
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">休息</span>
+                        <Button
+                          size="small"
+                          color={
+                            idx === groups.length - 1
+                              ? timerRef.current
+                                ? 'danger'
+                                : 'warning'
+                              : 'success'
+                          }
+                          onClick={() => handleStartRest(idx)}
+                          className="h-[40px] w-[60px]"
+                          disabled={idx !== groups.length - 1}
+                        >
+                          {group.restTime && group.restTime > 0 ? `${group.restTime}` : '计时'}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </SwipeAction>
-            ))}
-          </div>
+                </SwipeAction>
+              ))}
+            </div>
 
-          {/* 添加组按钮 */}
-          <div className="mt-6 mb-4">
-            <Button
-              block
-              color="primary"
-              onClick={handleAddGroup}
-              className="h-[48px] rounded-xl relative overflow-hidden group"
-              style={
-                {
-                  '--background-color': 'var(--adm-color-primary)',
-                  '--text-color': '#fff',
-                  '--border-radius': '12px',
-                  '--border-width': '0',
-                } as any
-              }
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-[var(--adm-color-primary)] to-[var(--adm-color-primary-dark)] opacity-90 group-active:opacity-100 transition-opacity" />
-              <div className="relative flex items-center justify-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <AddOutline className="text-xl text-white" />
+            {/* 添加组按钮 */}
+            <div className="mt-6 mb-4">
+              <Button
+                block
+                color="primary"
+                onClick={handleAddGroup}
+                className="h-[48px] rounded-xl relative overflow-hidden group"
+                style={
+                  {
+                    '--background-color': 'var(--adm-color-primary)',
+                    '--text-color': '#fff',
+                    '--border-radius': '12px',
+                    '--border-width': '0',
+                  } as any
+                }
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--adm-color-primary)] to-[var(--adm-color-primary-dark)] opacity-90 group-active:opacity-100 transition-opacity" />
+                <div className="relative flex items-center justify-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <AddOutline className="text-xl text-white" />
+                  </div>
+                  <span className="text-lg font-medium">添加训练组</span>
                 </div>
-                <span className="text-lg font-medium">添加训练组</span>
-              </div>
-            </Button>
-          </div>
-        </Form>
+              </Button>
+            </div>
+          </Form>
+        </div>
       </div>
 
       {/* 底部按钮 */}
       <div
-        className="sticky bottom-0 left-0 right-0 bg-white flex gap-3 px-4 py-3 border-t border-gray-200 shadow-lg z-10"
+        className="flex-none bg-white flex gap-3 px-4 py-3 border-t border-gray-200 shadow-lg"
         style={{
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
