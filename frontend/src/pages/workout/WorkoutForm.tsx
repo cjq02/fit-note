@@ -4,6 +4,10 @@ import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import VConsole from 'vconsole';
+
+// 初始化 vConsole
+const vConsole = new VConsole();
 
 import type {
   ApiResponse,
@@ -491,8 +495,87 @@ export const WorkoutForm = () => {
     };
   }, []);
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const initialHeightRef = useRef(window.innerHeight);
+
+  // 监听键盘弹出
+  useEffect(() => {
+    if (!rootRef.current) return;
+
+    const resizeObserver = new ResizeObserver(entries => {
+      const currentHeight = window.innerHeight;
+      const heightDiff = initialHeightRef.current - currentHeight;
+
+      // 如果高度差大于 150px，认为是键盘弹出
+      if (heightDiff > 150) {
+        setIsKeyboardVisible(true);
+        setKeyboardHeight(heightDiff);
+        vConsole.log('键盘弹出', {
+          currentHeight,
+          initialHeight: initialHeightRef.current,
+          heightDiff,
+          isKeyboardVisible: true
+        });
+      } else {
+        setIsKeyboardVisible(false);
+        setKeyboardHeight(0);
+        vConsole.log('键盘收起', {
+          currentHeight,
+          initialHeight: initialHeightRef.current,
+          heightDiff,
+          isKeyboardVisible: false
+        });
+      }
+    });
+
+    // 监听窗口大小变化
+    const handleResize = () => {
+      initialHeightRef.current = window.innerHeight;
+      vConsole.log('窗口大小变化', {
+        newHeight: window.innerHeight,
+        initialHeight: initialHeightRef.current
+      });
+    };
+
+    // 监听输入框聚焦
+    const handleFocus = (e: FocusEvent) => {
+      vConsole.log('输入框聚焦', {
+        target: e.target,
+        type: e.type,
+        timestamp: new Date().toISOString()
+      });
+    };
+
+    // 监听输入框失焦
+    const handleBlur = (e: FocusEvent) => {
+      vConsole.log('输入框失焦', {
+        target: e.target,
+        type: e.type,
+        timestamp: new Date().toISOString()
+      });
+      setIsKeyboardVisible(false);
+      setKeyboardHeight(0);
+    };
+
+    // 开始观察
+    resizeObserver.observe(rootRef.current);
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('focusin', handleFocus);
+    document.addEventListener('focusout', handleBlur);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('focusin', handleFocus);
+      document.removeEventListener('focusout', handleBlur);
+    };
+  }, []);
+
   return (
     <div
+      ref={rootRef}
       className="min-h-[100vh] min-h-[calc(var(--vh,1vh)*100)] bg-[var(--adm-color-background)]"
       style={{
         position: 'relative',
@@ -505,7 +588,8 @@ export const WorkoutForm = () => {
         className="h-full overflow-y-auto overscroll-contain"
         style={{
           height: '100%',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          paddingBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0'
         }}
       >
         <div className="p-4">
@@ -710,7 +794,7 @@ export const WorkoutForm = () => {
           borderTopRightRadius: 16,
           paddingBottom: 'env(safe-area-inset-bottom, 16px)',
           position: 'fixed',
-          bottom: 0,
+          bottom: isKeyboardVisible ? `${keyboardHeight}px` : 0,
           left: 0,
           right: 0,
           height: '80px',
@@ -719,7 +803,8 @@ export const WorkoutForm = () => {
           willChange: 'transform',
           WebkitTransform: 'translateZ(0)',
           WebkitBackfaceVisibility: 'hidden',
-          WebkitPerspective: 1000
+          WebkitPerspective: 1000,
+          transition: 'bottom 0.3s ease'
         }}
       >
         <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">

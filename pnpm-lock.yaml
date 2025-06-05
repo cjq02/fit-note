@@ -181,6 +181,9 @@ importers:
       react-router-dom:
         specifier: ^6.22.1
         version: 6.30.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      vconsole:
+        specifier: ^3.15.1
+        version: 3.15.1
     devDependencies:
       '@eslint/js':
         specifier: ^8.56.0
@@ -2159,6 +2162,13 @@ packages:
   cookiejar@2.1.4:
     resolution: {integrity: sha512-LDx6oHrK+PhzLKJU9j5S7/Y3jM/mUHvD/DeI1WQmJn652iPC5Y4TBzC9l+5OMOXlyTTA+SmVUPm0HQUwpD5Jqw==}
 
+  copy-text-to-clipboard@3.2.0:
+    resolution: {integrity: sha512-RnJFp1XR/LOBDckxTib5Qjr/PMfkatD0MUCQgdpqS8MdKiNUzBjAQBEN6oUy+jW7LI93BBG3DtMB2KOOKpGs2Q==}
+    engines: {node: '>=12'}
+
+  core-js@3.42.0:
+    resolution: {integrity: sha512-Sz4PP4ZA+Rq4II21qkNqOEDTDrCvcANId3xpIgB34NDkWc3UduWj2dqEtN9yZIq8Dk3HyPI33x9sqqU5C8sr0g==}
+
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
@@ -3615,6 +3625,9 @@ packages:
     resolution: {integrity: sha512-WeSGziVj6+Z2/MwQo3GvqzgR+9Uc+qt8SwHKh3gvNPiISKfsMfG4SvCOFYlxxgkXt7yIV2i1yczehm0EOKIxIg==}
     engines: {node: '>= 6.0.0'}
 
+  mutation-observer@1.0.3:
+    resolution: {integrity: sha512-M/O/4rF2h776hV7qGMZUH3utZLO/jK7p8rnNgGkjKUw8zCGjRQPxB8z6+5l8+VjRUQ3dNYu4vjqXYLr+U8ZVNA==}
+
   mute-stream@0.0.8:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
 
@@ -4793,6 +4806,9 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+
+  vconsole@3.15.1:
+    resolution: {integrity: sha512-KH8XLdrq9T5YHJO/ixrjivHfmF2PC2CdVoK6RWZB4yftMykYIaXY1mxZYAic70vADM54kpMQF+dYmvl5NRNy1g==}
 
   vite-node@1.6.1:
     resolution: {integrity: sha512-YAXkfvGtuTzwWbDSACdJSg4A4DZiAqckWe90Zapc/sEX3XvHcw1NdurM/6od8J207tSDqNbSsgdCacBgvJKFuA==}
@@ -7029,6 +7045,10 @@ snapshots:
 
   cookiejar@2.1.4: {}
 
+  copy-text-to-clipboard@3.2.0: {}
+
+  core-js@3.42.0: {}
+
   core-util-is@1.0.3: {}
 
   cors@2.8.5:
@@ -8877,6 +8897,8 @@ snapshots:
       type-is: 1.6.18
       xtend: 4.0.2
 
+  mutation-observer@1.0.3: {}
+
   mute-stream@0.0.8: {}
 
   mute-stream@1.0.0: {}
@@ -10145,6 +10167,13 @@ snapshots:
   validator@13.15.0: {}
 
   vary@1.1.2: {}
+
+  vconsole@3.15.1:
+    dependencies:
+      '@babel/runtime': 7.27.1
+      copy-text-to-clipboard: 3.2.0
+      core-js: 3.42.0
+      mutation-observer: 1.0.3
 
   vite-node@1.6.1(@types/node@20.17.50)(terser@5.39.2):
     dependencies:
