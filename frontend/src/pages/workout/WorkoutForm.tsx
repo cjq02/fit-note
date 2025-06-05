@@ -468,9 +468,51 @@ export const WorkoutForm = () => {
     }
   };
 
+  // 添加视口高度状态
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // 监听视口大小变化
+  useEffect(() => {
+    const handleResize = () => {
+      const newHeight = window.innerHeight;
+      setViewportHeight(newHeight);
+      // 如果高度变化超过 150px，认为是键盘弹出
+      setIsKeyboardVisible(window.innerHeight < window.outerHeight - 150);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('focusin', handleResize);
+    window.addEventListener('focusout', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('focusin', handleResize);
+      window.removeEventListener('focusout', handleResize);
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 flex flex-col bg-[var(--adm-color-background)]">
-      <div className="flex-1 overflow-y-auto overscroll-contain">
+    <div
+      className="fixed inset-0 flex flex-col bg-[var(--adm-color-background)]"
+      style={{
+        height: viewportHeight,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        transform: 'translateZ(0)',
+        willChange: 'transform'
+      }}
+    >
+      <div
+        className="flex-1 overflow-y-auto overscroll-contain"
+        style={{
+          height: isKeyboardVisible ? 'calc(100% - 80px)' : '100%',
+          transition: 'height 0.3s ease'
+        }}
+      >
         <div className="p-4 pb-24">
           <Form form={form} layout="vertical" footer={null}>
             {/* 日期和项目名称卡片 */}
@@ -671,7 +713,13 @@ export const WorkoutForm = () => {
         style={{
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
-          paddingBottom: 'env(safe-area-inset-bottom, 16px)'
+          paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          transform: 'translateZ(0)',
+          willChange: 'transform'
         }}
       >
         <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">
