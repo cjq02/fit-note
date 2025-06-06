@@ -24,6 +24,9 @@ export const Profile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [vConsole, setVConsole] = useState<VConsole | null>(null);
+  const [isDebugEnabled, setIsDebugEnabled] = useState(() => {
+    return localStorage.getItem('debug_enabled') === 'true';
+  });
 
   // 获取用户信息
   const {
@@ -104,6 +107,8 @@ export const Profile = () => {
     if (checked) {
       const vc = new VConsole();
       setVConsole(vc);
+      localStorage.setItem('debug_enabled', 'true');
+      setIsDebugEnabled(true);
       Toast.show({
         icon: 'success',
         content: '已开启调试模式',
@@ -111,12 +116,25 @@ export const Profile = () => {
     } else {
       vConsole?.destroy();
       setVConsole(null);
+      localStorage.setItem('debug_enabled', 'false');
+      setIsDebugEnabled(false);
       Toast.show({
         icon: 'success',
         content: '已关闭调试模式',
       });
     }
   };
+
+  // 初始化 vConsole
+  useEffect(() => {
+    if (isDebugEnabled) {
+      const vc = new VConsole();
+      setVConsole(vc);
+    }
+    return () => {
+      vConsole?.destroy();
+    };
+  }, []);
 
   const settings = [
     {
@@ -154,7 +172,7 @@ export const Profile = () => {
     {
       title: '日志调试',
       icon: <AntOutline />,
-      right: <Switch onChange={handleDebugToggle} />,
+      right: <Switch checked={isDebugEnabled} onChange={handleDebugToggle} />,
     },
     {
       title: '系统设置',
