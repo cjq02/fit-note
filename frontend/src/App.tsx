@@ -63,8 +63,8 @@ export const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 在登录、注册页面或非 TabBar 相关页面不显示底部导航栏
-  if (location.pathname === '/login' || location.pathname === '/register' || !tabRoutes.includes(location.pathname)) {
+  // 只在登录、注册页面不显示导航栏
+  if (location.pathname === '/login' || location.pathname === '/register') {
     return <Outlet />;
   }
 
