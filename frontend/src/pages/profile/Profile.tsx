@@ -1,16 +1,17 @@
-import { Avatar, Card, List, Space, Switch, Toast, Dialog, Button } from 'antd-mobile';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Card, Dialog, List, Switch, Toast } from 'antd-mobile';
 import {
-  SetOutline,
-  UserOutline,
+  AntOutline,
   BellOutline,
-  LockOutline,
-  RightOutline,
   EditSOutline,
   KeyOutline,
+  LockOutline,
+  RightOutline,
+  SetOutline,
 } from 'antd-mobile-icons';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import VConsole from 'vconsole';
 
 import { getUserInfo } from '@/api/auth.api';
 
@@ -22,6 +23,7 @@ import { getUserInfo } from '@/api/auth.api';
 export const Profile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [vConsole, setVConsole] = useState<VConsole | null>(null);
 
   // 获取用户信息
   const {
@@ -97,6 +99,25 @@ export const Profile = () => {
     });
   };
 
+  // 处理日志调试开关
+  const handleDebugToggle = (checked: boolean) => {
+    if (checked) {
+      const vc = new VConsole();
+      setVConsole(vc);
+      Toast.show({
+        icon: 'success',
+        content: '已开启调试模式',
+      });
+    } else {
+      vConsole?.destroy();
+      setVConsole(null);
+      Toast.show({
+        icon: 'success',
+        content: '已关闭调试模式',
+      });
+    }
+  };
+
   const settings = [
     {
       title: '修改用户名',
@@ -129,6 +150,11 @@ export const Profile = () => {
         });
       },
       arrow: true,
+    },
+    {
+      title: '日志调试',
+      icon: <AntOutline />,
+      right: <Switch onChange={handleDebugToggle} />,
     },
     {
       title: '系统设置',
