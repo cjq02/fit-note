@@ -522,7 +522,7 @@ export const WorkoutForm = () => {
           currentHeight,
           initialHeight: initialHeightRef.current,
           heightDiff,
-          isKeyboardVisible: true
+          isKeyboardVisible: true,
         });
       } else {
         setIsKeyboardVisible(false);
@@ -531,7 +531,7 @@ export const WorkoutForm = () => {
           currentHeight,
           initialHeight: initialHeightRef.current,
           heightDiff,
-          isKeyboardVisible: false
+          isKeyboardVisible: false,
         });
       }
     });
@@ -541,7 +541,7 @@ export const WorkoutForm = () => {
       initialHeightRef.current = window.innerHeight;
       console.log('窗口大小变化', {
         newHeight: window.innerHeight,
-        initialHeight: initialHeightRef.current
+        initialHeight: initialHeightRef.current,
       });
     };
 
@@ -550,7 +550,7 @@ export const WorkoutForm = () => {
       console.log('输入框聚焦', {
         target: e.target,
         type: e.type,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     };
 
@@ -559,7 +559,7 @@ export const WorkoutForm = () => {
       console.log('输入框失焦', {
         target: e.target,
         type: e.type,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       setIsKeyboardVisible(false);
       setKeyboardHeight(0);
@@ -592,7 +592,7 @@ export const WorkoutForm = () => {
         position: 'relative',
         paddingBottom: '80px',
         height: '100%',
-        overflow: 'hidden'
+        overflow: 'hidden',
       }}
     >
       <div
@@ -600,7 +600,7 @@ export const WorkoutForm = () => {
         style={{
           height: '100%',
           WebkitOverflowScrolling: 'touch',
-          paddingBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0'
+          paddingBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
         }}
       >
         <div className="p-4">
@@ -723,7 +723,9 @@ export const WorkoutForm = () => {
                     </div>
                     <div className="flex gap-3">
                       <div className="flex flex-col flex-[2]">
-                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">次数</span>
+                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">
+                          次数
+                        </span>
                         <NumberInput
                           value={group.reps}
                           onChange={val => handleGroupChange(idx, 'reps', val)}
@@ -734,7 +736,9 @@ export const WorkoutForm = () => {
                         />
                       </div>
                       <div className="flex flex-col flex-[2]">
-                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">重量</span>
+                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">
+                          重量
+                        </span>
                         <NumberInput
                           value={group.weight}
                           onChange={val => handleGroupChange(idx, 'weight', val)}
@@ -745,7 +749,9 @@ export const WorkoutForm = () => {
                         />
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">休息</span>
+                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">
+                          休息
+                        </span>
                         <Button
                           size="small"
                           color={
@@ -815,7 +821,7 @@ export const WorkoutForm = () => {
           WebkitTransform: 'translateZ(0)',
           WebkitBackfaceVisibility: 'hidden',
           WebkitPerspective: 1000,
-          transition: 'bottom 0.3s ease'
+          transition: 'bottom 0.3s ease',
         }}
       >
         <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">
