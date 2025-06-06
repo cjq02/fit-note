@@ -714,7 +714,12 @@ export const WorkoutForm = () => {
                   rightActions={[
                     {
                       key: 'clearTimer',
-                      text: '清空计时',
+                      text: (
+                        <div className="flex flex-col items-center">
+                          <span>清空</span>
+                          <span>计时</span>
+                        </div>
+                      ),
                       color: 'danger',
                       onClick: () => {
                         Dialog.confirm({
@@ -737,7 +742,12 @@ export const WorkoutForm = () => {
                     },
                     {
                       key: 'editTimer',
-                      text: '编辑计时',
+                      text: (
+                        <div className="flex flex-col items-center">
+                          <span>编辑</span>
+                          <span>计时</span>
+                        </div>
+                      ),
                       color: 'warning',
                       onClick: () => handleEditRestTime(idx),
                     },
