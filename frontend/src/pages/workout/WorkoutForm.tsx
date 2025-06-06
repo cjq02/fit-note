@@ -44,7 +44,7 @@ const UNIT_OPTIONS = [
 export const WorkoutForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, _setSearchParams] = useSearchParams();
   const location = useLocation();
 
   // 获取来源页面
@@ -58,9 +58,9 @@ export const WorkoutForm = () => {
   });
   const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
   const [dateVisible, setDateVisible] = useState(false);
-  const [restTime, setRestTime] = useState<number>(0);
+  const [_restTime, setRestTime] = useState<number>(0);
   const timerRef = useRef<number | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
+  const [_isPaused, setIsPaused] = useState(false);
 
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
@@ -80,7 +80,7 @@ export const WorkoutForm = () => {
   const projectName = id ? workoutData?.data?.projectName : searchParams.get('projectName');
 
   // 根据日期和项目ID查询训练记录
-  const { data: dateWorkoutData, refetch: refetchDateWorkout } = useQuery<Workout | null, Error>({
+  const { data: dateWorkoutData } = useQuery<Workout | null, Error>({
     queryFn: async () => {
       if (!projectId) throw new Error('项目ID不能为空');
       const response = await findByDateAndProject(dayjs(date).format('YYYY-MM-DD'), projectId);
