@@ -574,6 +574,59 @@ export const WorkoutForm = () => {
     };
   }, []);
 
+  /**
+   * 编辑休息时间
+   *
+   * @param {number} idx - 组的索引
+   */
+  const handleEditRestTime = (idx: number) => {
+    let inputValue = groups[idx].restTime?.toString() || '0';
+
+    Dialog.show({
+      title: '编辑休息时间',
+      content: (
+        <div className="p-4">
+          <input
+            type="number"
+            className="w-full h-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)]"
+            defaultValue={inputValue}
+            min={0}
+            placeholder="请输入休息时间（秒）"
+            onChange={e => {
+              inputValue = e.target.value;
+            }}
+          />
+        </div>
+      ),
+      closeOnAction: true,
+      actions: [
+        [
+          {
+            key: 'cancel',
+            text: '取消',
+          },
+          {
+            key: 'confirm',
+            text: '确定',
+            bold: true,
+            onClick: () => {
+              const newTime = parseInt(inputValue, 10);
+              if (isNaN(newTime) || newTime < 0) {
+                Toast.show({ icon: 'fail', content: '请输入有效的数字' });
+                return;
+              }
+              setGroups(currentGroups => {
+                const newGroups = [...currentGroups];
+                newGroups[idx] = { ...newGroups[idx], restTime: newTime };
+                return newGroups;
+              });
+            },
+          },
+        ],
+      ],
+    });
+  };
+
   return (
     <div
       ref={rootRef}
@@ -662,7 +715,7 @@ export const WorkoutForm = () => {
                     {
                       key: 'clearTimer',
                       text: '清空计时',
-                      color: 'warning',
+                      color: 'danger',
                       onClick: () => {
                         Dialog.confirm({
                           content: '确定要清空这组的休息时间吗？',
@@ -681,6 +734,12 @@ export const WorkoutForm = () => {
                           },
                         });
                       },
+                    },
+                    {
+                      key: 'editTimer',
+                      text: '编辑计时',
+                      color: 'warning',
+                      onClick: () => handleEditRestTime(idx),
                     },
                   ]}
                 >
