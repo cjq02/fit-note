@@ -808,7 +808,7 @@ export const WorkoutForm = () => {
                         />
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1">
+                        <span className="text-sm text-[var(--adm-color-text-light)] mb-1 mr-4">
                           休息
                         </span>
                         <Button
@@ -821,7 +821,7 @@ export const WorkoutForm = () => {
                               : 'success'
                           }
                           onClick={() => handleStartRest(idx)}
-                          className="h-[40px] w-[60px]"
+                          className="h-[40px] w-[60px] disabled:opacity-100 disabled:bg-[var(--adm-color-success)] disabled:text-white"
                           disabled={idx !== groups.length - 1}
                         >
                           {group.restTime && group.restTime > 0 ? `${group.restTime}` : '计时'}
