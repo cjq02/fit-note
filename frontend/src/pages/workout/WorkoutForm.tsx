@@ -4,16 +4,6 @@ import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import VConsole from 'vconsole';
-
-// 初始化 vConsole
-let vConsole: any = null;
-// 检查 URL 中是否包含 debug 参数
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('debug') === 'true') {
-  vConsole = new VConsole({ theme: 'dark' });
-  console.log('vConsole 已初始化');
-}
 
 import type {
   ApiResponse,
