@@ -3,12 +3,9 @@ import globals from 'globals'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tseslintParser from '@typescript-eslint/parser'
 import importPlugin from 'eslint-plugin-import'
-import prettier from 'eslint-plugin-prettier'
-import prettierConfig from 'eslint-config-prettier'
 
 export default [
   eslint.configs.recommended,
-  prettierConfig,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -25,11 +22,9 @@ export default [
     plugins: {
       '@typescript-eslint': tseslint,
       'import': importPlugin,
-      'prettier': prettier,
     },
     rules: {
       ...tseslint.configs.recommended.rules,
-      'prettier/prettier': ['error', {}, { usePrettierrc: true }],
       'indent': ['error', 2],
       // pnpm 相关规则
       'import/no-unresolved': 'error',
@@ -61,4 +56,4 @@ export default [
       },
     },
   },
-] 
+]

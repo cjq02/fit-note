@@ -1,29 +1,29 @@
-import { IsOptional, IsString, IsNumber, Min, Max, IsMongoId } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsNumber, Min, Max, IsMongoId } from 'class-validator';
 
 export class QueryWorkoutDto {
     @IsOptional()
     @IsString()
-    date?: string;
+      date?: string;
 
     @IsOptional()
     @IsString()
-    projectName?: string;
+      projectName?: string;
 
     @IsOptional()
     @IsMongoId()
-    userId?: string;
+      userId?: string;
 
     @IsOptional()
     @IsNumber()
     @Type(() => Number)
     @Min(1)
-    page: number = 1;
+      page: number = 1;
 
     @IsOptional()
     @IsNumber()
     @Type(() => Number)
     @Min(1)
     @Max(100)
-    pageSize: number = 10;
+      pageSize: number = 10;
 }
