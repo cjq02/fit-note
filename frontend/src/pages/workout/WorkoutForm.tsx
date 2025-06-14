@@ -51,6 +51,9 @@ export const WorkoutForm = () => {
   const [_restTime, setRestTime] = useState<number>(0);
   const timerRef = useRef<number | null>(null);
   const [_isPaused, setIsPaused] = useState(false);
+  const [trainingTime, setTrainingTime] = useState<number>(0);
+  const [isTraining, setIsTraining] = useState(false);
+  const trainingTimerRef = useRef<number | null>(null);
 
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
@@ -89,6 +92,7 @@ export const WorkoutForm = () => {
     if (workout) {
       setDate(new Date(workout.date));
       setUnit(workout.unit);
+      setTrainingTime(workout.trainingTime || 0);
       setGroups(
         workout.groups.map((group: WorkoutGroup) => ({
           reps: group.reps.toString(),
@@ -398,6 +402,31 @@ export const WorkoutForm = () => {
     };
   }, []);
 
+  // 格式化时间显示
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // 开始训练计时
+  const handleStartTraining = () => {
+    if (isTraining) {
+      // 如果正在训练，暂停计时
+      if (trainingTimerRef.current) {
+        window.clearInterval(trainingTimerRef.current);
+        trainingTimerRef.current = null;
+      }
+      setIsTraining(false);
+    } else {
+      // 开始或继续计时
+      setIsTraining(true);
+      trainingTimerRef.current = window.setInterval(() => {
+        setTrainingTime(prev => prev + 1);
+      }, 1000);
+    }
+  };
+
   /**
    * 提交表单
    *
@@ -425,6 +454,7 @@ export const WorkoutForm = () => {
       projectName: projectName || workoutData?.data.projectName || '',
       projectId: projectId || undefined,
       unit,
+      trainingTime,
       groups: groups.map(g => ({
         reps: parseInt(g.reps, 10),
         weight: parseFloat(g.weight),
@@ -680,21 +710,39 @@ export const WorkoutForm = () => {
 
             {/* 重量单位卡片 */}
             <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
-              <div className="flex items-center gap-6">
-                <span className="text-[var(--adm-color-text)] whitespace-nowrap">重量单位</span>
-                <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
-                  <div className="flex gap-6">
-                    {UNIT_OPTIONS.map(opt => (
-                      <Radio
-                        key={opt.value}
-                        value={opt.value}
-                        className="flex-1 h-[32px] rounded-lg data-[checked=true]:bg-[var(--adm-color-primary-light)]"
-                      >
-                        {opt.label}
-                      </Radio>
-                    ))}
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <span className="text-[var(--adm-color-text)] block mb-2">重量单位</span>
+                  <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
+                    <div className="flex gap-6">
+                      {UNIT_OPTIONS.map(opt => (
+                        <Radio
+                          key={opt.value}
+                          value={opt.value}
+                          className="flex-1 h-[32px] rounded-lg data-[checked=true]:bg-[var(--adm-color-primary-light)]"
+                        >
+                          {opt.label}
+                        </Radio>
+                      ))}
+                    </div>
+                  </Radio.Group>
+                </div>
+                <div className="flex-1">
+                  <span className="text-[var(--adm-color-text)] block mb-2">训练时间</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-[32px] leading-[32px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
+                      {formatTime(trainingTime)}
+                    </div>
+                    <Button
+                      size="small"
+                      color={isTraining ? 'warning' : 'primary'}
+                      onClick={handleStartTraining}
+                      className="whitespace-nowrap"
+                    >
+                      {isTraining ? '暂停训练' : trainingTime > 0 ? '继续训练' : '开始训练'}
+                    </Button>
                   </div>
-                </Radio.Group>
+                </div>
               </div>
             </div>
 
