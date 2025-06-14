@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, CalendarPicker, Dialog, Form, Radio, SwipeAction, Toast } from 'antd-mobile';
-import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
+import {
+  Button,
+  CalendarPicker,
+  Dialog,
+  Form,
+  Radio,
+  SwipeAction,
+  Toast,
+  Popup,
+} from 'antd-mobile';
+import { AddOutline, DeleteOutline, HistogramOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -11,8 +20,15 @@ import type {
   Workout,
   WorkoutGroup,
 } from '@/@typings/types.d.ts';
-import { createWorkout, findByDateAndProject, getWorkout, updateWorkout } from '@/api/workout.api';
+import {
+  createWorkout,
+  findByDateAndProject,
+  getWorkout,
+  updateWorkout,
+  getWorkoutsGroupByDate,
+} from '@/api/workout.api';
 import { NumberInput } from '@/components/NumberInput';
+import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 
 // 添加NodeJS类型定义
 declare global {
@@ -54,6 +70,8 @@ export const WorkoutForm = () => {
   const [trainingTime, setTrainingTime] = useState<number>(0);
   const [isTraining, setIsTraining] = useState(false);
   const trainingTimerRef = useRef<number | null>(null);
+  const [historyVisible, setHistoryVisible] = useState(false);
+  const [historyData, setHistoryData] = useState<any>(null);
 
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
@@ -85,6 +103,28 @@ export const WorkoutForm = () => {
     gcTime: 0,
     retry: 1,
   });
+
+  // 获取历史记录
+  const { data: historyWorkouts } = useQuery({
+    queryKey: ['workouts', 'history', projectId],
+    queryFn: async () => {
+      if (!projectId) return null;
+      const response = await getWorkoutsGroupByDate({
+        projectId: projectId,
+        page: 1,
+        pageSize: 10,
+      });
+      return response.data;
+    },
+    enabled: !!projectId && historyVisible,
+  });
+
+  // 监听历史记录数据变化
+  useEffect(() => {
+    if (historyWorkouts) {
+      setHistoryData(historyWorkouts);
+    }
+  }, [historyWorkouts]);
 
   // 统一处理数据加载
   useEffect(() => {
@@ -882,12 +922,12 @@ export const WorkoutForm = () => {
             </div>
 
             {/* 添加组按钮 */}
-            <div className="mt-6 mb-4">
+            <div className="mt-6 mb-4 flex gap-2">
               <Button
                 block
                 color="primary"
                 onClick={handleAddGroup}
-                className="h-[48px] rounded-xl relative overflow-hidden group"
+                className="h-[48px] rounded-xl relative overflow-hidden group flex-1"
                 style={
                   {
                     '--background-color': 'var(--adm-color-primary)',
@@ -904,6 +944,13 @@ export const WorkoutForm = () => {
                   </div>
                   <span className="text-lg font-medium">添加训练组</span>
                 </div>
+              </Button>
+              <Button
+                color="primary"
+                onClick={() => setHistoryVisible(true)}
+                className="h-[48px] w-[48px] rounded-xl flex items-center justify-center"
+              >
+                <HistogramOutline className="text-xl" />
               </Button>
             </div>
           </Form>
@@ -943,6 +990,40 @@ export const WorkoutForm = () => {
           保存
         </Button>
       </div>
+
+      {/* 历史记录抽屉 */}
+      <Popup
+        visible={historyVisible}
+        onMaskClick={() => setHistoryVisible(false)}
+        position="right"
+        bodyStyle={{ width: '80vw', height: '100vh' }}
+      >
+        <div className="h-full overflow-y-auto">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">历史记录</h3>
+              <Button
+                fill="none"
+                onClick={() => setHistoryVisible(false)}
+                className="text-[var(--adm-color-text-light)]"
+              >
+                关闭
+              </Button>
+            </div>
+            {historyData &&
+              Object.entries(historyData.data).map(([date, workouts]) => (
+                <WorkoutDayGroup
+                  key={date}
+                  date={date}
+                  workouts={workouts as any[]}
+                  onDeleteSuccess={() => {
+                    queryClient.invalidateQueries({ queryKey: ['workouts', 'history', projectId] });
+                  }}
+                />
+              ))}
+          </div>
+        </div>
+      </Popup>
     </div>
   );
 };

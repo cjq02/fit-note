@@ -78,14 +78,15 @@ export const findByDateAndProject = async (
  *
  * @param {object} params - 查询参数
  * @param {string} [params.date] - 日期
- * @param {string} [params.project] - 训练项目名称
+ * @param {string} [params.projectId] - 训练项目名称
  * @param {number} [params.page] - 页码
  * @param {number} [params.pageSize] - 每页数量
+ * @param params.projectId
  * @returns {Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>>} 按日期分组的训练记录
  */
 export const getWorkoutsGroupByDate = async (params?: {
   date?: string;
-  project?: string;
+  projectId?: string;
   page?: number;
   pageSize?: number;
 }): Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>> => {

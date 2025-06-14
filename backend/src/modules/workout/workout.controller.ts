@@ -1,21 +1,22 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, Query, BadRequestException, Request, UseGuards } from '@nestjs/common';
+
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-import { WorkoutService } from './workout.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
-import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { QueryWorkoutDto } from './dto/query-workout.dto';
+import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { Workout } from './workout.entity';
+import { WorkoutService } from './workout.service';
 
 @Controller('workout')
 @UseGuards(JwtAuthGuard)
 export class WorkoutController {
-    constructor(private readonly workoutService: WorkoutService) { }
+  constructor(private readonly workoutService: WorkoutService) { }
 
     @Get('find-all')
-    findAll(@Request() req): Promise<Workout[]> {
-        return this.workoutService.findAll(req.user.id);
-    }
+  findAll(@Request() req): Promise<Workout[]> {
+    return this.workoutService.findAll(req.user.id);
+  }
 
     /**
      * 获取按日期分组的训练记录列表
@@ -33,15 +34,15 @@ export class WorkoutController {
         @Query('projectName') projectName: string,
         @Request() req
     ): Promise<{ data: Record<string, Workout[]>; total: number }> {
-        const query: QueryWorkoutDto = {
-            page: Number(page) || 1,
-            pageSize: Number(pageSize) || 10,
-            date,
-            projectName,
-            userId: req.user.id
-        };
+      const query: QueryWorkoutDto = {
+        page: Number(page) || 1,
+        pageSize: Number(pageSize) || 10,
+        date,
+        projectName,
+        userId: req.user.id
+      };
 
-        return this.workoutService.findAllGroupByDate(query);
+      return this.workoutService.findAllGroupByDate(query);
     }
 
     /**
@@ -72,15 +73,15 @@ export class WorkoutController {
         pageSize: number;
         hasMore: boolean;
     }> {
-        const query: QueryWorkoutDto = {
-            page: Number(page) || 1,
-            pageSize: Number(pageSize) || 10,
-            date,
-            projectName,
-            userId: req.user.id
-        };
+      const query: QueryWorkoutDto = {
+        page: Number(page) || 1,
+        pageSize: Number(pageSize) || 10,
+        date,
+        projectName,
+        userId: req.user.id
+      };
 
-        return this.workoutService.findAllGroupByWeek(query);
+      return this.workoutService.findAllGroupByWeek(query);
     }
 
     /**
@@ -111,15 +112,15 @@ export class WorkoutController {
         pageSize: number;
         hasMore: boolean;
     }> {
-        const query: QueryWorkoutDto = {
-            page: Number(page) || 1,
-            pageSize: Number(pageSize) || 10,
-            date,
-            projectName,
-            userId: req.user.id
-        };
+      const query: QueryWorkoutDto = {
+        page: Number(page) || 1,
+        pageSize: Number(pageSize) || 10,
+        date,
+        projectName,
+        userId: req.user.id
+      };
 
-        return this.workoutService.findAllGroupByMonth(query);
+      return this.workoutService.findAllGroupByMonth(query);
     }
 
     /**
@@ -150,15 +151,15 @@ export class WorkoutController {
         pageSize: number;
         hasMore: boolean;
     }> {
-        const query: QueryWorkoutDto = {
-            page: Number(page) || 1,
-            pageSize: Number(pageSize) || 10,
-            date,
-            projectName,
-            userId: req.user.id
-        };
+      const query: QueryWorkoutDto = {
+        page: Number(page) || 1,
+        pageSize: Number(pageSize) || 10,
+        date,
+        projectName,
+        userId: req.user.id
+      };
 
-        return this.workoutService.findAllGroupByYear(query);
+      return this.workoutService.findAllGroupByYear(query);
     }
 
     /**
@@ -173,7 +174,7 @@ export class WorkoutController {
         @Query('projectId') projectId: string,
         @Request() req
     ): Promise<Workout | null> {
-        return this.workoutService.findByDateAndProject(date, projectId, req.user.id);
+      return this.workoutService.findByDateAndProject(date, projectId, req.user.id);
     }
 
     /**
@@ -188,10 +189,10 @@ export class WorkoutController {
         @Query('month') month: string,
         @Request() req
     ): Promise<{ data: Record<string, Workout[]>; total: number }> {
-        if (!year || !month) {
-            throw new BadRequestException('年份和月份不能为空');
-        }
-        return this.workoutService.findByYearMonth(year, month, req.user.id);
+      if (!year || !month) {
+        throw new BadRequestException('年份和月份不能为空');
+      }
+      return this.workoutService.findByYearMonth(year, month, req.user.id);
     }
 
     /**
@@ -207,12 +208,12 @@ export class WorkoutController {
         totalDays: number;
         withoutWorkoutDays: number;
     }> {
-        return this.workoutService.getWorkoutStats(req.user.id);
+      return this.workoutService.getWorkoutStats(req.user.id);
     }
 
     @Get('get/:id')
     findOne(@Param('id') id: string, @Request() req): Promise<Workout> {
-        return this.workoutService.findOne(id, req.user.id);
+      return this.workoutService.findOne(id, req.user.id);
     }
 
     /**
@@ -223,7 +224,7 @@ export class WorkoutController {
      */
     @Post('create')
     create(@Body() createWorkoutDto: CreateWorkoutDto, @Request() req): Promise<Workout> {
-        return this.workoutService.create(createWorkoutDto, req.user.id);
+      return this.workoutService.create(createWorkoutDto, req.user.id);
     }
 
     /**
@@ -239,11 +240,11 @@ export class WorkoutController {
         @Body() updateWorkoutDto: UpdateWorkoutDto,
         @Request() req
     ): Promise<Workout> {
-        return this.workoutService.update(id, updateWorkoutDto, req.user.id);
+      return this.workoutService.update(id, updateWorkoutDto, req.user.id);
     }
 
     @Delete('delete/:id')
     remove(@Param('id') id: string, @Request() req): Promise<void> {
-        return this.workoutService.remove(id, req.user.id);
+      return this.workoutService.remove(id, req.user.id);
     }
 }
