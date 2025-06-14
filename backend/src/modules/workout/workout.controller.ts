@@ -23,7 +23,7 @@ export class WorkoutController {
      * @param {number} page - 页码
      * @param {number} pageSize - 每页数量
      * @param {string} date - 日期
-     * @param {string} projectName - 项目名称
+     * @param {string} projectId - 项目ID
      * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
      */
     @Get('group-by-date')
@@ -31,14 +31,14 @@ export class WorkoutController {
         @Query('page') page: string,
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
-        @Query('projectName') projectName: string,
+        @Query('projectId') projectId: string,
         @Request() req
     ): Promise<{ data: Record<string, Workout[]>; total: number }> {
       const query: QueryWorkoutDto = {
         page: Number(page) || 1,
         pageSize: Number(pageSize) || 10,
         date,
-        projectName,
+        projectId,
         userId: req.user.id
       };
 
@@ -50,7 +50,7 @@ export class WorkoutController {
      * @param {string} page - 页码
      * @param {string} pageSize - 每页数量
      * @param {string} date - 日期
-     * @param {string} projectName - 项目名称
+     * @param {string} projectId - 项目ID
      * @param {Request} req - 请求对象
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
      */
@@ -59,7 +59,7 @@ export class WorkoutController {
         @Query('page') page: string,
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
-        @Query('projectName') projectName: string,
+        @Query('projectId') projectId: string,
         @Request() req
     ): Promise<{
         data: Record<string, {
@@ -77,7 +77,7 @@ export class WorkoutController {
         page: Number(page) || 1,
         pageSize: Number(pageSize) || 10,
         date,
-        projectName,
+        projectId,
         userId: req.user.id
       };
 
@@ -89,7 +89,7 @@ export class WorkoutController {
      * @param {string} page - 页码
      * @param {string} pageSize - 每页数量
      * @param {string} date - 日期
-     * @param {string} projectName - 项目名称
+     * @param {string} projectId - 项目ID
      * @param {Request} req - 请求对象
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按月分组的训练记录和分页信息
      */
@@ -98,7 +98,7 @@ export class WorkoutController {
         @Query('page') page: string,
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
-        @Query('projectName') projectName: string,
+        @Query('projectId') projectId: string,
         @Request() req
     ): Promise<{
         data: Record<string, {
@@ -116,7 +116,7 @@ export class WorkoutController {
         page: Number(page) || 1,
         pageSize: Number(pageSize) || 10,
         date,
-        projectName,
+        projectId,
         userId: req.user.id
       };
 
@@ -128,7 +128,7 @@ export class WorkoutController {
      * @param {string} page - 页码
      * @param {string} pageSize - 每页数量
      * @param {string} date - 日期
-     * @param {string} projectName - 项目名称
+     * @param {string} projectId - 项目ID
      * @param {Request} req - 请求对象
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按年分组的训练记录和分页信息
      */
@@ -137,7 +137,7 @@ export class WorkoutController {
         @Query('page') page: string,
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
-        @Query('projectName') projectName: string,
+        @Query('projectId') projectId: string,
         @Request() req
     ): Promise<{
         data: Record<string, {
@@ -155,7 +155,7 @@ export class WorkoutController {
         page: Number(page) || 1,
         pageSize: Number(pageSize) || 10,
         date,
-        projectName,
+        projectId,
         userId: req.user.id
       };
 
