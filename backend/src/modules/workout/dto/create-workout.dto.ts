@@ -48,6 +48,11 @@ export class CreateWorkoutDto {
   @IsEnum(['kg', 'lb'])
     unit: 'kg' | 'lb';
 
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+    trainingTime?: number;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => WorkoutGroupDto)

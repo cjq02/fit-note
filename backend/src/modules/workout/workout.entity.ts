@@ -7,40 +7,43 @@ export type WorkoutDocument = Workout & Document;
 @Schema()
 export class WorkoutGroup {
     @Prop({ required: true, type: Number, min: 1, max: 1000 })
-    reps: number;
+      reps: number;
 
     @Prop({ required: true, type: Number, min: 0, max: 1000 })
-    weight: number;
+      weight: number;
 
     @Prop({ required: true, type: Number, min: 1 })
-    seqNo: number;
+      seqNo: number;
 
     @Prop({ type: Number, default: 0, min: 0 })
-    restTime: number;
+      restTime: number;
 }
 
 @Schema()
 export class Workout {
     @Prop({ required: true })
-    userId: string;
+      userId: string;
 
     @Prop({ required: true })
-    date: string;
+      date: string;
 
     @Prop({ required: true, type: Types.ObjectId, ref: 'Project' })
-    projectId: Types.ObjectId;
+      projectId: Types.ObjectId;
 
     @Prop({ required: true })
-    projectName: string;
+      projectName: string;
 
     @Prop({ required: true, type: [WorkoutGroup] })
-    groups: WorkoutGroup[];
+      groups: WorkoutGroup[];
+
+    @Prop({ type: Number, default: 0 })
+      trainingTime: number;
 
     @Prop({ default: Date.now })
-    createdAt: Date;
+      createdAt: Date;
 
     @Prop({ default: Date.now })
-    updatedAt: Date;
+      updatedAt: Date;
 }
 
 export const WorkoutSchema = SchemaFactory.createForClass(Workout);
