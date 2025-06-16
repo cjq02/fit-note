@@ -227,7 +227,19 @@ export class WorkoutService {
     const result: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]> = {};
 
     // 获取所有键并按日期降序排序
-    const sortedKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+    const sortedKeys = Object.keys(groups).sort((a, b) => {
+      // 检查是否是年份格式（4位数字）
+      const isYearA = /^\d{4}$/.test(a);
+      const isYearB = /^\d{4}$/.test(b);
+
+      if (isYearA && isYearB) {
+        // 如果是年份，使用数字比较
+        return Number(b) - Number(a);
+      }
+
+      // 其他情况使用字符串比较
+      return b.localeCompare(a);
+    });
 
     sortedKeys.forEach((key) => {
       const projects = groups[key];
