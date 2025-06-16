@@ -296,7 +296,11 @@ export class WorkoutService {
                 totalDays: number;
             }[]> = {};
 
-    Object.entries(weekGroups).forEach(([weekKey, projects]) => {
+    // 获取所有周并按日期降序排序
+    const sortedWeekKeys = Object.keys(weekGroups).sort((a, b) => b.localeCompare(a));
+
+    sortedWeekKeys.forEach((weekKey) => {
+      const projects = weekGroups[weekKey];
       result[weekKey] = Object.entries(projects).map(([projectId, data]) => {
         const projectName = nameMap.get(projectId) || '未知项目';
         const totalGroups = data.workouts.reduce((sum, w) => sum + w.groups.length, 0);
@@ -671,7 +675,11 @@ export class WorkoutService {
                 totalDays: number;
             }[]> = {};
 
-    Object.entries(monthGroups).forEach(([monthKey, projects]) => {
+    // 获取所有月份并按日期降序排序
+    const sortedMonthKeys = Object.keys(monthGroups).sort((a, b) => b.localeCompare(a));
+
+    sortedMonthKeys.forEach((monthKey) => {
+      const projects = monthGroups[monthKey];
       result[monthKey] = Object.entries(projects).map(([projectId, data]) => {
         const projectName = nameMap.get(projectId) || '未知项目';
         const totalGroups = data.workouts.reduce((sum, w) => sum + w.groups.length, 0);
