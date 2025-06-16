@@ -1,8 +1,22 @@
 import { Card, Dialog, List, SwipeAction, Toast } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
 import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { deleteWorkout } from '@/api/workout.api';
+
+dayjs.extend(utc);
+
+/**
+ * 将秒数转换为 mm:ss 格式
+ *
+ * @param {number} seconds - 秒数
+ * @returns {string} mm:ss 格式的时间字符串
+ */
+const formatTime = (seconds: number): string => {
+  return dayjs.utc(seconds * 1000).format('mm:ss');
+};
 
 /**
  * 计算指定项目的总次数
@@ -118,6 +132,12 @@ export const WorkoutItem = ({
                   >
                     {workout.projectName}
                   </div>
+                  {typeof workout.trainingTime === 'number' && workout.trainingTime > 0 && (
+                    <div className="text-xs opacity-75">
+                      训练时间：
+                      <span className="font-bold text-sm">{formatTime(workout.trainingTime)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="font-medium">
