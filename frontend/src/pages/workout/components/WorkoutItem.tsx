@@ -6,6 +6,7 @@ import { deleteWorkout } from '@/api/workout.api';
 
 /**
  * 计算指定项目的总次数
+ *
  * @param {WorkoutType[]} workouts - 训练记录列表
  * @param {string} projectName - 项目名称
  * @returns {number} 总次数
@@ -146,6 +147,11 @@ export const WorkoutItem = ({
                 >
                   {group.seqNo}组: {group.weight}
                   {workout.unit} × <span className="font-bold text-base">{group.reps}</span>次
+                  {typeof group.restTime === 'number' && group.restTime > 0 && (
+                    <span className="ml-1 text-[10px] opacity-75">
+                      (休息<span className="text-sm font-bold">{group.restTime}</span>秒)
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
