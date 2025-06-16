@@ -114,7 +114,10 @@ export interface WorkoutWeekStats {
 }
 
 export interface WorkoutWeekResponse {
-  data: Record<string, WorkoutWeekStats[]>;
+  data: Array<{
+    period: string;
+    stats: WorkoutWeekStats[];
+  }>;
   total: number;
   page: number;
   pageSize: number;

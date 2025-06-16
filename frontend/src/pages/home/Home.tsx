@@ -1,4 +1,9 @@
-import type { ApiResponse, WorkoutStats, WorkoutWeekResponse } from '@/@typings/types.d.ts';
+import type {
+  ApiResponse,
+  WorkoutStats,
+  WorkoutWeekResponse,
+  WorkoutPeriodData,
+} from '@/@typings/types.d.ts';
 import {
   getWorkoutsGroupByWeek,
   getWorkoutStats,
@@ -233,7 +238,7 @@ export const Home = () => {
         >
           <Space direction="vertical" block>
             {recentWorkouts?.data?.data &&
-              Object.entries(recentWorkouts.data.data).map(([key, projects], index) => {
+              recentWorkouts.data.data.map((item, index) => {
                 // 根据分组类型和索引获取标题
                 const getCustomTitle = () => {
                   if (index === 0) {
@@ -261,9 +266,9 @@ export const Home = () => {
 
                 return (
                   <WorkoutPeriodGroup
-                    key={key}
-                    periodKey={key}
-                    projects={projects}
+                    key={item.period}
+                    periodKey={item.period}
+                    projects={item.stats}
                     customTitle={getCustomTitle()}
                   />
                 );

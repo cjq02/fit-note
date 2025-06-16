@@ -55,19 +55,17 @@ export class WorkoutController {
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
      */
     @Get('group-by-week')
-    findAllGroupByWeek(
+    async findAllGroupByWeek(
         @Query('page') page: string,
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
         @Query('projectId') projectId: string,
         @Request() req
     ): Promise<{
-        data: Record<string, {
-            projectName: string;
-            totalGroups: number;
-            totalReps: number;
-            totalDays: number;
-        }[]>;
+        data: Array<{
+            period: string;
+            stats: Array<{ projectName: string; totalGroups: number; totalReps: number; totalDays: number }>;
+        }>;
         total: number;
         page: number;
         pageSize: number;
@@ -94,19 +92,17 @@ export class WorkoutController {
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按月分组的训练记录和分页信息
      */
     @Get('group-by-month')
-    findAllGroupByMonth(
+    async findAllGroupByMonth(
         @Query('page') page: string,
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
         @Query('projectId') projectId: string,
         @Request() req
     ): Promise<{
-        data: Record<string, {
-            projectName: string;
-            totalGroups: number;
-            totalReps: number;
-            totalDays: number;
-        }[]>;
+        data: Array<{
+            period: string;
+            stats: Array<{ projectName: string; totalGroups: number; totalReps: number; totalDays: number }>;
+        }>;
         total: number;
         page: number;
         pageSize: number;
@@ -133,19 +129,17 @@ export class WorkoutController {
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按年分组的训练记录和分页信息
      */
     @Get('group-by-year')
-    findAllGroupByYear(
+    async findAllGroupByYear(
         @Query('page') page: string,
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
         @Query('projectId') projectId: string,
         @Request() req
     ): Promise<{
-        data: Record<string, {
-            projectName: string;
-            totalGroups: number;
-            totalReps: number;
-            totalDays: number;
-        }[]>;
+        data: Array<{
+            period: string;
+            stats: Array<{ projectName: string; totalGroups: number; totalReps: number; totalDays: number }>;
+        }>;
         total: number;
         page: number;
         pageSize: number;

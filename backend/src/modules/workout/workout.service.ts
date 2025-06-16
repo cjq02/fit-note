@@ -213,95 +213,25 @@ export class WorkoutService {
   }
 
   /**
-     * 按周分组获取训练记录
-     * @param {QueryWorkoutDto} query - 查询参数
-     * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
-     */
-  async findAllGroupByWeek(query: QueryWorkoutDto): Promise<{
-        data: Record<string, {
-            projectName: string;
-            totalGroups: number;
-            totalReps: number;
-            totalDays: number;
-        }[]>;
-        total: number;
-        page: number;
-        pageSize: number;
-        hasMore: boolean;
-    }> {
-    // 构建查询条件
-    const conditions: Record<string, unknown> = { userId: query.userId };
-    if (query.projectId) {
-      conditions.projectId = query.projectId;
-    }
+   * 计算分组统计数据
+   * @param {Record<string, Record<string, { workouts: Workout[]; uniqueDates: Set<string> }>>} groups - 分组数据
+   * @param {Map<string, string>} nameMap - 项目名称映射
+   * @param {Map<string, number>} seqNoMap - 项目排序号映射
+   * @returns {Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>} 分组统计结果
+   */
+  private calculateGroupStats(
+    groups: Record<string, Record<string, { workouts: Workout[]; uniqueDates: Set<string> }>>,
+    nameMap: Map<string, string>,
+    seqNoMap: Map<string, number>
+  ): Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]> {
+    const result: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]> = {};
 
-    // 获取当前日期
-    const now = dayjs();
-    const today = now.format('YYYY-MM-DD');
+    // 获取所有键并按日期降序排序
+    const sortedKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a));
 
-    // 计算往前推的周数
-    const weeksToShow = query.pageSize;
-    const startWeek = now.startOf('isoWeek').format('YYYY-MM-DD');
-    const startDate = dayjs(startWeek).subtract(weeksToShow - 1, 'week');
-
-    // 构建日期范围条件
-    conditions.date = {
-      $gte: startDate.format('YYYY-MM-DD'),
-      $lte: today
-    };
-
-    // 1. 获取所有训练记录
-    const workouts = await this.workoutModel
-      .find(conditions)
-      .sort({ date: -1, _id: -1 })
-      .exec();
-
-    // 2. 获取项目名称映射和排序映射
-    const { nameMap, seqNoMap } = await this.getProjectMaps(workouts, query.userId);
-
-    // 3. 按周和项目分组
-    const weekGroups: Record<string, Record<string, {
-                workouts: Workout[];
-                uniqueDates: Set<string>;
-            }>> = {};
-
-    // 初始化所有周的记录
-    for (let i = 0; i < weeksToShow; i++) {
-      const weekDate = startDate.add(i, 'week');
-      const weekKey = weekDate.format('YYYY-MM-DD');
-      weekGroups[weekKey] = {};
-    }
-
-    // 4. 填充数据
-    workouts.forEach(workout => {
-      const weekDate = dayjs(workout.date).startOf('isoWeek').format('YYYY-MM-DD');
-      if (weekGroups[weekDate]) {
-        const projectId = workout.projectId.toString();
-        if (!weekGroups[weekDate][projectId]) {
-          weekGroups[weekDate][projectId] = {
-            workouts: [],
-            uniqueDates: new Set()
-          };
-        }
-        weekGroups[weekDate][projectId].workouts.push(workout);
-        weekGroups[weekDate][projectId].uniqueDates.add(workout.date);
-      }
-    });
-
-    // 5. 计算统计数据
-    const result: Record<string, {
-                projectName: string;
-                totalGroups: number;
-                totalReps: number;
-                totalDays: number;
-            }[]> = {};
-
-    // 获取所有周并按日期降序排序
-    const sortedWeekKeys = Object.keys(weekGroups).sort((a, b) => b.localeCompare(a));
-
-    sortedWeekKeys.forEach((weekKey) => {
-      const projects = weekGroups[weekKey];
-      result[weekKey] = Object.entries(projects).map(([projectId, data]) => {
+    sortedKeys.forEach((key) => {
+      const projects = groups[key];
+      result[key] = Object.entries(projects).map(([projectId, data]) => {
         const projectName = nameMap.get(projectId) || '未知项目';
         const totalGroups = data.workouts.reduce((sum, w) => sum + w.groups.length, 0);
         const totalReps = data.workouts.reduce((sum, w) =>
@@ -317,7 +247,7 @@ export class WorkoutService {
       });
 
       // 按项目排序号排序
-      result[weekKey].sort((a, b) => {
+      result[key].sort((a, b) => {
         const projectA = Object.entries(projects).find(([_, data]) =>
           nameMap.get(data.workouts[0].projectId.toString()) === a.projectName);
         const projectB = Object.entries(projects).find(([_, data]) =>
@@ -329,12 +259,140 @@ export class WorkoutService {
       });
     });
 
+    return result;
+  }
+
+  /**
+   * 通用分组查询方法
+   * @param {QueryWorkoutDto} query - 查询参数
+   * @param {Object} options - 分组选项
+   * @param {string} options.dateFormat - 日期格式
+   * @param {number} options.periodsToShow - 要显示的周期数
+   * @param {string} options.periodUnit - 周期单位（week/month/year）
+   * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 分组统计结果
+   */
+  private async findAllGroupByPeriod(
+    query: QueryWorkoutDto,
+    options: {
+      dateFormat: string;
+      periodsToShow: number;
+      periodUnit: 'week' | 'month' | 'year';
+    }
+  ): Promise<{
+    data: Array<{
+      period: string;
+      stats: Array<{ projectName: string; totalGroups: number; totalReps: number; totalDays: number }>;
+    }>;
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  }> {
+    // 构建查询条件
+    const conditions: Record<string, unknown> = { userId: query.userId };
+    if (query.projectId) {
+      conditions.projectId = query.projectId;
+    }
+
+    // 获取当前日期
+    const now = dayjs();
+    const today = now.format('YYYY-MM-DD');
+
+    // 计算开始日期
+    let startDate: dayjs.Dayjs;
+    if (options.periodUnit === 'year' && query.date) {
+      // 如果是指定年份查询
+      const date = new Date(query.date);
+      const year = date.getFullYear();
+      startDate = dayjs(`${year}-01-01`);
+    } else {
+      // 如果是周或月查询，或者是默认年份查询
+      startDate = options.periodUnit === 'week'
+        ? dayjs(now.startOf('isoWeek')).subtract(options.periodsToShow - 1, 'week')
+        : options.periodUnit === 'month'
+          ? dayjs(now.startOf('month')).subtract(options.periodsToShow - 1, 'month')
+          : dayjs(now.startOf('year')).subtract(options.periodsToShow - 1, 'year');
+    }
+
+    // 构建日期范围条件
+    if (options.periodUnit === 'year' && query.date) {
+      const year = new Date(query.date).getFullYear();
+      conditions.date = {
+        $gte: `${year}-01-01`,
+        $lte: `${year}-12-31`
+      };
+    } else {
+      conditions.date = {
+        $gte: startDate.format('YYYY-MM-DD'),
+        $lte: today
+      };
+    }
+
+    // 1. 获取所有训练记录
+    const workouts = await this.workoutModel
+      .find(conditions)
+      .sort({ date: -1, _id: -1 })
+      .exec();
+
+    // 2. 获取项目名称映射和排序映射
+    const { nameMap, seqNoMap } = await this.getProjectMaps(workouts, query.userId);
+
+    // 3. 按周期和项目分组
+    const periodGroups: Record<string, Record<string, {
+      workouts: Workout[];
+      uniqueDates: Set<string>;
+    }>> = {};
+
+    // 初始化所有周期的记录
+    if (options.periodUnit === 'year' && query.date) {
+      // 如果是指定年份查询，只初始化该年份
+      const yearKey = new Date(query.date).getFullYear().toString();
+      periodGroups[yearKey] = {};
+    } else {
+      // 否则初始化多个周期
+      for (let i = 0; i < options.periodsToShow; i++) {
+        const periodDate = startDate.add(i, options.periodUnit);
+        const periodKey = periodDate.format(options.dateFormat);
+        periodGroups[periodKey] = {};
+      }
+    }
+
+    // 4. 填充数据
+    workouts.forEach(workout => {
+      const periodKey = options.periodUnit === 'week'
+        ? dayjs(workout.date).startOf('isoWeek').format(options.dateFormat)
+        : options.periodUnit === 'year'
+          ? dayjs(workout.date).format('YYYY')
+          : dayjs(workout.date).format(options.dateFormat);
+
+      if (periodGroups[periodKey]) {
+        const projectId = workout.projectId.toString();
+        if (!periodGroups[periodKey][projectId]) {
+          periodGroups[periodKey][projectId] = {
+            workouts: [],
+            uniqueDates: new Set()
+          };
+        }
+        periodGroups[periodKey][projectId].workouts.push(workout);
+        periodGroups[periodKey][projectId].uniqueDates.add(workout.date);
+      }
+    });
+
+    // 5. 计算统计数据
+    const result = this.calculateGroupStats(periodGroups, nameMap, seqNoMap);
+
     // 6. 计算总数和是否有更多数据
     const total = Object.keys(result).length;
     const hasMore = total > query.pageSize;
 
+    // 7. 转换为列表格式
+    const data = Object.entries(result).map(([period, stats]) => ({
+      period,
+      stats
+    }));
+
     return {
-      data: result,
+      data,
       total,
       page: query.page,
       pageSize: query.pageSize,
@@ -343,87 +401,63 @@ export class WorkoutService {
   }
 
   /**
-     * 按年月获取训练记录
-     * @param {string} year - 年份
-     * @param {string} month - 月份
-     * @param {string} userId - 用户ID
-     * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
-     * @throws {BadRequestException} 当年月参数无效时抛出异常
-     */
-  async findByYearMonth(year: string, month: string, userId: string): Promise<{
-        data: Record<string, Workout[]>;
-        total: number;
-    }> {
-    // 验证参数
-    if (!year || !month) {
-      throw new BadRequestException('年份和月份不能为空');
-    }
-
-    // 验证年份格式
-    const yearNum = parseInt(year);
-    if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
-      throw new BadRequestException('无效的年份');
-    }
-
-    // 验证月份格式
-    const monthNum = parseInt(month);
-    if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
-      throw new BadRequestException('无效的月份');
-    }
-
-    // 构建日期范围
-    const startDate = `${year}-${month.padStart(2, '0')}-01`;
-    const lastDay = new Date(yearNum, monthNum, 0).getDate();
-    const endDate = `${year}-${month.padStart(2, '0')}-${lastDay}`;
-
-    // 查询指定日期范围内的所有记录
-    const workouts = await this.workoutModel
-      .find({
-        date: {
-          $gte: startDate,
-          $lte: endDate
-        },
-        userId
-      })
-      .sort({ date: -1, _id: -1 })
-      .exec();
-
-    // 获取项目名称映射和排序映射
-    const { nameMap, seqNoMap } = await this.getProjectMaps(workouts, userId);
-
-    // 按日期分组，并设置项目名称
-    const groupedWorkouts = workouts.reduce((acc, workout) => {
-      if (!acc[workout.date]) {
-        acc[workout.date] = [];
-      }
-      // 设置项目名称
-      workout.projectName = nameMap.get(workout.projectId.toString()) || workout.projectName;
-      acc[workout.date].push(workout);
-      return acc;
-    }, {} as Record<string, Workout[]>);
-
-    // 对每个日期的训练记录按项目排序号排序
-    Object.keys(groupedWorkouts).forEach(date => {
-      const dateStats = groupedWorkouts[date].map(workout => ({
-        projectName: workout.projectName,
-        totalGroups: workout.groups.length,
-        totalReps: workout.groups.reduce((sum, group) => sum + group.reps, 0),
-        totalDays: 1
-      }));
-
-      // 使用通用排序方法
-      const sortedStats = this.sortStatsByProjectSeqNo(dateStats, workouts, seqNoMap, nameMap);
-
-      // 更新排序后的训练记录
-      groupedWorkouts[date] = sortedStats.map(stat =>
-        groupedWorkouts[date].find(w => w.projectName === stat.projectName)
-      ).filter(Boolean) as Workout[];
+   * 获取按年分组的训练记录
+   */
+  async findAllGroupByYear(query: QueryWorkoutDto): Promise<{
+    data: Array<{
+      period: string;
+      stats: Array<{ projectName: string; totalGroups: number; totalReps: number; totalDays: number }>;
+    }>;
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  }> {
+    return this.findAllGroupByPeriod(query, {
+      dateFormat: 'YYYY',
+      periodsToShow: query.pageSize,
+      periodUnit: 'year'
     });
+  }
 
-    return {
-      data: groupedWorkouts,
-      total: workouts.length
-    };
+  /**
+   * 获取按周分组获取训练记录
+   */
+  async findAllGroupByWeek(query: QueryWorkoutDto): Promise<{
+    data: Array<{
+      period: string;
+      stats: Array<{ projectName: string; totalGroups: number; totalReps: number; totalDays: number }>;
+    }>;
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  }> {
+    return this.findAllGroupByPeriod(query, {
+      dateFormat: 'YYYY-MM-DD',
+      periodsToShow: query.pageSize,
+      periodUnit: 'week'
+    });
+  }
+
+  /**
+   * 获取按月分组的训练记录
+   */
+  async findAllGroupByMonth(query: QueryWorkoutDto): Promise<{
+    data: Array<{
+      period: string;
+      stats: Array<{ projectName: string; totalGroups: number; totalReps: number; totalDays: number }>;
+    }>;
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  }> {
+    return this.findAllGroupByPeriod(query, {
+      dateFormat: 'YYYY-MM',
+      periodsToShow: query.pageSize,
+      periodUnit: 'month'
+    });
   }
 
   /**
@@ -592,244 +626,86 @@ export class WorkoutService {
   }
 
   /**
-     * 获取按月分组的训练记录
-     * @param {QueryWorkoutDto} query - 查询参数
-     * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按月分组的训练记录和分页信息
-     */
-  async findAllGroupByMonth(query: QueryWorkoutDto): Promise<{
-        data: Record<string, {
-            projectName: string;
-            totalGroups: number;
-            totalReps: number;
-            totalDays: number;
-        }[]>;
-        total: number;
-        page: number;
-        pageSize: number;
-        hasMore: boolean;
-    }> {
-    // 构建查询条件
-    const conditions: Record<string, unknown> = { userId: query.userId };
-    if (query.projectId) {
-      conditions.projectId = query.projectId;
+   * 按年月获取训练记录
+   * @param {string} year - 年份
+   * @param {string} month - 月份
+   * @param {string} userId - 用户ID
+   * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
+   * @throws {BadRequestException} 当年月参数无效时抛出异常
+   */
+  async findByYearMonth(year: string, month: string, userId: string): Promise<{
+    data: Record<string, Workout[]>;
+    total: number;
+  }> {
+    // 验证参数
+    if (!year || !month) {
+      throw new BadRequestException('年份和月份不能为空');
     }
 
-    // 获取当前日期
-    const now = dayjs();
-    const today = now.format('YYYY-MM-DD');
+    // 验证年份格式
+    const yearNum = parseInt(year);
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
+      throw new BadRequestException('无效的年份');
+    }
 
-    // 计算往前推的月数
-    const monthsToShow = query.pageSize;
-    const startMonth = now.startOf('month').format('YYYY-MM-DD');
-    const startDate = dayjs(startMonth).subtract(monthsToShow - 1, 'month');
+    // 验证月份格式
+    const monthNum = parseInt(month);
+    if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+      throw new BadRequestException('无效的月份');
+    }
 
-    // 构建日期范围条件
-    conditions.date = {
-      $gte: startDate.format('YYYY-MM-DD'),
-      $lte: today
-    };
+    // 构建日期范围
+    const startDate = `${year}-${month.padStart(2, '0')}-01`;
+    const lastDay = new Date(yearNum, monthNum, 0).getDate();
+    const endDate = `${year}-${month.padStart(2, '0')}-${lastDay}`;
 
-    // 1. 获取所有训练记录
+    // 查询指定日期范围内的所有记录
     const workouts = await this.workoutModel
-      .find(conditions)
+      .find({
+        date: {
+          $gte: startDate,
+          $lte: endDate
+        },
+        userId
+      })
       .sort({ date: -1, _id: -1 })
       .exec();
 
-    // 2. 获取项目名称映射和排序映射
-    const { nameMap, seqNoMap } = await this.getProjectMaps(workouts, query.userId);
+    // 获取项目名称映射和排序映射
+    const { nameMap, seqNoMap } = await this.getProjectMaps(workouts, userId);
 
-    // 3. 按月和项目分组
-    const monthGroups: Record<string, Record<string, {
-                workouts: Workout[];
-                uniqueDates: Set<string>;
-            }>> = {};
-
-    // 初始化所有月的记录
-    for (let i = 0; i < monthsToShow; i++) {
-      const monthDate = startDate.add(i, 'month');
-      const monthKey = monthDate.format('YYYY-MM');
-      monthGroups[monthKey] = {};
-    }
-
-    // 4. 填充数据
-    workouts.forEach(workout => {
-      const monthKey = dayjs(workout.date).format('YYYY-MM');
-      if (monthGroups[monthKey]) {
-        const projectId = workout.projectId.toString();
-        if (!monthGroups[monthKey][projectId]) {
-          monthGroups[monthKey][projectId] = {
-            workouts: [],
-            uniqueDates: new Set()
-          };
-        }
-        monthGroups[monthKey][projectId].workouts.push(workout);
-        monthGroups[monthKey][projectId].uniqueDates.add(workout.date);
+    // 按日期分组，并设置项目名称
+    const groupedWorkouts = workouts.reduce((acc, workout) => {
+      if (!acc[workout.date]) {
+        acc[workout.date] = [];
       }
+      // 设置项目名称
+      workout.projectName = nameMap.get(workout.projectId.toString()) || workout.projectName;
+      acc[workout.date].push(workout);
+      return acc;
+    }, {} as Record<string, Workout[]>);
+
+    // 对每个日期的训练记录按项目排序号排序
+    Object.keys(groupedWorkouts).forEach(date => {
+      const dateStats = groupedWorkouts[date].map(workout => ({
+        projectName: workout.projectName,
+        totalGroups: workout.groups.length,
+        totalReps: workout.groups.reduce((sum, group) => sum + group.reps, 0),
+        totalDays: 1
+      }));
+
+      // 使用通用排序方法
+      const sortedStats = this.sortStatsByProjectSeqNo(dateStats, workouts, seqNoMap, nameMap);
+
+      // 更新排序后的训练记录
+      groupedWorkouts[date] = sortedStats.map(stat =>
+        groupedWorkouts[date].find(w => w.projectName === stat.projectName)
+      ).filter(Boolean) as Workout[];
     });
-
-    // 5. 计算统计数据
-    const result: Record<string, {
-                projectName: string;
-                totalGroups: number;
-                totalReps: number;
-                totalDays: number;
-            }[]> = {};
-
-    // 获取所有月份并按日期降序排序
-    const sortedMonthKeys = Object.keys(monthGroups).sort((a, b) => b.localeCompare(a));
-
-    sortedMonthKeys.forEach((monthKey) => {
-      const projects = monthGroups[monthKey];
-      result[monthKey] = Object.entries(projects).map(([projectId, data]) => {
-        const projectName = nameMap.get(projectId) || '未知项目';
-        const totalGroups = data.workouts.reduce((sum, w) => sum + w.groups.length, 0);
-        const totalReps = data.workouts.reduce((sum, w) =>
-          sum + w.groups.reduce((groupSum, g) => groupSum + g.reps, 0), 0);
-        const totalDays = data.uniqueDates.size;
-
-        return {
-          projectName,
-          totalGroups,
-          totalReps,
-          totalDays
-        };
-      });
-
-      // 按项目排序号排序
-      result[monthKey].sort((a, b) => {
-        const projectA = Object.entries(projects).find(([_, data]) =>
-          nameMap.get(data.workouts[0].projectId.toString()) === a.projectName);
-        const projectB = Object.entries(projects).find(([_, data]) =>
-          nameMap.get(data.workouts[0].projectId.toString()) === b.projectName);
-
-        const seqNoA = projectA ? seqNoMap.get(projectA[0]) || 0 : 0;
-        const seqNoB = projectB ? seqNoMap.get(projectB[0]) || 0 : 0;
-        return seqNoA - seqNoB;
-      });
-    });
-
-    // 6. 计算总数和是否有更多数据
-    const total = Object.keys(result).length;
-    const hasMore = total > query.pageSize;
 
     return {
-      data: result,
-      total,
-      page: query.page,
-      pageSize: query.pageSize,
-      hasMore,
-    };
-  }
-
-  /**
-     * 获取按年分组的训练记录
-     * @param {QueryWorkoutDto} query - 查询参数
-     * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按年分组的训练记录和分页信息
-     */
-  async findAllGroupByYear(query: QueryWorkoutDto): Promise<{
-        data: Record<string, {
-            projectName: string;
-            totalGroups: number;
-            totalReps: number;
-            totalDays: number;
-        }[]>;
-        total: number;
-        page: number;
-        pageSize: number;
-        hasMore: boolean;
-    }> {
-    // 构建查询条件
-    const conditions: Record<string, unknown> = { userId: query.userId };
-    if (query.date) {
-      const date = new Date(query.date);
-      const year = date.getFullYear();
-      const startDate = `${year}-01-01`;
-      const endDate = `${year}-12-31`;
-      conditions.date = { $gte: startDate, $lte: endDate };
-    }
-    if (query.projectId) {
-      conditions.projectId = query.projectId;
-    }
-
-    // 1. 获取所有训练记录
-    const workouts = await this.workoutModel
-      .find(conditions)
-      .sort({ date: -1, _id: -1 })
-      .exec();
-
-    // 2. 获取项目名称映射和排序映射
-    const { nameMap, seqNoMap } = await this.getProjectMaps(workouts, query.userId);
-
-    // 3. 按年和项目分组
-    const yearGroups: Record<string, Record<string, {
-                workouts: Workout[];
-                uniqueDates: Set<string>;
-            }>> = {};
-
-    // 4. 填充数据
-    workouts.forEach(workout => {
-      const yearKey = dayjs(workout.date).format('YYYY');
-      if (!yearGroups[yearKey]) {
-        yearGroups[yearKey] = {};
-      }
-      const projectId = workout.projectId.toString();
-      if (!yearGroups[yearKey][projectId]) {
-        yearGroups[yearKey][projectId] = {
-          workouts: [],
-          uniqueDates: new Set()
-        };
-      }
-      yearGroups[yearKey][projectId].workouts.push(workout);
-      yearGroups[yearKey][projectId].uniqueDates.add(workout.date);
-    });
-
-    // 5. 计算统计数据
-    const result: Record<string, {
-                projectName: string;
-                totalGroups: number;
-                totalReps: number;
-                totalDays: number;
-            }[]> = {};
-
-    Object.entries(yearGroups).forEach(([yearKey, projects]) => {
-      result[yearKey] = Object.entries(projects).map(([projectId, data]) => {
-        const projectName = nameMap.get(projectId) || '未知项目';
-        const totalGroups = data.workouts.reduce((sum, w) => sum + w.groups.length, 0);
-        const totalReps = data.workouts.reduce((sum, w) =>
-          sum + w.groups.reduce((groupSum, g) => groupSum + g.reps, 0), 0);
-        const totalDays = data.uniqueDates.size;
-
-        return {
-          projectName,
-          totalGroups,
-          totalReps,
-          totalDays
-        };
-      });
-
-      // 按项目排序号排序
-      result[yearKey].sort((a, b) => {
-        const projectA = Object.entries(projects).find(([_, data]) =>
-          nameMap.get(data.workouts[0].projectId.toString()) === a.projectName);
-        const projectB = Object.entries(projects).find(([_, data]) =>
-          nameMap.get(data.workouts[0].projectId.toString()) === b.projectName);
-
-        const seqNoA = projectA ? seqNoMap.get(projectA[0]) || 0 : 0;
-        const seqNoB = projectB ? seqNoMap.get(projectB[0]) || 0 : 0;
-        return seqNoA - seqNoB;
-      });
-    });
-
-    // 6. 计算总数和是否有更多数据
-    const total = Object.keys(result).length;
-    const hasMore = total > query.pageSize;
-
-    return {
-      data: result,
-      total,
-      page: query.page,
-      pageSize: query.pageSize,
-      hasMore,
+      data: groupedWorkouts,
+      total: workouts.length
     };
   }
 }
