@@ -5,3 +5,4 @@ alwaysApply: false
 ---
 创建和修改的前端和后端文件, spaces都要是2, End of Line Sequence是LF
 eslint配置文件eslint.config.js
+日期处理统一用dayjs
