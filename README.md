@@ -191,19 +191,19 @@ docker-compose -f docker-compose.prod.yml logs frontend
 ```bash
 
 # 添加执行权限
-chmod +x recompile.sh
+chmod +x deploy.sh
 
 # 重新编译前端
-./recompile.sh frontend
+./deploy.sh frontend
 
 # 重新编译后端
-./recompile.sh backend
+./deploy.sh backend
 
 # 重新编译所有服务
-./recompile.sh
+./deploy.sh
 ```
 
-注意：每次修改 `recompile.sh` 文件后，都需要先执行 `chmod -x recompile.sh` 移除执行权限，拉取代码后再执行 `chmod +x recompile.sh` 重新添加执行权限。
+注意：每次修改 `deploy.sh` 文件后，都需要先执行 `chmod -x deploy.sh` 移除执行权限，拉取代码后再执行 `chmod +x deploy.sh` 重新添加执行权限。
 
 ### 服务访问
 
