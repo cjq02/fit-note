@@ -20,6 +20,7 @@ import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
 import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
 import { getUserInfo } from '@/api/auth.api';
 import { ProjectForm } from './ProjectForm';
+import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 
 /**
  * 训练项目列表页面组件
@@ -182,6 +183,14 @@ export const ProjectList = (): React.ReactElement => {
     [navigate],
   );
 
+  const CATEGORY_OPTIONS_WITH_ALL = [{ label: '全部', value: '' }, ...CATEGORY_OPTIONS];
+  const [selectedCategory, setSelectedCategory] = useState('');
+
+  // 根据类别筛选项目
+  const filteredProjects = selectedCategory
+    ? projects.filter(p => p.category === selectedCategory)
+    : projects;
+
   /**
    * 渲染项目卡片
    *
@@ -283,28 +292,46 @@ export const ProjectList = (): React.ReactElement => {
   return (
     <div className="page-container bg-gradient-to-b from-gray-100 to-gray-200">
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="p-4 max-w-2xl mx-auto">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map(i => (
-                <Skeleton key={i} animated className="rounded-xl h-24" />
-              ))}
-            </div>
-          ) : projects.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <ErrorBlock
-                status="empty"
-                description="暂无训练项目"
-                style={{ '--image-height': '160px' }}
-                className="py-8"
-              />
-              <Button color="primary" className="mt-4" onClick={() => setShowForm(true)}>
-                创建第一个项目
+        <div className="flex p-4 max-w-2xl mx-auto">
+          {/* 左侧类别筛选栏 */}
+          <div className="flex flex-col mr-4 min-w-[70px]">
+            {CATEGORY_OPTIONS_WITH_ALL.map(opt => (
+              <Button
+                key={opt.value}
+                color={selectedCategory === opt.value ? 'primary' : 'default'}
+                onClick={() => setSelectedCategory(opt.value)}
+                className="mb-2"
+                size="small"
+                style={{ borderRadius: 16 }}
+              >
+                {opt.label}
               </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">{projects.map(renderProjectCard)}</div>
-          )}
+            ))}
+          </div>
+          {/* 右侧项目列表 */}
+          <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+            {isLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map(i => (
+                  <Skeleton key={i} animated className="rounded-xl h-24" />
+                ))}
+              </div>
+            ) : filteredProjects.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <ErrorBlock
+                  status="empty"
+                  description="暂无训练项目"
+                  style={{ '--image-height': '160px' }}
+                  className="py-8"
+                />
+                <Button color="primary" className="mt-4" onClick={() => setShowForm(true)}>
+                  创建第一个项目
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">{filteredProjects.map(renderProjectCard)}</div>
+            )}
+          </div>
         </div>
       </PullToRefresh>
 

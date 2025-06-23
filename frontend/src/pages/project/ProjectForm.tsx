@@ -4,22 +4,13 @@ import { useEffect } from 'react';
 
 import type { CreateProjectRequest, Project } from '@/@typings/types';
 import { NumberInput } from '@/components/NumberInput';
+import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 
 interface ProjectFormProps {
   project?: Project | null;
   onSubmit: (data: CreateProjectRequest) => void;
   onCancel: () => void;
 }
-
-// 类别选项
-const CATEGORY_OPTIONS = [
-  { label: '胸', value: 'Chest' },
-  { label: '背', value: 'Back' },
-  { label: '肩', value: 'Shoulders' },
-  { label: '手臂', value: 'Arms' },
-  { label: '腿', value: 'Legs' },
-  { label: '腹', value: 'Abs' },
-];
 
 /**
  * 训练项目表单组件
