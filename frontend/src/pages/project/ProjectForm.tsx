@@ -11,6 +11,22 @@ interface ProjectFormProps {
   onCancel: () => void;
 }
 
+// 类别选项
+const CATEGORY_OPTIONS = [
+  { label: '胸', value: 'Chest' },
+  { label: '背', value: 'Back' },
+  { label: '肩', value: 'Shoulders' },
+  { label: '手臂', value: 'Arms' },
+  { label: '腿', value: 'Legs' },
+  { label: '腹', value: 'Abs' },
+];
+
+/**
+ * 训练项目表单组件
+ *
+ * @param {ProjectFormProps} props - 组件属性
+ * @returns {JSX.Element} 训练项目表单
+ */
 export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) => {
   const [form] = Form.useForm();
 
@@ -20,9 +36,11 @@ export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) =
         name: project.name,
         description: project.description,
         seqNo: project.seqNo,
+        category: project.category || '',
       });
     } else {
       form.resetFields();
+      form.setFieldValue('category', '');
     }
   }, [project, form]);
 
@@ -88,18 +106,40 @@ export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) =
               </Form.Item>
 
               <Form.Item
+                name="category"
+                label={
+                  <span className="text-base font-medium text-[var(--adm-color-text)]">类别</span>
+                }
+                rules={[{ required: true, message: '请选择类别' }]}
+                className="mb-8"
+              >
+                <select
+                  className="rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 w-full"
+                  value={form.getFieldValue('category') || ''}
+                  onChange={e => form.setFieldValue('category', e.target.value)}
+                >
+                  <option value="" disabled>
+                    请选择类别
+                  </option>
+                  {CATEGORY_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </Form.Item>
+
+              <Form.Item
                 name="seqNo"
                 label={
-                  <span className="text-base font-medium text-[var(--adm-color-text)]">
-                    排序
-                  </span>
+                  <span className="text-base font-medium text-[var(--adm-color-text)]">排序</span>
                 }
                 rules={[{ required: true, message: '请输入排序号' }]}
                 className="mb-8"
               >
                 <NumberInput
                   value={form.getFieldValue('seqNo')?.toString() || ''}
-                  onChange={(value) => form.setFieldValue('seqNo', value ? parseInt(value) : '')}
+                  onChange={value => form.setFieldValue('seqNo', value ? parseInt(value) : '')}
                   placeholder="请输入排序号"
                   min={0}
                   step={10}

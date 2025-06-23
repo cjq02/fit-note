@@ -48,6 +48,7 @@ export interface Project {
   name: string;
   description?: string;
   seqNo: number;
+  category: '胸' | '背' | '肩' | '手臂' | '腿' | '腹';
   todayWorkoutId: string | null; // 当天的训练记录ID，如果没有则为null
   createdAt: string;
   updatedAt: string;
@@ -58,6 +59,7 @@ export interface CreateProjectRequest {
   name: string;
   description?: string;
   seqNo: number;
+  category: '胸' | '背' | '肩' | '手臂' | '腿' | '腹';
 }
 
 // 更新训练项目请求参数
