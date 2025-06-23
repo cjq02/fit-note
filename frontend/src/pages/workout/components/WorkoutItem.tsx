@@ -2,6 +2,7 @@ import { Card, Dialog, List, SwipeAction, Toast } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { useEffect } from 'react';
 
 import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { deleteWorkout } from '@/api/workout.api';
@@ -55,6 +56,11 @@ export const WorkoutItem = ({
   dateColor,
 }: WorkoutItemProps) => {
   const navigate = useNavigate();
+
+  // 调试：组件渲染时打印workout.unit
+  useEffect(() => {
+    console.log('workout.projectName:', workout.projectName, 'workout.unit:', workout.unit);
+  }, [workout.unit]);
 
   /**
    * 处理编辑训练记录
@@ -160,7 +166,7 @@ export const WorkoutItem = ({
                   key={index}
                   className="text-xs px-3 py-1.5 rounded-full border shadow-sm"
                   style={{
-                    color: dateColor,
+                    color: '#666',
                     background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
                     borderColor: `${dateColor}22`,
                   }}
@@ -169,7 +175,7 @@ export const WorkoutItem = ({
                   {workout.unit} × <span className="font-bold text-base">{group.reps}</span>次
                   {typeof group.restTime === 'number' && group.restTime > 0 && (
                     <span className="ml-1 text-[10px] opacity-75">
-                      (休息<span className="text-sm font-bold">{group.restTime}</span>秒)
+                      (<span className="text-sm font-bold">{group.restTime}</span>秒)
                     </span>
                   )}
                 </div>
