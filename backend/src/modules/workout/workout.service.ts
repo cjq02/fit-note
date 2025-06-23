@@ -398,10 +398,13 @@ export class WorkoutService {
     const hasMore = total > query.pageSize;
 
     // 7. 转换为列表格式
-    const data = Object.entries(result).map(([period, stats]) => ({
+    let data = Object.entries(result).map(([period, stats]) => ({
       period,
       stats
     }));
+
+    // 按 period 降序排序（年份大的在前面）
+    data = data.sort((a, b) => b.period.localeCompare(a.period));
 
     return {
       data,
