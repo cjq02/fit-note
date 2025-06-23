@@ -294,18 +294,29 @@ export const ProjectList = (): React.ReactElement => {
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="flex p-4 max-w-2xl mx-auto">
           {/* 左侧类别筛选栏 */}
-          <div className="flex flex-col mr-4 min-w-[70px]">
+          <div
+            className="flex flex-col items-center py-4 px-2 bg-white/80 rounded-2xl shadow-md mr-4"
+            style={{ minWidth: 80 }}
+          >
             {CATEGORY_OPTIONS_WITH_ALL.map(opt => (
-              <Button
+              <button
                 key={opt.value}
-                color={selectedCategory === opt.value ? 'primary' : 'default'}
                 onClick={() => setSelectedCategory(opt.value)}
-                className="mb-2"
-                size="small"
-                style={{ borderRadius: 16 }}
+                className={`w-14 h-10 mb-2 rounded-xl transition-all font-medium
+                  ${
+                    selectedCategory === opt.value
+                      ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow font-bold scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+                  }
+                `}
+                style={{
+                  outline: selectedCategory === opt.value ? '2px solid #2563eb' : 'none',
+                  borderLeft:
+                    selectedCategory === opt.value ? '4px solid #2563eb' : '4px solid transparent',
+                }}
               >
                 {opt.label}
-              </Button>
+              </button>
             ))}
           </div>
           {/* 右侧项目列表 */}
