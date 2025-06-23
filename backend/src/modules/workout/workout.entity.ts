@@ -33,6 +33,9 @@ export class Workout {
     @Prop({ required: true })
       projectName: string;
 
+    @Prop({ required: true, enum: ['kg', 'lb'] })
+      unit: 'kg' | 'lb';
+
     @Prop({ required: true, type: [WorkoutGroup] })
       groups: WorkoutGroup[];
 

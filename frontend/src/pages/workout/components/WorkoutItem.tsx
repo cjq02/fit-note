@@ -57,11 +57,6 @@ export const WorkoutItem = ({
 }: WorkoutItemProps) => {
   const navigate = useNavigate();
 
-  // 调试：组件渲染时打印workout.unit
-  useEffect(() => {
-    console.log('workout.projectName:', workout.projectName, 'workout.unit:', workout.unit);
-  }, [workout.unit]);
-
   /**
    * 处理编辑训练记录
    *

@@ -131,7 +131,7 @@ export const WorkoutForm = () => {
     const workout = id ? workoutData?.data : dateWorkoutData;
     if (workout) {
       setDate(new Date(workout.date));
-      setUnit(workout.unit);
+      setUnit(workout.unit || 'kg');
       setTrainingTime(workout.trainingTime || 0);
       setGroups(
         workout.groups.map((group: WorkoutGroup) => ({
@@ -502,6 +502,8 @@ export const WorkoutForm = () => {
         restTime: g.restTime || 0,
       })),
     };
+
+    console.log('提交 workout 数据：', data);
 
     try {
       if (id) {
