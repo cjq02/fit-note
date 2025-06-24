@@ -1,4 +1,4 @@
-// 训练项目类别选项，label为中文，value为英文
+// 训练项目类别选项，label为中文，value为英文（与 Project.category 类型保持一致）
 export const CATEGORY_OPTIONS: { label: string; value: string }[] = [
   { label: '胸', value: 'Chest' },
   { label: '背', value: 'Back' },

@@ -12,6 +12,8 @@ interface ProjectFormProps {
   project?: Project | null;
   onSubmit: (data: CreateProjectRequest) => void;
   onCancel: () => void;
+  // 新增时初始类别
+  initialCategory?: Project['category'];
 }
 
 /**
@@ -20,11 +22,11 @@ interface ProjectFormProps {
  * @param {ProjectFormProps} props - 组件属性
  * @returns {JSX.Element} 训练项目表单
  */
-export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) => {
+export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: ProjectFormProps) => {
   // 项目名称
   const [name, setName] = useState('');
   // 类别
-  const [category, setCategory] = useState<Project['category'] | ''>('');
+  const [category, setCategory] = useState<Project['category'] | ''>(initialCategory || '');
   // 排序号
   const [seqNo, setSeqNo] = useState<number | ''>('');
   // 项目描述
@@ -44,11 +46,11 @@ export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) =
       setDescription(project.description || '');
     } else {
       setName('');
-      setCategory('');
+      setCategory(initialCategory || '');
       setSeqNo('');
       setDescription('');
     }
-  }, [project]);
+  }, [project, initialCategory]);
 
   /**
    * 提交表单

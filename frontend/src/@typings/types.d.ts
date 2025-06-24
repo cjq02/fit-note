@@ -42,27 +42,50 @@ export interface UpdateWorkoutRequest extends CreateWorkoutRequest {
   id: string;
 }
 
-// 训练项目类型
+/**
+ * 训练项目类型
+ *
+ * @property {string} id - 项目ID
+ * @property {string} name - 项目名称
+ * @property {string} [description] - 项目描述
+ * @property {number} seqNo - 排序号
+ * @property {'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Abs' | 'Cardio' | 'Core'} category - 项目类别
+ * @property {string | null} todayWorkoutId - 当天训练记录ID
+ * @property {string} createdAt - 创建时间
+ * @property {string} updatedAt - 更新时间
+ */
 export interface Project {
   id: string;
   name: string;
   description?: string;
   seqNo: number;
-  category: '胸' | '背' | '肩' | '手臂' | '腿' | '腹';
+  category: 'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Abs' | 'Cardio' | 'Core';
   todayWorkoutId: string | null; // 当天的训练记录ID，如果没有则为null
   createdAt: string;
   updatedAt: string;
 }
 
-// 创建训练项目请求参数
+/**
+ * 创建训练项目请求参数
+ *
+ * @property {string} name - 项目名称
+ * @property {string} [description] - 项目描述
+ * @property {number} seqNo - 排序号
+ * @property {'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Abs' | 'Cardio' | 'Core'} category - 项目类别
+ */
 export interface CreateProjectRequest {
   name: string;
   description?: string;
   seqNo: number;
-  category: '胸' | '背' | '肩' | '手臂' | '腿' | '腹';
+  category: 'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Abs' | 'Cardio' | 'Core';
 }
 
-// 更新训练项目请求参数
+/**
+ * 更新训练项目请求参数
+ *
+ * @augments CreateProjectRequest
+ * @property {string} id - 项目ID
+ */
 export interface UpdateProjectRequest extends CreateProjectRequest {
   id: string;
 }

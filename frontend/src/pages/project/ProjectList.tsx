@@ -371,6 +371,11 @@ export const ProjectList = (): React.ReactElement => {
       >
         <ProjectForm
           project={editingProject}
+          initialCategory={
+            !editingProject && selectedCategory
+              ? (selectedCategory as Project['category'])
+              : undefined
+          }
           onSubmit={handleSubmit}
           onCancel={() => {
             setShowForm(false);
