@@ -328,7 +328,14 @@ export const ProjectList = (): React.ReactElement => {
                   style={{ '--image-height': '160px' }}
                   className="py-8"
                 />
-                <Button color="primary" className="mt-4" onClick={() => setShowForm(true)}>
+                <Button
+                  color="primary"
+                  className="mt-4"
+                  onClick={() => {
+                    setEditingProject(null);
+                    setShowForm(true);
+                  }}
+                >
                   创建第一个项目
                 </Button>
               </div>
@@ -345,7 +352,10 @@ export const ProjectList = (): React.ReactElement => {
           '--initial-position-right': '24px',
           '--edge-distance': '24px',
         }}
-        onClick={() => setShowForm(true)}
+        onClick={() => {
+          setEditingProject(null);
+          setShowForm(true);
+        }}
       >
         <AddOutline fontSize={24} />
       </FloatingBubble>

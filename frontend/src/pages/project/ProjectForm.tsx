@@ -1,10 +1,12 @@
-import { Button, Form, Input, NavBar, TextArea } from 'antd-mobile';
+import { Button, Form, Input, NavBar, TextArea, Picker } from 'antd-mobile';
 import { CloseOutline } from 'antd-mobile-icons';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import type { CreateProjectRequest, Project } from '@/@typings/types';
 import { NumberInput } from '@/components/NumberInput';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
+
+// eslint-disable-next-line no-undef
 
 interface ProjectFormProps {
   project?: Project | null;
@@ -31,7 +33,9 @@ export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) =
       });
     } else {
       form.resetFields();
-      form.setFieldValue('category', '');
+      window.setTimeout(() => {
+        form.setFieldValue('category', '');
+      }, 0);
     }
   }, [project, form]);
 
@@ -45,6 +49,16 @@ export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) =
     form.resetFields();
     onCancel();
   };
+
+  const pickerOptions = CATEGORY_OPTIONS.map(opt => ({ label: opt.label, value: opt.value }));
+
+  // 彻底保证 Picker 的 value 永远为数组类型
+  const rawCategory = form.getFieldValue('category');
+  const categoryValue = Array.isArray(rawCategory)
+    ? rawCategory
+    : typeof rawCategory === 'string' && rawCategory
+      ? [rawCategory]
+      : [];
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-b from-[var(--adm-color-primary-light)] to-white">
@@ -109,7 +123,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) =
                   value={form.getFieldValue('category') || ''}
                   onChange={e => form.setFieldValue('category', e.target.value)}
                 >
-                  <option value="" disabled>
+                  <option value="" disabled className="text-gray-400">
                     请选择类别
                   </option>
                   {CATEGORY_OPTIONS.map(opt => (
