@@ -1,4 +1,4 @@
-import { Button, Input, NavBar, TextArea } from 'antd-mobile';
+import { Button, Input, NavBar, TextArea, Picker } from 'antd-mobile';
 import { CloseOutline } from 'antd-mobile-icons';
 import { useEffect, useState } from 'react';
 
@@ -95,18 +95,6 @@ export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: Pr
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-b from-[var(--adm-color-primary-light)] to-white">
-      <NavBar
-        onBack={handleCancel}
-        right={
-          <Button fill="none" className="text-[var(--adm-color-text)]" onClick={handleCancel}>
-            <CloseOutline />
-          </Button>
-        }
-        className="bg-transparent"
-      >
-        {project ? '编辑训练项目' : '新增训练项目'}
-      </NavBar>
-
       <div className="flex-1 overflow-auto">
         <div className="p-4">
           <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/20">
@@ -123,20 +111,22 @@ export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: Pr
             {/* 类别 */}
             <div className="mb-8">
               <label className="text-base font-medium text-[var(--adm-color-text)]">类别</label>
-              <select
-                className="rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 w-full"
-                value={category}
-                onChange={e => setCategory(e.target.value as Project['category'] | '')}
+              <Picker
+                columns={[CATEGORY_OPTIONS]}
+                value={category ? [category] : []}
+                onConfirm={val => setCategory(val[0] as Project['category'])}
+                getContainer={null}
               >
-                <option value="" disabled className="text-gray-400">
-                  请选择类别
-                </option>
-                {CATEGORY_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+                {() => (
+                  <div
+                    className={`h-12 flex items-center rounded-xl bg-white border border-[var(--adm-color-text-light)] text-base px-4 focus-within:border-[var(--adm-color-primary)] transition-colors duration-200 w-full cursor-pointer ${!category ? 'text-gray-400' : 'text-gray-900'}`}
+                  >
+                    {category
+                      ? CATEGORY_OPTIONS.find(opt => opt.value === category)?.label
+                      : '请选择类别'}
+                  </div>
+                )}
+              </Picker>
             </div>
             {/* 排序号 */}
             <div className="mb-8">

@@ -10,6 +10,7 @@ import { ProjectList } from './pages/project/ProjectList';
 import { WorkoutList } from './pages/workout/WorkoutList';
 import { WorkoutForm } from './pages/workout/WorkoutForm';
 import { Schedule } from './pages/workout/Schedule';
+import ProjectFormPage from '@/pages/project/ProjectFormPage';
 
 /**
  * 扩展路由类型，添加 title 属性
@@ -125,6 +126,16 @@ const routes: CustomRouteObject[] = [
           </PrivateRoute>
         ),
         title: '个人中心',
+      },
+      {
+        path: '/project/new',
+        element: <ProjectFormPage />,
+        title: '新增训练项目',
+      },
+      {
+        path: '/project/edit/:id',
+        element: <ProjectFormPage />,
+        title: '编辑训练项目',
       },
     ],
   },

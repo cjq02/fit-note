@@ -114,10 +114,12 @@ export const ProjectList = (): React.ReactElement => {
    *
    * @param {Project} project - 要编辑的项目
    */
-  const handleEdit = useCallback((project: Project) => {
-    setEditingProject(project);
-    setShowForm(true);
-  }, []);
+  const handleEdit = useCallback(
+    (project: Project) => {
+      navigate(`/project/edit/${project.id}`);
+    },
+    [navigate],
+  );
 
   /**
    * 处理表单提交
@@ -332,8 +334,9 @@ export const ProjectList = (): React.ReactElement => {
                   color="primary"
                   className="mt-4"
                   onClick={() => {
-                    setEditingProject(null);
-                    setShowForm(true);
+                    navigate('/project/new', {
+                      state: { initialCategory: selectedCategory || undefined },
+                    });
                   }}
                 >
                   创建第一个项目
@@ -353,36 +356,11 @@ export const ProjectList = (): React.ReactElement => {
           '--edge-distance': '24px',
         }}
         onClick={() => {
-          setEditingProject(null);
-          setShowForm(true);
+          navigate('/project/new', { state: { initialCategory: selectedCategory || undefined } });
         }}
       >
         <AddOutline fontSize={24} />
       </FloatingBubble>
-
-      <Popup
-        visible={showForm}
-        onMaskClick={() => {
-          setShowForm(false);
-          setEditingProject(null);
-        }}
-        position="right"
-        bodyStyle={{ width: '80vw' }}
-      >
-        <ProjectForm
-          project={editingProject}
-          initialCategory={
-            !editingProject && selectedCategory
-              ? (selectedCategory as Project['category'])
-              : undefined
-          }
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingProject(null);
-          }}
-        />
-      </Popup>
     </div>
   );
 };
