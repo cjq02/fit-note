@@ -1,5 +1,8 @@
 #!/bin/bash
 
+start_time=$(date +%s)
+echo "部署开始时间: $(date '+%Y-%m-%d %H:%M:%S')"
+
 # 定义函数：构建前端
 build_frontend() {
     echo "重新构建前端..."
@@ -53,3 +56,8 @@ check_containers
 # 查看日志
 # echo "查看日志..."
 # docker-compose -f docker-compose.prod.yml logs
+
+echo "部署结束时间: $(date '+%Y-%m-%d %H:%M:%S')"
+end_time=$(date +%s)
+elapsed_time=$((end_time - start_time))
+echo "部署总耗时: ${elapsed_time} 秒"
