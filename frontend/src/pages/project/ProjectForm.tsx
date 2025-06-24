@@ -31,6 +31,8 @@ export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: Pr
   const [seqNo, setSeqNo] = useState<number | ''>('');
   // 项目描述
   const [description, setDescription] = useState('');
+  // 类别选择弹窗控制
+  const [pickerVisible, setPickerVisible] = useState(false);
 
   // 初始化/重置表单
   /**
@@ -111,22 +113,21 @@ export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: Pr
             {/* 类别 */}
             <div className="mb-8">
               <label className="text-base font-medium text-[var(--adm-color-text)]">类别</label>
+              <div
+                className={`h-12 flex items-center rounded-xl bg-white border border-[var(--adm-color-text-light)] text-base px-4 focus-within:border-[var(--adm-color-primary)] transition-colors duration-200 w-full cursor-pointer ${!category ? 'text-gray-400' : 'text-gray-900'}`}
+                onClick={() => setPickerVisible(true)}
+              >
+                {category
+                  ? CATEGORY_OPTIONS.find(opt => opt.value === category)?.label
+                  : '请选择类别'}
+              </div>
               <Picker
                 columns={[CATEGORY_OPTIONS]}
+                visible={pickerVisible}
                 value={category ? [category] : []}
+                onClose={() => setPickerVisible(false)}
                 onConfirm={val => setCategory(val[0] as Project['category'])}
-                getContainer={null}
-              >
-                {() => (
-                  <div
-                    className={`h-12 flex items-center rounded-xl bg-white border border-[var(--adm-color-text-light)] text-base px-4 focus-within:border-[var(--adm-color-primary)] transition-colors duration-200 w-full cursor-pointer ${!category ? 'text-gray-400' : 'text-gray-900'}`}
-                  >
-                    {category
-                      ? CATEGORY_OPTIONS.find(opt => opt.value === category)?.label
-                      : '请选择类别'}
-                  </div>
-                )}
-              </Picker>
+              />
             </div>
             {/* 排序号 */}
             <div className="mb-8">

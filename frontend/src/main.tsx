@@ -1,3 +1,4 @@
+import 'antd-mobile/es/global';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd-mobile';
 import React from 'react';
