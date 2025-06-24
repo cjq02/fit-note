@@ -1,6 +1,6 @@
-import { Button, Form, Input, NavBar, TextArea, Picker } from 'antd-mobile';
+import { Button, Input, NavBar, TextArea } from 'antd-mobile';
 import { CloseOutline } from 'antd-mobile-icons';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { CreateProjectRequest, Project } from '@/@typings/types';
 import { NumberInput } from '@/components/NumberInput';
@@ -21,44 +21,75 @@ interface ProjectFormProps {
  * @returns {JSX.Element} 训练项目表单
  */
 export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) => {
-  const [form] = Form.useForm();
+  // 项目名称
+  const [name, setName] = useState('');
+  // 类别
+  const [category, setCategory] = useState<Project['category'] | ''>('');
+  // 排序号
+  const [seqNo, setSeqNo] = useState<number | ''>('');
+  // 项目描述
+  const [description, setDescription] = useState('');
 
+  // 初始化/重置表单
+  /**
+   * 初始化或重置表单字段
+   *
+   * @returns {void}
+   */
   useEffect(() => {
     if (project) {
-      form.setFieldsValue({
-        name: project.name,
-        description: project.description,
-        seqNo: project.seqNo,
-        category: project.category || '',
-      });
+      setName(project.name || '');
+      setCategory(project.category || '');
+      setSeqNo(project.seqNo ?? '');
+      setDescription(project.description || '');
     } else {
-      form.resetFields();
-      window.setTimeout(() => {
-        form.setFieldValue('category', '');
-      }, 0);
+      setName('');
+      setCategory('');
+      setSeqNo('');
+      setDescription('');
     }
-  }, [project, form]);
+  }, [project]);
 
+  /**
+   * 提交表单
+   *
+   * @returns {void}
+   */
   const handleSubmit = () => {
-    form.validateFields().then(values => {
-      onSubmit(values);
+    // 校验
+    if (!name) {
+      // 兼容 window.toast
+      (window as any).toast && (window as any).toast('请输入项目名称');
+      return;
+    }
+    if (!category) {
+      (window as any).toast && (window as any).toast('请选择类别');
+      return;
+    }
+    if (seqNo === '' || isNaN(Number(seqNo))) {
+      (window as any).toast && (window as any).toast('请输入排序号');
+      return;
+    }
+    onSubmit({
+      name,
+      category: category as Project['category'],
+      seqNo: Number(seqNo),
+      description,
     });
   };
 
+  /**
+   * 取消并重置表单
+   *
+   * @returns {void}
+   */
   const handleCancel = () => {
-    form.resetFields();
+    setName('');
+    setCategory('');
+    setSeqNo('');
+    setDescription('');
     onCancel();
   };
-
-  const pickerOptions = CATEGORY_OPTIONS.map(opt => ({ label: opt.label, value: opt.value }));
-
-  // 彻底保证 Picker 的 value 永远为数组类型
-  const rawCategory = form.getFieldValue('category');
-  const categoryValue = Array.isArray(rawCategory)
-    ? rawCategory
-    : typeof rawCategory === 'string' && rawCategory
-      ? [rawCategory]
-      : [];
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-b from-[var(--adm-color-primary-light)] to-white">
@@ -77,99 +108,71 @@ export const ProjectForm = ({ project, onSubmit, onCancel }: ProjectFormProps) =
       <div className="flex-1 overflow-auto">
         <div className="p-4">
           <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/20">
-            <Form
-              form={form}
-              layout="vertical"
-              footer={
-                <div className="mt-8">
-                  <Button
-                    block
-                    color="primary"
-                    size="large"
-                    onClick={handleSubmit}
-                    className="rounded-full h-12 text-base font-medium shadow-lg shadow-[var(--adm-color-primary)]/20 hover:shadow-xl hover:shadow-[var(--adm-color-primary)]/30 transition-all duration-300"
-                  >
-                    保存
-                  </Button>
-                </div>
-              }
-            >
-              <Form.Item
-                name="name"
-                label={
-                  <span className="text-base font-medium text-[var(--adm-color-text)]">
-                    项目名称
-                  </span>
-                }
-                rules={[{ required: true, message: '请输入项目名称' }]}
-                className="mb-8"
+            {/* 项目名称 */}
+            <div className="mb-8">
+              <label className="text-base font-medium text-[var(--adm-color-text)]">项目名称</label>
+              <Input
+                placeholder="请输入项目名称"
+                className="rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 [&_input]:px-0"
+                value={name}
+                onChange={val => setName(val)}
+              />
+            </div>
+            {/* 类别 */}
+            <div className="mb-8">
+              <label className="text-base font-medium text-[var(--adm-color-text)]">类别</label>
+              <select
+                className="rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 w-full"
+                value={category}
+                onChange={e => setCategory(e.target.value as Project['category'] | '')}
               >
-                <Input
-                  placeholder="请输入项目名称"
-                  className="rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 [&_input]:px-0"
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="category"
-                label={
-                  <span className="text-base font-medium text-[var(--adm-color-text)]">类别</span>
-                }
-                rules={[{ required: true, message: '请选择类别' }]}
-                className="mb-8"
-              >
-                <select
-                  className="rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 w-full"
-                  value={form.getFieldValue('category') || ''}
-                  onChange={e => form.setFieldValue('category', e.target.value)}
-                >
-                  <option value="" disabled className="text-gray-400">
-                    请选择类别
+                <option value="" disabled className="text-gray-400">
+                  请选择类别
+                </option>
+                {CATEGORY_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
                   </option>
-                  {CATEGORY_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </Form.Item>
-
-              <Form.Item
-                name="seqNo"
-                label={
-                  <span className="text-base font-medium text-[var(--adm-color-text)]">排序</span>
-                }
-                rules={[{ required: true, message: '请输入排序号' }]}
-                className="mb-8"
+                ))}
+              </select>
+            </div>
+            {/* 排序号 */}
+            <div className="mb-8">
+              <label className="text-base font-medium text-[var(--adm-color-text)]">排序</label>
+              <NumberInput
+                value={seqNo === '' ? '' : seqNo.toString()}
+                onChange={value => setSeqNo(value ? parseInt(value) : '')}
+                placeholder="请输入排序号"
+                min={0}
+                step={10}
+                className="rounded-xl bg-white border border-[var(--adm-color-text-light)] focus:border-[var(--adm-color-primary)] transition-colors duration-200"
+              />
+            </div>
+            {/* 项目描述 */}
+            <div className="mb-8">
+              <label className="text-base font-medium text-[var(--adm-color-text)]">项目描述</label>
+              <TextArea
+                placeholder="请输入项目描述"
+                maxLength={200}
+                rows={3}
+                showCount
+                className="rounded-xl bg-white border border-[var(--adm-color-text-light)] text-base px-4 py-3 focus:border-[var(--adm-color-primary)] transition-colors duration-200"
+                value={description}
+                onChange={val => setDescription(val)}
+              />
+            </div>
+            {/* 保存按钮 */}
+            <div className="mt-8">
+              <Button
+                block
+                color="primary"
+                size="large"
+                onClick={handleSubmit}
+                className="rounded-full h-12 text-base font-medium shadow-lg shadow-[var(--adm-color-primary)]/20 hover:shadow-xl hover:shadow-[var(--adm-color-primary)]/30 transition-all duration-300"
               >
-                <NumberInput
-                  value={form.getFieldValue('seqNo')?.toString() || ''}
-                  onChange={value => form.setFieldValue('seqNo', value ? parseInt(value) : '')}
-                  placeholder="请输入排序号"
-                  min={0}
-                  step={10}
-                  className="rounded-xl bg-white border border-[var(--adm-color-text-light)] focus:border-[var(--adm-color-primary)] transition-colors duration-200"
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="description"
-                label={
-                  <span className="text-base font-medium text-[var(--adm-color-text)]">
-                    项目描述
-                  </span>
-                }
-                className="mb-8"
-              >
-                <TextArea
-                  placeholder="请输入项目描述"
-                  maxLength={200}
-                  rows={3}
-                  showCount
-                  className="rounded-xl bg-white border border-[var(--adm-color-text-light)] text-base px-4 py-3 focus:border-[var(--adm-color-primary)] transition-colors duration-200"
-                />
-              </Form.Item>
-            </Form>
+                保存
+              </Button>
+            </div>
           </div>
         </div>
       </div>
