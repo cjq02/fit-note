@@ -3,12 +3,24 @@ import { Document, Types } from 'mongoose';
 
 export type ProjectDocument = Project & Document;
 
+/**
+ * Project 实体，代表一个训练项目
+ * @property {Types.ObjectId} id - 项目ID
+ * @property {string} name - 项目名称
+ * @property {string} [description] - 项目描述
+ * @property {string} userId - 用户ID
+ * @property {number} seqNo - 顺序号
+ * @property {string} [todayWorkoutId] - 当天训练ID
+ * @property {Date} [createdAt] - 创建时间
+ * @property {Date} [updatedAt] - 更新时间
+ * @property {string} category - 分类
+ */
 @Schema({ timestamps: true })
 export class Project {
     @Prop({ type: Types.ObjectId, auto: true })
       id: Types.ObjectId;
 
-    @Prop({ required: true, unique: true })
+    @Prop({ required: true })
       name: string;
 
     @Prop()
@@ -33,4 +45,9 @@ export class Project {
       category: string;
 }
 
+/**
+ * ProjectSchema，包含联合唯一索引：name + userId
+ */
 export const ProjectSchema = SchemaFactory.createForClass(Project);
+// 行上注释：name 和 userId 联合唯一
+ProjectSchema.index({ name: 1, userId: 1 }, { unique: true });

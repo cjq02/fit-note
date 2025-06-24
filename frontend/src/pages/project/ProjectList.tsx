@@ -18,7 +18,6 @@ import { useNavigate } from 'react-router-dom';
 
 import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
 import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
-import { getUserInfo } from '@/api/auth.api';
 import { ProjectForm } from './ProjectForm';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 
@@ -33,15 +32,6 @@ export const ProjectList = (): React.ReactElement => {
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const isFirstLoad = useRef(true);
-
-  // 获取用户信息
-  const { data: userInfo } = useQuery({
-    queryKey: ['userInfo'],
-    queryFn: async () => {
-      const response = await getUserInfo();
-      return response.data.user;
-    },
-  });
 
   // 获取训练项目列表
   const {
@@ -290,7 +280,10 @@ export const ProjectList = (): React.ReactElement => {
   );
 
   return (
-    <div className="page-container bg-gradient-to-b from-gray-100 to-gray-200">
+    <div
+      className="page-container bg-gradient-to-b from-gray-100 to-gray-200"
+      style={{ overflow: 'hidden' }}
+    >
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="flex p-4 max-w-2xl mx-auto">
           {/* 左侧类别筛选栏 */}
