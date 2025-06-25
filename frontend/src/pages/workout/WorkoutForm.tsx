@@ -741,7 +741,7 @@ export const WorkoutForm = () => {
                   />
                 </Form.Item>
                 <Form.Item label="项目名称" style={{ flex: 1 }}>
-                  <div className="h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
+                  <div className="h-[40px] leading-[40px] pl-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[10em]">
                     {decodeURIComponent(projectName || '') ||
                       workoutData?.data.projectName ||
                       '新训练'}
