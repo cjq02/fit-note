@@ -718,7 +718,7 @@ export const WorkoutForm = () => {
           paddingBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
         }}
       >
-        <div className="p-4">
+        <div className="p-4 mb-6">
           <Form form={form} layout="vertical" footer={null}>
             {/* 日期和项目名称卡片 */}
             <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
