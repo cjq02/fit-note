@@ -10,7 +10,7 @@ import { ProjectList } from './pages/project/ProjectList';
 import { WorkoutList } from './pages/workout/WorkoutList';
 import { WorkoutForm } from './pages/workout/WorkoutForm';
 import { Schedule } from './pages/workout/Schedule';
-import ProjectFormPage from '@/pages/project/ProjectFormPage';
+import ProjectForm from '@/pages/project/ProjectForm';
 
 /**
  * 扩展路由类型，添加 title 属性
@@ -129,12 +129,12 @@ const routes: CustomRouteObject[] = [
       },
       {
         path: '/project/new',
-        element: <ProjectFormPage />,
+        element: <ProjectForm />,
         title: '新增训练项目',
       },
       {
         path: '/project/edit/:id',
-        element: <ProjectFormPage />,
+        element: <ProjectForm />,
         title: '编辑训练项目',
       },
     ],

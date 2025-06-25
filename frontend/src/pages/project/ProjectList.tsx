@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 
 import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
 import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
-import { ProjectForm } from './ProjectForm';
+import ProjectForm from './ProjectForm';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 
 /**

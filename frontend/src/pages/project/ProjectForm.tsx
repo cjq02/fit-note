@@ -1,45 +1,48 @@
-import { Button, Input, NavBar, TextArea, Picker } from 'antd-mobile';
-import { CloseOutline } from 'antd-mobile-icons';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-
-import type { CreateProjectRequest, Project } from '@/@typings/types';
+import { Toast, Input, TextArea, Picker, Button } from 'antd-mobile';
+import type { Project, CreateProjectRequest } from '@/@typings/types';
+import { getProjects, createProject, updateProject } from '@/api/project.api';
 import { NumberInput } from '@/components/NumberInput';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 
-// eslint-disable-next-line no-undef
-
-interface ProjectFormProps {
-  project?: Project | null;
-  onSubmit: (data: CreateProjectRequest) => void;
-  onCancel: () => void;
-  // 新增时初始类别
-  initialCategory?: Project['category'];
-}
-
 /**
- * 训练项目表单组件
+ * 训练项目表单页面（支持新建和编辑）
  *
- * @param {ProjectFormProps} props - 组件属性
- * @returns {JSX.Element} 训练项目表单
+ * @returns {JSX.Element} 训练项目表单页面
  */
-export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: ProjectFormProps) => {
-  // 项目名称
+export default function ProjectForm() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // 表单字段
   const [name, setName] = useState('');
-  // 类别
-  const [category, setCategory] = useState<Project['category'] | ''>(initialCategory || '');
-  // 排序号
+  const [category, setCategory] = useState<Project['category'] | ''>('');
   const [seqNo, setSeqNo] = useState<number | ''>('');
-  // 项目描述
   const [description, setDescription] = useState('');
-  // 类别选择弹窗控制
   const [pickerVisible, setPickerVisible] = useState(false);
 
-  // 初始化/重置表单
-  /**
-   * 初始化或重置表单字段
-   *
-   * @returns {void}
-   */
+  // 支持从 location.state 传递 initialCategory
+  const initialCategory = (location.state && (location.state as any).initialCategory) || undefined;
+
+  // 加载项目数据（编辑时）
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      getProjects().then(res => {
+        const found = res.data.find((p: Project) => p.id === id);
+        setProject(found || null);
+        setLoading(false);
+      });
+    } else {
+      setProject(null);
+    }
+  }, [id]);
+
+  // 初始化/重置表单字段
   useEffect(() => {
     if (project) {
       setName(project.name || '');
@@ -54,46 +57,51 @@ export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: Pr
     }
   }, [project, initialCategory]);
 
-  /**
-   * 提交表单
-   *
-   * @returns {void}
-   */
-  const handleSubmit = () => {
-    // 校验
+  // 提交表单
+  const handleSubmit = async () => {
     if (!name) {
-      // 兼容 window.toast
-      (window as any).toast && (window as any).toast('请输入项目名称');
+      Toast.show({ content: '请输入项目名称' });
       return;
     }
     if (!category) {
-      (window as any).toast && (window as any).toast('请选择类别');
+      Toast.show({ content: '请选择类别' });
       return;
     }
     if (seqNo === '' || isNaN(Number(seqNo))) {
-      (window as any).toast && (window as any).toast('请输入排序号');
+      Toast.show({ content: '请输入排序号' });
       return;
     }
-    onSubmit({
-      name,
-      category: category as Project['category'],
-      seqNo: Number(seqNo),
-      description,
-    });
+    try {
+      if (project) {
+        await updateProject({
+          name,
+          category: category as Project['category'],
+          seqNo: Number(seqNo),
+          description,
+          id: project.id,
+        });
+        Toast.show({ icon: 'success', content: '更新成功' });
+      } else {
+        await createProject({
+          name,
+          category: category as Project['category'],
+          seqNo: Number(seqNo),
+          description,
+        });
+        Toast.show({ icon: 'success', content: '创建成功' });
+      }
+      navigate(-1);
+    } catch (error) {
+      Toast.show({ icon: 'fail', content: '操作失败' });
+    }
   };
 
-  /**
-   * 取消并重置表单
-   *
-   * @returns {void}
-   */
+  // 取消并返回
   const handleCancel = () => {
-    setName('');
-    setCategory('');
-    setSeqNo('');
-    setDescription('');
-    onCancel();
+    navigate(-1);
   };
+
+  if (loading) return <div className="p-8 text-center text-gray-400">加载中...</div>;
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-b from-[var(--adm-color-primary-light)] to-white">
@@ -155,7 +163,7 @@ export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: Pr
               />
             </div>
             {/* 保存按钮 */}
-            <div className="mt-8">
+            <div className="mt-8 flex gap-4">
               <Button
                 block
                 color="primary"
@@ -165,10 +173,19 @@ export const ProjectForm = ({ project, onSubmit, onCancel, initialCategory }: Pr
               >
                 保存
               </Button>
+              <Button
+                block
+                color="default"
+                size="large"
+                onClick={handleCancel}
+                className="rounded-full h-12 text-base font-medium"
+              >
+                取消
+              </Button>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-};
+}
