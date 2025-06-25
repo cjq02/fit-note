@@ -159,14 +159,26 @@ export const WorkoutItem = ({
               {workout.groups.map((group, index) => (
                 <div
                   key={index}
-                  className="text-xs px-3 py-1.5 rounded-full border shadow-sm"
+                  className="text-xs px-3 py-1.5 rounded-full border shadow-sm relative"
                   style={{
                     color: '#666',
                     background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
                     borderColor: `${dateColor}22`,
                   }}
                 >
-                  {group.seqNo}组: {group.weight}
+                  {/* 左上角角标悬浮在div外部 */}
+                  <span
+                    className="absolute -left-2 -top-2 z-10 px-1.5 py-0.5 rounded-full text-[10px] font-bold shadow"
+                    style={{
+                      background: `linear-gradient(90deg, ${dateColor}99, ${dateColor}66)`,
+                      color: '#fff',
+                      boxShadow: `0 1px 4px ${dateColor}33`,
+                    }}
+                  >
+                    {group.seqNo}组
+                  </span>
+                  {/* 组内容 */}
+                  {group.weight}
                   {workout.unit} × <span className="font-bold text-base">{group.reps}</span>次
                   {typeof group.restTime === 'number' && group.restTime > 0 && (
                     <span className="ml-1 text-[10px] opacity-75">
