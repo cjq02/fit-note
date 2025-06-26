@@ -29,6 +29,7 @@ import {
 } from '@/api/workout.api';
 import { NumberInput } from '@/components/NumberInput';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
+import PageSelect from '@/components/PageSelect';
 
 // 添加NodeJS类型定义
 declare global {
@@ -72,6 +73,7 @@ export const WorkoutForm = () => {
   const trainingTimerRef = useRef<number | null>(null);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<any>(null);
+  const [unitSelectVisible, setUnitSelectVisible] = useState(false);
 
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
@@ -808,19 +810,22 @@ export const WorkoutForm = () => {
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <span className="text-[var(--adm-color-text)] block mb-2">训练单位</span>
-                    <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
-                      <div className="flex gap-6">
-                        {UNIT_OPTIONS.map(opt => (
-                          <Radio
-                            key={opt.value}
-                            value={opt.value}
-                            className="flex-1 h-[32px] rounded-lg data-[checked=true]:bg-[var(--adm-color-primary-light)]"
-                          >
-                            {opt.label}
-                          </Radio>
-                        ))}
-                      </div>
-                    </Radio.Group>
+                    <div
+                      className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors cursor-pointer"
+                      onClick={() => setUnitSelectVisible(true)}
+                    >
+                      {UNIT_OPTIONS.find(opt => opt.value === unit)?.label || unit}
+                    </div>
+                    <PageSelect
+                      visible={unitSelectVisible}
+                      onClose={() => setUnitSelectVisible(false)}
+                      options={UNIT_OPTIONS}
+                      value={unit}
+                      onChange={val => {
+                        setUnit(val as 'kg' | 'lb');
+                        setUnitSelectVisible(false);
+                      }}
+                    />
                   </div>
                   <div className="flex-1">
                     <span className="text-[var(--adm-color-text)] block mb-2">训练时间</span>
