@@ -84,8 +84,8 @@ build_shared_utils() {
     echo "进入后端容器并构建 shared-utils..."
     docker exec -it fit-note-backend sh -c "cd /app/packages/shared-utils && pnpm run build"
     echo "进入前端容器并构建 shared-utils..."
-    docker cp packages/shared-utils/. fit-note-frontend:/app/packages/shared-utils/
-    docker exec -it fit-note-frontend sh -c "cd /app/frontend && pnpm install"
+    docker cp packages/shared-utils/. fit-note-frontend:/app/packages/shared-utils
+    docker exec -it fit-note-frontend sh -c "cd /app/packages/shared-utils && pnpm run build"
 }
 
 # 按需构建
