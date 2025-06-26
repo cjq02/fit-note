@@ -18,6 +18,21 @@ need_build_frontend=false
 need_build_backend=false
 need_build_shared_utils=false
 
+# 检查是否有 -f 参数（强制全量部署）
+force_all=false
+for arg in "$@"; do
+  if [ "$arg" == "-f" ]; then
+    force_all=true
+    break
+  fi
+done
+
+if $force_all; then
+  need_build_shared_utils=true
+  need_build_backend=true
+  need_build_frontend=true
+fi
+
 for file in $changed_files; do
   if [[ $file == frontend/* ]]; then
     need_build_frontend=true
