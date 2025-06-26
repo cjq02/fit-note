@@ -935,6 +935,7 @@ export const WorkoutForm = () => {
                           max={999}
                           step={0.5}
                           allowDecimal={true}
+                          disabled={unit === '自重'}
                         />
                       </div>
                       <div className="flex flex-col items-end">

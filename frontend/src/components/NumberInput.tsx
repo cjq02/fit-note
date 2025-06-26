@@ -36,6 +36,10 @@ interface NumberInputProps {
    * 自定义类名
    */
   className?: string;
+  /**
+   * 是否禁用
+   */
+  disabled?: boolean;
 }
 
 /**
@@ -53,6 +57,7 @@ export const NumberInput = ({
   step = 1,
   allowDecimal = false,
   className = '',
+  disabled = false,
 }: NumberInputProps) => {
   // 动画状态
   const [isAnimating, setIsAnimating] = useState(false);
@@ -101,9 +106,6 @@ export const NumberInput = ({
     w-8 h-10
     flex items-center justify-center
     border-[var(--adm-color-primary)]
-    disabled:bg-[var(--adm-color-fill-light)]
-    disabled:text-[var(--adm-color-text-light)]
-    disabled:cursor-not-allowed
     number-input-button
     select-none
   `;
@@ -121,6 +123,7 @@ export const NumberInput = ({
       transition-all duration-200
       hover:border-[var(--adm-color-primary-dark)]
       focus-within:ring-2 focus-within:ring-[var(--adm-color-primary)] focus-within:ring-opacity-20
+      ${disabled ? 'number-input-disabled' : ''}
       ${className}
     `}
     >
@@ -131,7 +134,7 @@ export const NumberInput = ({
           border-r
           ${!isMinDisabled && buttonActiveStyle}
         `}
-        disabled={isMinDisabled}
+        disabled={isMinDisabled || disabled}
         type="button"
       >
         <MinusOutline className="text-base" />
@@ -164,6 +167,7 @@ export const NumberInput = ({
           [&_input]:items-center
           [&_input]:justify-center
         `}
+        disabled={disabled}
       />
 
       <button
@@ -173,7 +177,7 @@ export const NumberInput = ({
           border-l
           ${!isMaxDisabled && buttonActiveStyle}
         `}
-        disabled={isMaxDisabled}
+        disabled={isMaxDisabled || disabled}
         type="button"
       >
         <AddOutline className="text-base" />

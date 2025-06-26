@@ -46,3 +46,16 @@
   outline: none !important;
   box-shadow: none !important;
 }
+
+.number-input-button:disabled,
+.number-input-input:disabled,
+input[disabled] {
+  background-color: #f5f5f5 !important;
+  color: #bdbdbd !important;
+  cursor: not-allowed;
+}
+
+/* 针对整个输入框容器禁用时的背景色 */
+.number-input-disabled {
+  background-color: #f5f5f5 !important;
+}
