@@ -159,7 +159,7 @@ export const WorkoutItem = ({
               {workout.groups.map((group, index) => (
                 <div
                   key={index}
-                  className="text-xs px-3 py-1.5 rounded-full border shadow-sm relative"
+                  className="text-xs px-3 py-1.5 mb-3 rounded-full border shadow-sm relative"
                   style={{
                     color: '#666',
                     background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
@@ -182,7 +182,7 @@ export const WorkoutItem = ({
                   {workout.unit} × <span className="font-bold text-base">{group.reps}</span>次
                   {typeof group.restTime === 'number' && group.restTime > 0 && (
                     <span className="ml-1 text-[10px] opacity-75">
-                      (<span className="text-sm font-bold">{group.restTime}</span>秒)
+                      <span className="text-sm font-bold">| {group.restTime}</span>秒
                     </span>
                   )}
                 </div>
