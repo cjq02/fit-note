@@ -126,6 +126,17 @@ export default function ProjectForm() {
                 options={CATEGORY_OPTIONS}
                 value={category}
                 onChange={val => setCategory(val as Project['category'])}
+                triggerRender={(selectedLabel, { onClick }) => (
+                  <div
+                    className={
+                      'flex items-center rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 w-full cursor-pointer ' +
+                      (!category ? 'text-gray-400' : 'text-gray-900')
+                    }
+                    onClick={onClick}
+                  >
+                    {selectedLabel || '请选择类别'}
+                  </div>
+                )}
               />
             </div>
             {/* 排序号 */}
