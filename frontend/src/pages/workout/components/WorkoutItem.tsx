@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useEffect } from 'react';
+import _ from 'lodash';
 
 import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { deleteWorkout } from '@/api/workout.api';
@@ -189,7 +190,9 @@ export const WorkoutItem = ({
                       marginLeft: '5px',
                     }}
                   >
-                    {workout.unit === '自重' ? '' : `${group.weight}${workout.unit || ''} × `}
+                    {_.isEmpty(workout.unit) || workout.unit === '自重'
+                      ? ''
+                      : `${group.weight}${workout.unit} × `}
                     <span className="font-bold text-base">{group.reps}</span>次
                     {typeof group.restTime === 'number' && group.restTime > 0 && (
                       <span className="ml-1 text-[10px] opacity-75">

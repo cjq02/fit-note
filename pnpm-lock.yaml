@@ -194,6 +194,9 @@ importers:
       '@tanstack/eslint-plugin-query':
         specifier: ^5.74.7
         version: 5.74.7(eslint@8.57.1)(typescript@5.8.3)
+      '@types/lodash':
+        specifier: ^4.17.19
+        version: 4.17.19
       '@types/react':
         specifier: ^18.2.55
         version: 18.3.22
@@ -1352,6 +1355,9 @@ packages:
 
   '@types/jsonwebtoken@9.0.9':
     resolution: {integrity: sha512-uoe+GxEuHbvy12OUQct2X9JenKM3qAscquYymuQN4fMWG9DBQtykrQEFcAbVACF7qaLw9BePSodUL0kquqBJpQ==}
+
+  '@types/lodash@4.17.19':
+    resolution: {integrity: sha512-NYqRyg/hIQrYPT9lbOeYc3kIRabJDn/k4qQHIXUpx88CBDww2fD15Sg5kbXlW86zm2XEW4g0QxkTI3/Kfkc7xQ==}
 
   '@types/methods@1.1.4':
     resolution: {integrity: sha512-ymXWVrDiCxTBE3+RIrrP533E70eA+9qu7zdWoHuOmGujkYtzf4HQF96b8nwHLqhuf4ykX61IGRIB38CC6/sImQ==}
@@ -6102,6 +6108,8 @@ snapshots:
     dependencies:
       '@types/ms': 2.1.0
       '@types/node': 20.17.50
+
+  '@types/lodash@4.17.19': {}
 
   '@types/methods@1.1.4': {}
 
