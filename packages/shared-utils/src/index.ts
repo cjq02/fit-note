@@ -9,5 +9,6 @@ export const UNIT_OPTIONS = [
   { label: 'kg', value: 'kg' },
   { label: '磅', value: '磅' },
   { label: '分钟', value: '分钟' },
+  { label: '米', value: '米' },
   { label: '公里', value: '公里' },
 ];
