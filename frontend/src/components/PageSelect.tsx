@@ -93,10 +93,26 @@ const PageSelect: FC<PageSelectProps> = ({
     triggerRender(selectedLabel, { onClick: () => setVisible(true) })
   ) : (
     <div
-      className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors cursor-pointer"
+      className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors cursor-pointer flex items-center justify-between"
       onClick={() => setVisible(true)}
     >
-      {selectedLabel || '请选择'}
+      <span>{selectedLabel || '请选择'}</span>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ marginLeft: 8 }}
+      >
+        <path
+          d="M5 8L10 13L15 8"
+          stroke="var(--adm-color-primary)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </div>
   );
 
