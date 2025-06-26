@@ -3,6 +3,35 @@
 start_time=$(date +%s)
 echo "部署开始时间: $(date '+%Y-%m-%d %H:%M:%S')"
 
+# 记录上次commit
+last_commit=$(cat .last_deploy_commit 2>/dev/null || git rev-parse HEAD)
+
+# 拉取最新的代码
+echo "拉取最新的代码..."
+git pull
+
+# 获取变更文件
+changed_files=$(git diff --name-only $last_commit HEAD)
+
+# 判断哪些模块有变动
+need_build_frontend=false
+need_build_backend=false
+need_build_shared_utils=false
+
+for file in $changed_files; do
+  if [[ $file == frontend/* ]]; then
+    need_build_frontend=true
+  fi
+  if [[ $file == backend/* ]]; then
+    need_build_backend=true
+  fi
+  if [[ $file == packages/shared-utils/* ]]; then
+    need_build_shared_utils=true
+    need_build_frontend=true
+    need_build_backend=true
+  fi
+done
+
 # 定义函数：构建前端
 build_frontend() {
     echo "重新构建前端..."
@@ -33,25 +62,30 @@ check_containers() {
     docker-compose ps
 }
 
-# 拉取最新的代码
-echo "拉取最新的代码..."
-git pull
+# 定义函数：构建 shared-utils
+build_shared_utils() {
+    echo "同步文件到 shared-utils 容器..."
+    docker cp packages/shared-utils/. fit-note-backend:/app/packages/shared-utils/
+    echo "进入后端容器并构建 shared-utils..."
+    docker exec -it fit-note-backend sh -c "cd /app/packages/shared-utils && pnpm run build"
+}
 
-# 检查参数
-if [ "$1" == "frontend" ]; then
-    build_frontend
-elif [ "$1" == "backend" ]; then
+# 按需构建
+if $need_build_shared_utils; then
+    build_shared_utils
+fi
+if $need_build_backend; then
     build_backend
-elif [ -z "$1" ]; then
-    build_backend
+fi
+if $need_build_frontend; then
     build_frontend
-else
-    echo "请提供参数: 空 或 frontend 或 backend"，空表示构建所有
-    exit 1
 fi
 
 # 检查容器状态
 check_containers
+
+# 更新commit记录
+git rev-parse HEAD > .last_deploy_commit
 
 # 查看日志
 # echo "查看日志..."
