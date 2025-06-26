@@ -810,20 +810,11 @@ export const WorkoutForm = () => {
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <span className="text-[var(--adm-color-text)] block mb-2">训练单位</span>
-                    <div
-                      className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors cursor-pointer"
-                      onClick={() => setUnitSelectVisible(true)}
-                    >
-                      {UNIT_OPTIONS.find(opt => opt.value === unit)?.label || unit}
-                    </div>
                     <PageSelect
-                      visible={unitSelectVisible}
-                      onClose={() => setUnitSelectVisible(false)}
                       options={UNIT_OPTIONS}
                       value={unit}
                       onChange={val => {
                         setUnit(val as 'kg' | 'lb');
-                        setUnitSelectVisible(false);
                       }}
                     />
                   </div>

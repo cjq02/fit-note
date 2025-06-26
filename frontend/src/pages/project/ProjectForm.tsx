@@ -122,24 +122,10 @@ export default function ProjectForm() {
             {/* 类别 */}
             <div className="mb-8">
               <label className="text-base font-medium text-[var(--adm-color-text)]">类别</label>
-              <div
-                className={`h-12 flex items-center rounded-xl bg-white border border-[var(--adm-color-text-light)] text-base px-4 focus-within:border-[var(--adm-color-primary)] transition-colors duration-200 w-full cursor-pointer ${!category ? 'text-gray-400' : 'text-gray-900'}`}
-                onClick={() => setPickerVisible(true)}
-              >
-                {category
-                  ? CATEGORY_OPTIONS.find(opt => opt.value === category)?.label
-                  : '请选择类别'}
-              </div>
               <PageSelect
-                visible={pickerVisible}
-                onClose={() => setPickerVisible(false)}
                 options={CATEGORY_OPTIONS}
                 value={category}
-                onChange={val => {
-                  setCategory(val as Project['category']);
-                  setPickerVisible(false);
-                }}
-                multiple={false}
+                onChange={val => setCategory(val as Project['category'])}
               />
             </div>
             {/* 排序号 */}
