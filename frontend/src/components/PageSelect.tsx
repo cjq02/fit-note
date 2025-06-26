@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Popup, List, Checkbox, Radio, SpinLoading } from 'antd-mobile';
 import type { FC } from 'react';
+// 如需单位选项请从shared-utils导入：import { UNIT_OPTIONS } from 'shared-utils';
 
 /**
  * PageSelect 组件属性

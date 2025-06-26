@@ -30,6 +30,7 @@ import {
 import { NumberInput } from '@/components/NumberInput';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 import PageSelect from '@/components/PageSelect';
+import { UNIT_OPTIONS } from '@fit-note/shared-utils';
 
 // 添加NodeJS类型定义
 declare global {
@@ -37,11 +38,6 @@ declare global {
     interface Timeout {}
   }
 }
-
-const UNIT_OPTIONS = [
-  { label: 'kg', value: 'kg' },
-  { label: '磅', value: 'lb' },
-];
 
 /**
  * 训练记录表单

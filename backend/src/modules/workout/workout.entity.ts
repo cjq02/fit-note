@@ -33,8 +33,12 @@ export class Workout {
     @Prop({ required: true })
       projectName: string;
 
-    @Prop({ required: true, enum: ['kg', 'lb'] })
-      unit: 'kg' | 'lb';
+    /**
+     * 重量单位
+     * @type {string} 单位字符串，如'kg'或'lb'
+     */
+    @Prop({ required: true, type: String })
+      unit: string;
 
     @Prop({ required: true, type: [WorkoutGroup] })
       groups: WorkoutGroup[];
