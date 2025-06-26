@@ -751,56 +751,102 @@ export const WorkoutForm = () => {
             </div>
 
             {/* 重量单位卡片 */}
-            <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <span className="text-[var(--adm-color-text)] block mb-2">重量单位</span>
-                  <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
-                    <div className="flex gap-6">
-                      {UNIT_OPTIONS.map(opt => (
-                        <Radio
-                          key={opt.value}
-                          value={opt.value}
-                          className="flex-1 h-[32px] rounded-lg data-[checked=true]:bg-[var(--adm-color-primary-light)]"
-                        >
-                          {opt.label}
-                        </Radio>
-                      ))}
+            <SwipeAction
+              rightActions={[
+                {
+                  key: 'editTrainingTime',
+                  text: (
+                    <div className="flex flex-col items-center">
+                      <span>修改</span>
+                      <span>时间</span>
                     </div>
-                  </Radio.Group>
-                </div>
-                <div className="flex-1">
-                  <span className="text-[var(--adm-color-text)] block mb-2">训练时间</span>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-[32px] leading-[32px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
-                      {formatTime(trainingTime)}
+                  ),
+                  color: 'warning',
+                  onClick: () => {
+                    let inputValue = trainingTime.toString();
+                    Dialog.show({
+                      title: '编辑训练时间',
+                      content: (
+                        <div className="p-4">
+                          <input
+                            type="number"
+                            className="w-full h-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)]"
+                            defaultValue={inputValue}
+                            min={0}
+                            placeholder="请输入训练时间（秒）"
+                            onChange={e => {
+                              inputValue = e.target.value;
+                            }}
+                          />
+                        </div>
+                      ),
+                      closeOnAction: true,
+                      actions: [
+                        [
+                          { key: 'cancel', text: '取消' },
+                          {
+                            key: 'confirm',
+                            text: '确定',
+                            bold: true,
+                            onClick: () => {
+                              const newTime = parseInt(inputValue, 10);
+                              if (isNaN(newTime) || newTime < 0) {
+                                Toast.show({ icon: 'fail', content: '请输入有效的数字' });
+                                return;
+                              }
+                              setTrainingTime(newTime);
+                            },
+                          },
+                        ],
+                      ],
+                    });
+                  },
+                },
+              ]}
+            >
+              <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <span className="text-[var(--adm-color-text)] block mb-2">训练单位</span>
+                    <Radio.Group value={unit} onChange={val => setUnit(val as 'kg' | 'lb')}>
+                      <div className="flex gap-6">
+                        {UNIT_OPTIONS.map(opt => (
+                          <Radio
+                            key={opt.value}
+                            value={opt.value}
+                            className="flex-1 h-[32px] rounded-lg data-[checked=true]:bg-[var(--adm-color-primary-light)]"
+                          >
+                            {opt.label}
+                          </Radio>
+                        ))}
+                      </div>
+                    </Radio.Group>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-[var(--adm-color-text)] block mb-2">训练时间</span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-[32px] leading-[32px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
+                        {formatTime(trainingTime)}
+                      </div>
+                      <Button
+                        size="small"
+                        color={isTraining ? 'warning' : 'primary'}
+                        onClick={handleStartTraining}
+                        className="whitespace-nowrap"
+                      >
+                        {isTraining ? '暂停训练' : trainingTime > 0 ? '继续训练' : '开始训练'}
+                      </Button>
                     </div>
-                    <Button
-                      size="small"
-                      color={isTraining ? 'warning' : 'primary'}
-                      onClick={handleStartTraining}
-                      className="whitespace-nowrap"
-                    >
-                      {isTraining ? '暂停训练' : trainingTime > 0 ? '继续训练' : '开始训练'}
-                    </Button>
                   </div>
                 </div>
               </div>
-            </div>
+            </SwipeAction>
 
             {/* 训练组列表 */}
             <div className="space-y-3">
               {groups.map((group, idx) => (
                 <SwipeAction
                   key={idx}
-                  leftActions={[
-                    {
-                      key: 'delete',
-                      text: '删除',
-                      color: 'danger',
-                      onClick: () => handleRemoveGroup(idx),
-                    },
-                  ]}
                   rightActions={[
                     {
                       key: 'clearTimer',
@@ -886,7 +932,7 @@ export const WorkoutForm = () => {
                       </div>
                       <div className="flex flex-col flex-[2]">
                         <span className="text-sm text-[var(--adm-color-text-light)] mb-1">
-                          重量
+                          单位
                         </span>
                         <NumberInput
                           value={group.weight}
