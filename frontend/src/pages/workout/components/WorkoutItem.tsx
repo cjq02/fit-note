@@ -159,32 +159,44 @@ export const WorkoutItem = ({
               {workout.groups.map((group, index) => (
                 <div
                   key={index}
-                  className="text-xs px-3 py-1.5 mb-3 rounded-full border shadow-sm relative"
+                  className="text-xs px-3 py-1 mb-3 rounded-full border shadow-sm relative"
                   style={{
                     color: '#666',
                     background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
                     borderColor: `${dateColor}22`,
+                    width: '140px',
+                    overflow: 'visible',
                   }}
                 >
                   {/* 左上角角标悬浮在div外部 */}
                   <span
-                    className="absolute -left-2 -top-2 z-10 px-1.5 py-0.5 rounded-full text-[10px] font-bold shadow"
+                    className="absolute -left-2 -top-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold shadow"
                     style={{
                       background: `linear-gradient(90deg, ${dateColor}99, ${dateColor}66)`,
                       color: '#fff',
                       boxShadow: `0 1px 4px ${dateColor}33`,
                     }}
                   >
-                    {group.seqNo}组
+                    {group.seqNo}
                   </span>
-                  {/* 组内容 */}
-                  {group.weight}
-                  {workout.unit} × <span className="font-bold text-base">{group.reps}</span>次
-                  {typeof group.restTime === 'number' && group.restTime > 0 && (
-                    <span className="ml-1 text-[10px] opacity-75">
-                      <span className="text-sm font-bold">| {group.restTime}</span>秒
-                    </span>
-                  )}
+                  <span
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      display: 'inline-block',
+                      maxWidth: '100%',
+                      marginLeft: '5px',
+                    }}
+                  >
+                    {group.weight}
+                    {workout.unit} × <span className="font-bold text-base">{group.reps}</span>次
+                    {typeof group.restTime === 'number' && group.restTime > 0 && (
+                      <span className="ml-1 text-[10px] opacity-75">
+                        <span className="text-sm font-bold">| {group.restTime}</span>秒
+                      </span>
+                    )}
+                  </span>
                 </div>
               ))}
             </div>
