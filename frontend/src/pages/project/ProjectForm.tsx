@@ -5,6 +5,7 @@ import type { Project, CreateProjectRequest } from '@/@typings/types';
 import { getProjects, createProject, updateProject } from '@/api/project.api';
 import { NumberInput } from '@/components/NumberInput';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
+import PageSelect from '@/components/PageSelect';
 
 /**
  * 训练项目表单页面（支持新建和编辑）
@@ -129,12 +130,16 @@ export default function ProjectForm() {
                   ? CATEGORY_OPTIONS.find(opt => opt.value === category)?.label
                   : '请选择类别'}
               </div>
-              <Picker
-                columns={[CATEGORY_OPTIONS]}
+              <PageSelect
                 visible={pickerVisible}
-                value={category ? [category] : []}
                 onClose={() => setPickerVisible(false)}
-                onConfirm={val => setCategory(val[0] as Project['category'])}
+                options={CATEGORY_OPTIONS}
+                value={category}
+                onChange={val => {
+                  setCategory(val as Project['category']);
+                  setPickerVisible(false);
+                }}
+                multiple={false}
               />
             </div>
             {/* 排序号 */}
