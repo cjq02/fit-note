@@ -5,6 +5,7 @@ export * from './date.utils';
  * @type {{ label: string; value: string }[]}
  */
 export const UNIT_OPTIONS = [
+  { label: '自重', value: '自重' },
   { label: 'kg', value: 'kg' },
   { label: '磅', value: '磅' },
   { label: '分钟', value: '分钟' },

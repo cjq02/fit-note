@@ -189,8 +189,8 @@ export const WorkoutItem = ({
                       marginLeft: '5px',
                     }}
                   >
-                    {group.weight}
-                    {workout.unit} × <span className="font-bold text-base">{group.reps}</span>次
+                    {workout.unit === '自重' ? '' : `${group.weight}${workout.unit} × `}
+                    <span className="font-bold text-base">{group.reps}</span>次
                     {typeof group.restTime === 'number' && group.restTime > 0 && (
                       <span className="ml-1 text-[10px] opacity-75">
                         <span className="text-sm font-bold">| {group.restTime}</span>秒

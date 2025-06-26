@@ -12,7 +12,7 @@ export interface Workout {
   date: string;
   projectName: string;
   projectId: string;
-  unit: 'kg' | 'lb';
+  unit: string;
   trainingTime?: number;
   groups: WorkoutGroup[];
   createdAt: string;
@@ -32,7 +32,7 @@ export interface CreateWorkoutRequest {
   date: string;
   projectName: string;
   projectId?: string;
-  unit: 'kg' | 'lb';
+  unit: string;
   trainingTime?: number;
   groups: WorkoutGroup[];
 }
