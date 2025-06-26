@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Button,
@@ -13,6 +14,7 @@ import { AddOutline, DeleteOutline, HistogramOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import type React from 'react';
 
 import type {
   ApiResponse,
@@ -59,7 +61,7 @@ export const WorkoutForm = () => {
     const urlDate = searchParams.get('date');
     return urlDate ? new Date(urlDate) : new Date();
   });
-  const [unit, setUnit] = useState<'kg' | 'lb'>('kg');
+  const [unit, setUnit] = useState<string>('自重');
   const [dateVisible, setDateVisible] = useState(false);
   const [_restTime, setRestTime] = useState<number>(0);
   const timerRef = useRef<number | null>(null);
@@ -129,7 +131,7 @@ export const WorkoutForm = () => {
     const workout = id ? workoutData?.data : dateWorkoutData;
     if (workout) {
       setDate(new Date(workout.date));
-      setUnit(workout.unit || 'kg');
+      setUnit(workout.unit || '自重');
       setTrainingTime(workout.trainingTime || 0);
       setGroups(
         workout.groups.map((group: WorkoutGroup) => ({
@@ -563,14 +565,14 @@ export const WorkoutForm = () => {
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<globalThis.HTMLDivElement>(null);
   const initialHeightRef = useRef(window.innerHeight);
 
   // 监听键盘弹出
   useEffect(() => {
     if (!rootRef.current) return;
 
-    const resizeObserver = new ResizeObserver(entries => {
+    const resizeObserver = new window.ResizeObserver(entries => {
       const currentHeight = window.innerHeight;
       const heightDiff = initialHeightRef.current - currentHeight;
 
@@ -606,7 +608,7 @@ export const WorkoutForm = () => {
     };
 
     // 监听输入框聚焦
-    const handleFocus = (e: FocusEvent) => {
+    const handleFocus = (e: any) => {
       console.log('输入框聚焦', {
         target: e.target,
         type: e.type,
@@ -615,7 +617,7 @@ export const WorkoutForm = () => {
     };
 
     // 监听输入框失焦
-    const handleBlur = (e: FocusEvent) => {
+    const handleBlur = (e: any) => {
       console.log('输入框失焦', {
         target: e.target,
         type: e.type,
@@ -634,7 +636,7 @@ export const WorkoutForm = () => {
     // 添加调试信息
     console.log('组件挂载，当前视口高度：', window.innerHeight);
     console.log('组件挂载，当前设备像素比：', window.devicePixelRatio);
-    console.log('组件挂载，当前用户代理：', navigator.userAgent);
+    console.log('组件挂载，当前用户代理：', window.navigator.userAgent);
 
     return () => {
       resizeObserver.disconnect();
@@ -810,7 +812,7 @@ export const WorkoutForm = () => {
                       options={UNIT_OPTIONS}
                       value={unit}
                       onChange={val => {
-                        setUnit(val as 'kg' | 'lb');
+                        setUnit(val as string);
                       }}
                     />
                   </div>
