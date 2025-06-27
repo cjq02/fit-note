@@ -704,7 +704,7 @@ export const WorkoutForm = () => {
       }}
     >
       {/* 页面内样式，设置.adm-list-item背景色为白色 */}
-      <style>{`.adm-list-item { background-color: #fff !important; }`}</style>
+      <style>{`.adm-list-item { background-color: #fff !important; padding-left: 5px !important; } .adm-list-item-content { padding-right: 0 !important; }`}</style>
       <div
         className="h-full overflow-y-auto overscroll-contain"
         style={{
@@ -736,7 +736,7 @@ export const WorkoutForm = () => {
                   />
                 </Form.Item>
                 <Form.Item label="项目名称" style={{ flex: 1 }}>
-                  <div className="h-[40px] leading-[40px] pl-3 rounded-lg border-2 border-solid border-gray-400 bg-white text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[10em]">
+                  <div className="h-[40px] leading-[40px] pl-3 rounded-lg border-2 border-solid border-gray-400 bg-white text-base whitespace-nowrap overflow-hidden text-ellipsis">
                     {decodeURIComponent(projectName || '') ||
                       workoutData?.data.projectName ||
                       '新训练'}
@@ -846,16 +846,20 @@ export const WorkoutForm = () => {
                   </div>
                   <div className="flex-1">
                     <span className="text-[var(--adm-color-text)] block mb-2">训练时间</span>
-                    <div className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border-2 border-solid border-gray-400 bg-white flex items-center justify-between">
-                      <span className="text-[var(--adm-color-text-light)]">
-                        {formatTime(trainingTime)}
-                      </span>
+                    <div className="mb-2 h-[40px] leading-[40px] px-0 rounded-lg border-2 border-solid border-gray-400 bg-white flex items-center justify-between overflow-hidden">
+                      <span className="flex-1 px-3 text-black">{formatTime(trainingTime)}</span>
                       <Button
                         size="small"
-                        color={isTraining ? 'warning' : 'primary'}
+                        color={isTraining ? 'danger' : 'success'}
                         onClick={handleStartTraining}
-                        className="whitespace-nowrap ml-2"
-                        style={{ height: 32 }}
+                        className="h-[40px] min-w-[60px] rounded-none rounded-r-lg border-l-0 shadow-none text-base"
+                        style={{
+                          borderTopLeftRadius: 0,
+                          borderBottomLeftRadius: 0,
+                          height: 40,
+                          marginLeft: 0,
+                          padding: '0 18px',
+                        }}
                       >
                         {isTraining ? '暂停' : trainingTime > 0 ? '继续' : '开始'}
                       </Button>
