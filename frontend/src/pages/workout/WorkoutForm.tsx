@@ -1082,14 +1082,14 @@ export const WorkoutForm = () => {
       <div
         className="bg-white flex gap-3 px-4 py-3 border-t border-gray-200 shadow-lg"
         style={{
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-          paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          paddingBottom: 'env(safe-area-inset-bottom, 8px)',
           position: 'fixed',
           bottom: isKeyboardVisible ? `${keyboardHeight}px` : 0,
           left: 0,
           right: 0,
-          height: '80px',
+          height: '60px',
           zIndex: 1000,
           transform: 'translateZ(0)',
           willChange: 'transform',
@@ -1099,13 +1099,13 @@ export const WorkoutForm = () => {
           transition: 'bottom 0.3s ease',
         }}
       >
-        <Button onClick={handleBack} style={{ height: 48, borderRadius: 12 }} className="flex-1">
+        <Button onClick={handleBack} style={{ height: 40, borderRadius: 8 }} className="flex-1">
           关闭
         </Button>
         <Button
           color="primary"
           onClick={onFinish}
-          style={{ height: 48, borderRadius: 12 }}
+          style={{ height: 40, borderRadius: 8 }}
           className="flex-1"
         >
           保存
