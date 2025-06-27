@@ -165,13 +165,13 @@ export const WorkoutItem = ({
                     color: '#666',
                     background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
                     borderColor: `${dateColor}22`,
-                    width: '140px',
+                    width: '130px',
                     overflow: 'visible',
                   }}
                 >
                   {/* 左上角角标悬浮在div外部 */}
                   <span
-                    className="absolute -left-2 -top-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold shadow"
+                    className="absolute -left-2.5 -top-2.5 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold shadow"
                     style={{
                       background: `linear-gradient(90deg, ${dateColor}99, ${dateColor}66)`,
                       color: '#fff',
@@ -187,7 +187,6 @@ export const WorkoutItem = ({
                       whiteSpace: 'nowrap',
                       display: 'inline-block',
                       maxWidth: '100%',
-                      marginLeft: '5px',
                     }}
                   >
                     {_.isEmpty(workout.unit) || workout.unit === '自重'
