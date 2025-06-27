@@ -869,6 +869,27 @@ export const WorkoutForm = () => {
               {groups.map((group, idx) => (
                 <SwipeAction
                   key={idx}
+                  leftActions={[
+                    {
+                      key: 'delete',
+                      text: (
+                        <div className="flex flex-col items-center">
+                          <span>删除</span>
+                        </div>
+                      ),
+                      color: 'danger',
+                      onClick: () => {
+                        if (!group.isNew) {
+                          Dialog.confirm({
+                            content: '确定要删除这组训练记录吗？',
+                            onConfirm: () => handleRemoveGroup(idx),
+                          });
+                        } else {
+                          handleRemoveGroup(idx);
+                        }
+                      },
+                    },
+                  ]}
                   rightActions={[
                     {
                       key: 'clearTimer',
@@ -928,15 +949,6 @@ export const WorkoutForm = () => {
                         </span>
                         <span className="text-[var(--adm-color-text)]">组</span>
                       </div>
-                      <Button
-                        color="danger"
-                        fill="none"
-                        size="mini"
-                        onClick={() => handleRemoveGroup(idx)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <DeleteOutline />
-                      </Button>
                     </div>
                     <div className="flex gap-3">
                       <div className="flex flex-col flex-[2]">
