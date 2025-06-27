@@ -64,6 +64,12 @@ export const WorkoutForm = () => {
   const [unitSelectVisible, setUnitSelectVisible] = useState(false);
   const [remark, setRemark] = useState<string>('');
 
+  // 备注展开/收起状态，初始值根据remark内容
+  const [remarkExpanded, setRemarkExpanded] = useState(!!remark);
+  useEffect(() => {
+    if (remark) setRemarkExpanded(true);
+  }, [remark]);
+
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
 
@@ -752,15 +758,33 @@ export const WorkoutForm = () => {
                   </div>
                 </Form.Item>
               </div>
-              <Form.Item label="备注" className="mt-2">
-                <textarea
-                  className="w-full min-h-[60px] max-h-[120px] px-3 py-2 rounded-lg border-2 border-solid border-gray-400 bg-white resize-none"
-                  placeholder="请输入备注"
-                  value={remark}
-                  onChange={e => setRemark(e.target.value)}
-                  maxLength={200}
-                />
-              </Form.Item>
+            </div>
+
+            {/* 备注单独卡片 */}
+            <div className="mb-2 p-2 rounded-xl bg-white shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium">备注</span>
+                <button
+                  type="button"
+                  className="text-primary text-sm focus:outline-none"
+                  onClick={() => setRemarkExpanded(expanded => !expanded)}
+                >
+                  {remarkExpanded ? '收起' : '展开'}
+                </button>
+              </div>
+              {remarkExpanded ? (
+                <Form.Item className="mt-0">
+                  <textarea
+                    className="w-full min-h-[60px] max-h-[120px] px-3 py-2 rounded-lg border-2 border-solid border-gray-400 bg-white resize-none"
+                    placeholder="请输入备注"
+                    value={remark}
+                    onChange={e => setRemark(e.target.value)}
+                    maxLength={200}
+                  />
+                </Form.Item>
+              ) : (
+                remark && <div className="text-gray-500 text-sm px-1 truncate">{remark}</div>
+              )}
             </div>
 
             {/* 重量单位卡片 */}
