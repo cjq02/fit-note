@@ -56,6 +56,13 @@ export class CreateWorkoutDto {
   @Min(0)
     trainingTime?: number;
 
+  /**
+   * 备注
+   * @type {string} 备注信息
+   */
+  @IsString()
+    remark?: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => WorkoutGroupDto)

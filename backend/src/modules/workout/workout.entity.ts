@@ -46,6 +46,13 @@ export class Workout {
     @Prop({ type: Number, default: 0 })
       trainingTime: number;
 
+    @Prop({ required: false })
+      /**
+       * 备注
+       * @type {string} 备注信息
+       */
+      remark?: string;
+
     @Prop({ default: Date.now })
       createdAt: Date;
 
