@@ -1,20 +1,10 @@
 /// <reference lib="dom" />
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Button,
-  CalendarPicker,
-  Dialog,
-  Form,
-  Radio,
-  SwipeAction,
-  Toast,
-  Popup,
-} from 'antd-mobile';
+import { Button, CalendarPicker, Dialog, Form, SwipeAction, Toast, Popup } from 'antd-mobile';
 import { AddOutline, DeleteOutline, HistogramOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import type React from 'react';
 
 import type {
   ApiResponse,
@@ -713,6 +703,8 @@ export const WorkoutForm = () => {
         overflow: 'hidden',
       }}
     >
+      {/* 页面内样式，设置.adm-list-item背景色为白色 */}
+      <style>{`.adm-list-item { background-color: #fff !important; }`}</style>
       <div
         className="h-full overflow-y-auto overscroll-contain"
         style={{
@@ -729,7 +721,7 @@ export const WorkoutForm = () => {
                 <Form.Item label="训练日期" style={{ flex: 1 }}>
                   <div
                     onClick={() => setDateVisible(true)}
-                    className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors"
+                    className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border-2 border-solid border-gray-400 bg-white active:bg-[var(--adm-color-fill-light)] transition-colors"
                   >
                     {dayjs(date).format('YYYY-MM-DD')}
                   </div>
@@ -744,7 +736,7 @@ export const WorkoutForm = () => {
                   />
                 </Form.Item>
                 <Form.Item label="项目名称" style={{ flex: 1 }}>
-                  <div className="h-[40px] leading-[40px] pl-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[10em]">
+                  <div className="h-[40px] leading-[40px] pl-3 rounded-lg border-2 border-solid border-gray-400 bg-white text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[10em]">
                     {decodeURIComponent(projectName || '') ||
                       workoutData?.data.projectName ||
                       '新训练'}
@@ -752,13 +744,12 @@ export const WorkoutForm = () => {
                 </Form.Item>
               </div>
               <Form.Item label="备注" className="mt-2">
-                <input
-                  type="text"
-                  className="w-full h-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white"
+                <textarea
+                  className="w-full min-h-[60px] max-h-[120px] px-3 py-2 rounded-lg border-2 border-solid border-gray-400 bg-white resize-none"
                   placeholder="请输入备注"
                   value={remark}
                   onChange={e => setRemark(e.target.value)}
-                  maxLength={100}
+                  maxLength={200}
                 />
               </Form.Item>
             </div>
@@ -827,6 +818,30 @@ export const WorkoutForm = () => {
                       onChange={val => {
                         setUnit(val as string);
                       }}
+                      triggerRender={(selectedLabel, { onClick }) => (
+                        <div
+                          className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border-2 border-solid border-gray-400 bg-white active:bg-[var(--adm-color-fill-light)] transition-colors cursor-pointer flex items-center justify-between"
+                          onClick={onClick}
+                        >
+                          <span>{selectedLabel || '请选择'}</span>
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            style={{ marginLeft: 8 }}
+                          >
+                            <path
+                              d="M5 8L10 13L15 8"
+                              stroke="var(--adm-color-primary)"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                      )}
                     />
                   </div>
                   <div className="flex-1">
