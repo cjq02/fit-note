@@ -762,8 +762,8 @@ export const WorkoutForm = () => {
 
             {/* 备注单独卡片 */}
             <div className="mb-2 p-2 rounded-xl bg-white shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">备注</span>
+              <div className="flex items-center justify-between mb-2 pl-3">
+                <span className="text-[var(--adm-color-text)] text-base font-medium">备注</span>
                 <button
                   type="button"
                   className="text-primary text-sm focus:outline-none"
@@ -773,7 +773,7 @@ export const WorkoutForm = () => {
                 </button>
               </div>
               {remarkExpanded ? (
-                <Form.Item className="mt-0">
+                <Form.Item className="mt-0 pl-3">
                   <textarea
                     className="w-full min-h-[60px] max-h-[120px] px-3 py-2 rounded-lg border-2 border-solid border-gray-400 bg-white resize-none"
                     placeholder="请输入备注"
@@ -783,7 +783,7 @@ export const WorkoutForm = () => {
                   />
                 </Form.Item>
               ) : (
-                remark && <div className="text-gray-500 text-sm px-1 truncate">{remark}</div>
+                remark && <div className="text-gray-500 text-sm px-1 truncate pl-3">{remark}</div>
               )}
             </div>
 
@@ -844,7 +844,9 @@ export const WorkoutForm = () => {
               <div className="mb-2 p-4 rounded-xl bg-white shadow-sm">
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <span className="text-[var(--adm-color-text)] block mb-2">训练单位</span>
+                    <span className="text-[var(--adm-color-text)] text-base block mb-2">
+                      训练单位
+                    </span>
                     <PageSelect
                       options={UNIT_OPTIONS}
                       value={unit}
@@ -878,7 +880,9 @@ export const WorkoutForm = () => {
                     />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[var(--adm-color-text)] block mb-2">训练时间</span>
+                    <span className="text-[var(--adm-color-text)] text-base block mb-2">
+                      训练时间
+                    </span>
                     <div className="mb-2 h-[40px] leading-[40px] px-0 rounded-lg border-2 border-solid border-gray-400 bg-white flex items-center justify-between overflow-hidden">
                       <span className="flex-1 px-3 text-black">{formatTime(trainingTime)}</span>
                       <Button
