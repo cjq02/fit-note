@@ -704,7 +704,16 @@ export const WorkoutForm = () => {
       }}
     >
       {/* 页面内样式，设置.adm-list-item背景色为白色 */}
-      <style>{`.adm-list-item { background-color: #fff !important; padding-left: 5px !important; } .adm-list-item-content { padding-right: 0 !important; }`}</style>
+      <style>{`
+        .adm-list-item {
+          background-color: #fff !important;
+          padding-left: 5px !important;
+        }
+        .adm-list-item-content {
+          padding-right: 0 !important;
+          border-top: none;
+        }
+      `}</style>
       <div
         className="h-full overflow-y-auto overscroll-contain"
         style={{
