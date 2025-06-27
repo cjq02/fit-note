@@ -846,17 +846,18 @@ export const WorkoutForm = () => {
                   </div>
                   <div className="flex-1">
                     <span className="text-[var(--adm-color-text)] block mb-2">训练时间</span>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-[32px] leading-[32px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-[var(--adm-color-fill-light)] text-[var(--adm-color-text-light)]">
+                    <div className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border-2 border-solid border-gray-400 bg-white flex items-center justify-between">
+                      <span className="text-[var(--adm-color-text-light)]">
                         {formatTime(trainingTime)}
-                      </div>
+                      </span>
                       <Button
                         size="small"
                         color={isTraining ? 'warning' : 'primary'}
                         onClick={handleStartTraining}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap ml-2"
+                        style={{ height: 32 }}
                       >
-                        {isTraining ? '暂停训练' : trainingTime > 0 ? '继续训练' : '开始训练'}
+                        {isTraining ? '暂停' : trainingTime > 0 ? '继续' : '开始'}
                       </Button>
                     </div>
                   </div>
