@@ -72,6 +72,7 @@ export const WorkoutForm = () => {
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<any>(null);
   const [unitSelectVisible, setUnitSelectVisible] = useState(false);
+  const [remark, setRemark] = useState<string>('');
 
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
@@ -141,6 +142,7 @@ export const WorkoutForm = () => {
           restTime: group.restTime || 0,
         })),
       );
+      setRemark(workout.remark || '');
     }
   }, [workoutData, dateWorkoutData, id]);
 
@@ -501,6 +503,7 @@ export const WorkoutForm = () => {
         seqNo: g.seqNo,
         restTime: g.restTime || 0,
       })),
+      remark,
     };
 
     console.log('提交 workout 数据：', data);
@@ -718,10 +721,10 @@ export const WorkoutForm = () => {
           paddingBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
         }}
       >
-        <div className="p-4 mb-6">
+        <div className="p-2 mb-6">
           <Form form={form} layout="vertical" footer={null}>
             {/* 日期和项目名称卡片 */}
-            <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
+            <div className="mb-2 p-2 rounded-xl bg-white shadow-sm">
               <div className="flex gap-3">
                 <Form.Item label="训练日期" style={{ flex: 1 }}>
                   <div
@@ -748,6 +751,16 @@ export const WorkoutForm = () => {
                   </div>
                 </Form.Item>
               </div>
+              <Form.Item label="备注" className="mt-2">
+                <input
+                  type="text"
+                  className="w-full h-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white"
+                  placeholder="请输入备注"
+                  value={remark}
+                  onChange={e => setRemark(e.target.value)}
+                  maxLength={100}
+                />
+              </Form.Item>
             </div>
 
             {/* 重量单位卡片 */}
@@ -804,7 +817,7 @@ export const WorkoutForm = () => {
                 },
               ]}
             >
-              <div className="mb-4 p-4 rounded-xl bg-white shadow-sm">
+              <div className="mb-2 p-4 rounded-xl bg-white shadow-sm">
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <span className="text-[var(--adm-color-text)] block mb-2">训练单位</span>
@@ -837,7 +850,7 @@ export const WorkoutForm = () => {
             </SwipeAction>
 
             {/* 训练组列表 */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               {groups.map((group, idx) => (
                 <SwipeAction
                   key={idx}

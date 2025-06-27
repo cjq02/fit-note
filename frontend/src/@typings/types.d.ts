@@ -17,6 +17,7 @@ export interface Workout {
   groups: WorkoutGroup[];
   createdAt: string;
   updatedAt: string;
+  remark?: string;
 }
 
 // 训练组类型
@@ -35,11 +36,13 @@ export interface CreateWorkoutRequest {
   unit: string;
   trainingTime?: number;
   groups: WorkoutGroup[];
+  remark?: string;
 }
 
 // 更新训练记录的请求参数
 export interface UpdateWorkoutRequest extends CreateWorkoutRequest {
   id: string;
+  remark?: string;
 }
 
 /**
