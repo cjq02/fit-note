@@ -165,7 +165,7 @@ export const WorkoutItem = ({
                     color: '#666',
                     background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
                     borderColor: `${dateColor}22`,
-                    width: '130px',
+                    width: '140px',
                     overflow: 'visible',
                   }}
                 >

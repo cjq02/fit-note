@@ -887,7 +887,7 @@ export const WorkoutForm = () => {
                       <span className="flex-1 px-3 text-black">{formatTime(trainingTime)}</span>
                       <Button
                         size="small"
-                        color={isTraining ? 'danger' : 'success'}
+                        color={isTraining ? 'danger' : 'primary'}
                         onClick={handleStartTraining}
                         className="h-[40px] min-w-[60px] rounded-none rounded-r-lg border-l-0 shadow-none text-base"
                         style={{

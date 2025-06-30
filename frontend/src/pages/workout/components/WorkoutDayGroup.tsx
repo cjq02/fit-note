@@ -23,21 +23,11 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <div
-          className="w-1.5 h-4 rounded-full"
-          style={{
-            background: `linear-gradient(to bottom, ${dateColor}, ${dateColor}99)`,
-          }}
-        />
+        <div className="w-1.5 h-4 rounded-full" />
         <div className="text-[15px] font-medium tracking-wide" style={{ color: dateColor }}>
           {date}
         </div>
-        <div
-          className="flex-1 h-[1px]"
-          style={{
-            background: `linear-gradient(to right, ${dateColor}33, transparent)`,
-          }}
-        />
+        <div className="flex-1 h-[1px]" />
       </div>
       <List>
         {workouts.map(workout => (
