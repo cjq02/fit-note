@@ -184,7 +184,7 @@ export const ProjectList = (): React.ReactElement => {
             hover:-translate-y-0.5"
           onClick={() => handleCardClick(project)}
         >
-          <div className="p-4">
+          <div className="p-1">
             <div className="flex items-start gap-3">
               {/* 项目图标/封面 */}
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-md">
@@ -194,7 +194,7 @@ export const ProjectList = (): React.ReactElement => {
               {/* 项目信息 */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <div className="font-medium text-lg text-gray-800 truncate">{project.name}</div>
+                  <div className="font-medium text-base text-gray-800 truncate">{project.name}</div>
                   {project.todayWorkoutId && (
                     <Tag color="warning" className="flex items-center gap-1">
                       <StarOutline className="text-xs" />
