@@ -249,10 +249,10 @@ export const ProjectList = (): React.ReactElement => {
       style={{ overflow: 'hidden' }}
     >
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="flex p-4 max-w-2xl mx-auto">
+        <div className="flex p-2 max-w-2xl mx-auto">
           {/* 左侧类别筛选栏 */}
           <div
-            className="flex flex-col items-center py-4 px-2 bg-white/80 rounded-2xl shadow-md mr-4"
+            className="flex flex-col items-center py-4 px-2 bg-white/80 rounded-2xl shadow-md mr-2"
             style={{ minWidth: 80 }}
           >
             {CATEGORY_OPTIONS_WITH_ALL.map(opt => (
@@ -305,12 +305,11 @@ export const ProjectList = (): React.ReactElement => {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4">{filteredProjects.map(renderProjectCard)}</div>
+              <div className="space-y-2">{filteredProjects.map(renderProjectCard)}</div>
             )}
           </div>
         </div>
       </PullToRefresh>
-
       <FloatingBubble
         style={{
           '--initial-position-bottom': '100px',
