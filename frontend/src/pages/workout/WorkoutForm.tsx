@@ -711,11 +711,11 @@ export const WorkoutForm = () => {
     >
       {/* 页面内样式，设置.adm-list-item背景色为白色 */}
       <style>{`
-        .adm-list-item {
+        .workout-form .adm-list-item {
           background-color: #fff !important;
           padding-left: 5px !important;
         }
-        .adm-list-item-content {
+        .workout-form .adm-list-item-content {
           padding-right: 0 !important;
           border-top: none;
         }
@@ -729,7 +729,7 @@ export const WorkoutForm = () => {
         }}
       >
         <div className="p-2 mb-6">
-          <Form form={form} layout="vertical" footer={null}>
+          <Form form={form} layout="vertical" footer={null} className="workout-form">
             {/* 日期和项目名称卡片 */}
             <div className="mb-2 p-2 rounded-xl bg-white shadow-sm">
               <div className="flex gap-3">
