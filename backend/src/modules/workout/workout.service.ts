@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef 
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import type { Project as _Project } from '../project/project.entity';
 import { ProjectService } from '../project/project.service';
@@ -641,5 +641,15 @@ export class WorkoutService {
       data: groupedWorkouts,
       total: workouts.length
     };
+  }
+
+  // 查找某项目最近一次训练
+  async findLatestByProject(projectId: string, userId: string): Promise<Workout | null> {
+    console.log('findLatestByProject params:', { projectId, userId });
+    const result = await this.workoutModel.findOne({
+      projectId,
+      userId
+    }).sort({ date: -1 }).exec();
+    return result;
   }
 }

@@ -26,25 +26,30 @@ export class ProjectService {
   // 获取所有训练项目
   // @param {string} userId - 用户ID
   // @returns {Promise<Project[]>} 返回所有训练项目，每个项目包含当天的训练记录ID（如果存在）
-  async findAll(userId: string): Promise<(Project & { todayWorkoutId?: string })[]> {
+  async findAll(userId: string): Promise<(Project & { todayWorkoutId?: string, latestWorkoutDate?: string })[]> {
     // 获取当前用户的所有项目
     const projects = await this.projectModel.find({ userId }).sort({ seqNo: 1, createdAt: -1 }).exec();
 
     // 获取今天的日期字符串
     const today = getTodayString();
-    console.log('today', today);
+    /* console.log('today', today); */
 
-    // 为每个项目查询今天的训练记录
+    // 为每个项目查询今天的训练记录和最近训练日期
     const projectsWithWorkout = await Promise.all(
       projects.map(async (project) => {
         const todayWorkout = await this.workoutService.findByDateAndProject(
           today,
-          project.id,
+          project._id.toString(),
+          userId
+        ) as WorkoutWithId | null;
+        const latestWorkout = await this.workoutService.findLatestByProject(
+          project._id.toString(),
           userId
         ) as WorkoutWithId | null;
         return {
           ...project.toObject(),
           todayWorkoutId: todayWorkout?.id,
+          latestWorkoutDate: latestWorkout?.date || null,
         };
       })
     );
