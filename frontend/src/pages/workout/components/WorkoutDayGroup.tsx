@@ -23,11 +23,21 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
   return (
     <div className="day-group">
       <div className="flex items-center gap-2 m-2">
-        <div className="w-1.5 h-4 rounded-full" />
+        <div
+          className="w-1.5 h-4 rounded-full"
+          style={{
+            background: `linear-gradient(to bottom, ${dateColor}, ${dateColor}99)`,
+          }}
+        />
         <div className="text-[15px] font-medium tracking-wide" style={{ color: dateColor }}>
           {date}
         </div>
-        <div className="flex-1 h-[1px]" />
+        <div
+          className="flex-1 h-[1px]"
+          style={{
+            background: `linear-gradient(to right, ${dateColor}33, transparent)`,
+          }}
+        />
       </div>
       {/* 覆盖adm-list-item-content的边框 */}
       <style>{`
@@ -36,7 +46,7 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
         }
       `}</style>
       <List>
-        <div className="py-1 bg-white">
+        <div className="py-2 bg-white">
           {workouts.map(workout => (
             <WorkoutItem
               workout={workout}
