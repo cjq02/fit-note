@@ -22,23 +22,30 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
 
   return (
     <div className="day-group">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 m-2">
         <div className="w-1.5 h-4 rounded-full" />
         <div className="text-[15px] font-medium tracking-wide" style={{ color: dateColor }}>
           {date}
         </div>
         <div className="flex-1 h-[1px]" />
       </div>
+      {/* 覆盖adm-list-item-content的边框 */}
+      <style>{`
+        .adm-list-item-content {
+          border: none !important;
+        }
+      `}</style>
       <List>
-        {workouts.map(workout => (
-          <WorkoutItem
-            key={workout.id}
-            workout={workout}
-            workouts={workouts}
-            onDeleteSuccess={onDeleteSuccess}
-            dateColor={dateColor}
-          />
-        ))}
+        <div className="py-1 bg-white">
+          {workouts.map(workout => (
+            <WorkoutItem
+              workout={workout}
+              workouts={workouts}
+              onDeleteSuccess={onDeleteSuccess}
+              dateColor={dateColor}
+            />
+          ))}
+        </div>
       </List>
     </div>
   );

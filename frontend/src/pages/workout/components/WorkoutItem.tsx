@@ -105,7 +105,7 @@ export const WorkoutItem = ({
   return (
     <SwipeAction rightActions={rightActions}>
       <List.Item
-        className="[&_.adm-list-item-content-main]:!py-1 border-none"
+        className="[&_.adm-list-item-content-main]:!py-1"
         style={{
           backgroundColor: '#fff',
         }}
