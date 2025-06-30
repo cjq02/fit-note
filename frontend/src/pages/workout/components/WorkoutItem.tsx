@@ -124,7 +124,7 @@ export const WorkoutItem = ({
           <div className="flex flex-col gap-3">
             {/* 项目名称和总训练量 */}
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-1 items-center gap-2 mr-2">
                 <div
                   className="w-1 h-6 rounded-full"
                   style={{
