@@ -107,7 +107,7 @@ export const WorkoutItem = ({
       <List.Item
         className="[&_.adm-list-item-content-main]:!py-1 border-none"
         style={{
-          backgroundColor: 'transparent',
+          backgroundColor: '#fff',
         }}
       >
         <Card
