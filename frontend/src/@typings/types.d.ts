@@ -66,6 +66,7 @@ export interface Project {
   todayWorkoutId: string | null; // 当天的训练记录ID，如果没有则为null
   createdAt: string;
   updatedAt: string;
+  latestWorkoutDate: string | null; // 最近训练日期
 }
 
 /**

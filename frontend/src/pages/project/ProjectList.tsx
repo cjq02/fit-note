@@ -209,17 +209,35 @@ export const ProjectList = (): React.ReactElement => {
                   </div>
                 )}
 
-                {/* 项目统计信息 */}
-                <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
-                  <div className="flex items-center gap-1">
-                    <ClockCircleOutline className="text-base" />
-                    <span>创建于: {new Date(project.createdAt).toLocaleDateString()}</span>
-                  </div>
-                  {project.updatedAt !== project.createdAt && (
-                    <div className="flex items-center gap-1">
-                      <StarOutline className="text-base" />
-                      <span>更新于: {new Date(project.updatedAt).toLocaleDateString()}</span>
-                    </div>
+                {/* 训练天数提示 */}
+                <div className="mt-2 text-xs">
+                  {project.latestWorkoutDate ? (
+                    (() => {
+                      const today = new Date();
+                      const latest = new Date(project.latestWorkoutDate);
+                      // 只比较年月日
+                      const todayStr = today.toISOString().slice(0, 10);
+                      const latestStr = latest.toISOString().slice(0, 10);
+                      let diffDays = Math.floor(
+                        (today.setHours(0, 0, 0, 0) - latest.setHours(0, 0, 0, 0)) /
+                          (1000 * 60 * 60 * 24),
+                      );
+                      if (latestStr === todayStr) {
+                        return <span className="text-green-600 font-bold">今天已训练</span>; // 绿色
+                      } else if (diffDays === 1) {
+                        return <span className="text-blue-600 font-bold">昨天训练</span>; // 蓝色
+                      } else if (diffDays > 1 && diffDays <= 5) {
+                        return (
+                          <span className="text-orange-500 font-bold">{`${diffDays}天前训练`}</span>
+                        ); // 橙色
+                      } else {
+                        return (
+                          <span className="text-red-500 font-bold">{`${diffDays}天前训练`}</span>
+                        ); // 红色
+                      }
+                    })()
+                  ) : (
+                    <span className="text-gray-400">暂无训练记录</span>
                   )}
                 </div>
 
