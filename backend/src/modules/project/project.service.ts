@@ -37,18 +37,15 @@ export class ProjectService {
     // 为每个项目查询今天的训练记录和最近训练日期
     const projectsWithWorkout = await Promise.all(
       projects.map(async (project) => {
-        const todayWorkout = await this.workoutService.findByDateAndProject(
-          today,
-          project._id.toString(),
-          userId
-        ) as WorkoutWithId | null;
         const latestWorkout = await this.workoutService.findLatestByProject(
           project._id.toString(),
           userId
         ) as WorkoutWithId | null;
+        // 判断是否为今天的训练
+        const todayWorkoutId = (latestWorkout && latestWorkout.date === today) ? latestWorkout.id : undefined;
         return {
           ...project.toObject(),
-          todayWorkoutId: todayWorkout?.id,
+          todayWorkoutId,
           latestWorkoutDate: latestWorkout?.date || null,
         };
       })
