@@ -49,6 +49,7 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
         <div className="py-2 bg-white">
           {workouts.map(workout => (
             <WorkoutItem
+              key={workout.id}
               workout={workout}
               workouts={workouts}
               onDeleteSuccess={onDeleteSuccess}
