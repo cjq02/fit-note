@@ -249,7 +249,7 @@ export const ProjectList = (): React.ReactElement => {
       style={{ overflow: 'hidden' }}
     >
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="flex p-2 max-w-2xl mx-auto">
+        <div className="flex pl-2 pt-2 max-w-2xl mx-auto">
           {/* 左侧类别筛选栏 */}
           <div
             className="flex flex-col items-center py-4 px-2 bg-white/80 rounded-2xl shadow-md mr-2"
@@ -277,7 +277,7 @@ export const ProjectList = (): React.ReactElement => {
             ))}
           </div>
           {/* 右侧项目列表 */}
-          <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+          <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 120px)' }}>
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map(i => (

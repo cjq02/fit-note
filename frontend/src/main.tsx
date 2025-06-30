@@ -8,6 +8,7 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 import zhCN from 'antd-mobile/es/locales/zh-CN';
 import './index.css';
+import './styles/global.css';
 
 // 创建 QueryClient 实例
 const queryClient = new QueryClient({
