@@ -5,7 +5,6 @@ import {
   Dialog,
   ErrorBlock,
   FloatingBubble,
-  Popup,
   PullToRefresh,
   Skeleton,
   SwipeAction,
@@ -16,9 +15,8 @@ import { AddOutline, ClockCircleOutline, StarOutline } from 'antd-mobile-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import type { CreateProjectRequest, Project } from '@/@typings/types.d.ts';
-import { createProject, deleteProject, getProjects, updateProject } from '@/api/project.api';
-import ProjectForm from './ProjectForm';
+import type { Project } from '@/@typings/types.d.ts';
+import { deleteProject, getProjects } from '@/api/project.api';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 
 /**
@@ -29,8 +27,6 @@ import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 export const ProjectList = (): React.ReactElement => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [showForm, setShowForm] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
   const isFirstLoad = useRef(true);
 
   // 获取训练项目列表
@@ -119,40 +115,6 @@ export const ProjectList = (): React.ReactElement => {
       navigate(`/project/edit/${project.id}`);
     },
     [navigate],
-  );
-
-  /**
-   * 处理表单提交
-   *
-   * @param {CreateProjectRequest} data - 项目表单数据
-   */
-  const handleSubmit = useCallback(
-    async (data: CreateProjectRequest) => {
-      try {
-        if (editingProject) {
-          await updateProject({ ...data, id: editingProject.id });
-          Toast.show({
-            icon: 'success',
-            content: '更新成功',
-          });
-        } else {
-          await createProject(data);
-          Toast.show({
-            icon: 'success',
-            content: '创建成功',
-          });
-        }
-        setShowForm(false);
-        setEditingProject(null);
-        queryClient.invalidateQueries({ queryKey: ['projects'] });
-      } catch (error) {
-        Toast.show({
-          icon: 'fail',
-          content: '操作失败',
-        });
-      }
-    },
-    [editingProject, queryClient],
   );
 
   /**
