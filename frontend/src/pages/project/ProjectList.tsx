@@ -11,7 +11,14 @@ import {
   Tag,
   Toast,
 } from 'antd-mobile';
-import { AddOutline, ClockCircleOutline, StarOutline } from 'antd-mobile-icons';
+import {
+  AddOutline,
+  ClockCircleOutline,
+  StarOutline,
+  CheckCircleOutline,
+  CloseCircleOutline,
+  MinusCircleOutline,
+} from 'antd-mobile-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -210,7 +217,7 @@ export const ProjectList = (): React.ReactElement => {
                 )}
 
                 {/* 训练天数提示 */}
-                <div className="mt-2 text-xs">
+                <div className="mt-2 text-xs flex items-center gap-1">
                   {project.latestWorkoutDate ? (
                     (() => {
                       const today = new Date();
@@ -223,21 +230,40 @@ export const ProjectList = (): React.ReactElement => {
                           (1000 * 60 * 60 * 24),
                       );
                       if (latestStr === todayStr) {
-                        return <span className="text-green-600 font-bold">今天已训练</span>; // 绿色
+                        return (
+                          <span className="text-green-600 font-bold flex items-center gap-1">
+                            <CheckCircleOutline className="text-base" />
+                            今天已训练
+                          </span>
+                        );
                       } else if (diffDays === 1) {
-                        return <span className="text-blue-600 font-bold">昨天训练</span>; // 蓝色
+                        return (
+                          <span className="text-blue-600 font-bold flex items-center gap-1">
+                            <ClockCircleOutline className="text-base" />
+                            昨天训练
+                          </span>
+                        );
                       } else if (diffDays > 1 && diffDays <= 5) {
                         return (
-                          <span className="text-orange-500 font-bold">{`${diffDays}天前训练`}</span>
-                        ); // 橙色
+                          <span className="text-orange-500 font-bold flex items-center gap-1">
+                            <ClockCircleOutline className="text-base" />
+                            {`${diffDays}天前训练`}
+                          </span>
+                        );
                       } else {
                         return (
-                          <span className="text-red-500 font-bold">{`${diffDays}天前训练`}</span>
-                        ); // 红色
+                          <span className="text-red-500 font-bold flex items-center gap-1">
+                            <CloseCircleOutline className="text-base" />
+                            {`${diffDays}天前训练`}
+                          </span>
+                        );
                       }
                     })()
                   ) : (
-                    <span className="text-gray-400">暂无训练记录</span>
+                    <span className="text-gray-400 flex items-center gap-1">
+                      <MinusCircleOutline className="text-base" />
+                      暂无训练记录
+                    </span>
                   )}
                 </div>
 
