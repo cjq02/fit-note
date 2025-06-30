@@ -157,13 +157,12 @@ export const WorkoutList = () => {
       <div className="flex-1 overflow-y-auto px-4 pt-4">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
-          <div key={date} className="mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <WorkoutDayGroup
-              date={date}
-              workouts={workouts}
-              onDeleteSuccess={handleDeleteSuccess}
-            />
-          </div>
+          <WorkoutDayGroup
+            key={date}
+            date={date}
+            workouts={workouts}
+            onDeleteSuccess={handleDeleteSuccess}
+          />
         ))}
 
         {/* 无限滚动加载 */}

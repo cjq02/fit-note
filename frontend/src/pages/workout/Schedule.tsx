@@ -137,29 +137,27 @@ export const Schedule = () => {
         </Card>
 
         {/* 训练计划列表 */}
-        <Card title="训练记录" className="mb-4">
-          {loading ? (
-            <List.Item>加载中...</List.Item>
-          ) : (
-            <>
-              {getSelectedDateSchedule().length > 0 ? (
-                <WorkoutDayGroup
-                  date={dayjs(selectedDate).format('YYYY-MM-DD')}
-                  workouts={getSelectedDateSchedule()}
-                  onDeleteSuccess={() => {
-                    // 删除成功后刷新数据
-                    fetchWorkoutData(selectedYearMonth.year, selectedYearMonth.month);
-                  }}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                  <object data={emptySvg} type="image/svg+xml" className="w-20 h-20 opacity-40" />
-                  <p className="text-base">暂无训练记录</p>
-                </div>
-              )}
-            </>
-          )}
-        </Card>
+        {loading ? (
+          <List.Item>加载中...</List.Item>
+        ) : (
+          <>
+            {getSelectedDateSchedule().length > 0 ? (
+              <WorkoutDayGroup
+                date={dayjs(selectedDate).format('YYYY-MM-DD')}
+                workouts={getSelectedDateSchedule()}
+                onDeleteSuccess={() => {
+                  // 删除成功后刷新数据
+                  fetchWorkoutData(selectedYearMonth.year, selectedYearMonth.month);
+                }}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+                <object data={emptySvg} type="image/svg+xml" className="w-20 h-20 opacity-40" />
+                <p className="text-base">暂无训练记录</p>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
   const dateColor = generateColorFromDate(date);
 
   return (
-    <div className="day-group">
+    <div className="day-group mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
       <div className="flex items-center gap-2 m-2">
         <div
           className="w-1.5 h-4 rounded-full"
