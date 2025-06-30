@@ -214,12 +214,6 @@ export const ProjectList = (): React.ReactElement => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <div className="font-medium text-base text-gray-800 truncate">{project.name}</div>
-                  {project.todayWorkoutId && (
-                    <Tag color="warning" className="flex items-center gap-1">
-                      <StarOutline className="text-xs" />
-                      今日已训练
-                    </Tag>
-                  )}
                 </div>
 
                 {project.description && (
