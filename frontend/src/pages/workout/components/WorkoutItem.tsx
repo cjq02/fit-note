@@ -104,7 +104,12 @@ export const WorkoutItem = ({
 
   return (
     <SwipeAction rightActions={rightActions}>
-      <List.Item className="[&_.adm-list-item-content-main]:!py-1">
+      <List.Item
+        className="[&_.adm-list-item-content-main]:!py-1 border-none"
+        style={{
+          backgroundColor: 'transparent',
+        }}
+      >
         <Card
           className="w-full transition-all duration-200 active:scale-[0.98]"
           style={{
@@ -112,7 +117,6 @@ export const WorkoutItem = ({
             background: `linear-gradient(135deg, ${dateColor}11 0%, ${dateColor}08 100%)`,
             backdropFilter: 'blur(10px)',
             marginBottom: '2px',
-            boxShadow: `0 4px 20px ${dateColor}22`,
             border: `1px solid ${dateColor}22`,
           }}
           onClick={() => handleEdit(workout.id)}
