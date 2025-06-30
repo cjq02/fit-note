@@ -152,6 +152,18 @@ export const ProjectList = (): React.ReactElement => {
     ? projects.filter(p => p.category === selectedCategory)
     : projects;
 
+  // 类别中文映射
+  const CATEGORY_LABEL_MAP: Record<string, string> = {
+    Chest: '胸',
+    Back: '背',
+    Shoulders: '肩',
+    Arms: '臂',
+    Legs: '腿',
+    Abs: '腹',
+    Cardio: '有氧',
+    Core: '核心',
+  };
+
   /**
    * 渲染项目卡片
    *
@@ -195,7 +207,7 @@ export const ProjectList = (): React.ReactElement => {
             <div className="flex items-start gap-3">
               {/* 项目图标/封面 */}
               <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-md">
-                {project.name.charAt(0).toUpperCase()}
+                {CATEGORY_LABEL_MAP[project.category] || project.category}
               </div>
 
               {/* 项目信息 */}
