@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import VConsole from 'vconsole';
 
 import { getUserInfo, changePassword } from '@/api/auth.api';
+import { PasswordDialog } from './components/PasswordDialog';
 
 /**
  * 个人中心页面组件
@@ -74,7 +75,6 @@ export const Profile = () => {
 
   // 修改密码弹窗相关
   const [showPwdDialog, setShowPwdDialog] = useState(false);
-  const [pwdForm, setPwdForm] = useState({ oldPassword: '', newPassword: '' });
   const [pwdLoading, setPwdLoading] = useState(false);
 
   // 处理修改密码
@@ -82,19 +82,16 @@ export const Profile = () => {
     setShowPwdDialog(true);
   };
 
-  const handlePwdSubmit = async () => {
-    if (!pwdForm.oldPassword || !pwdForm.newPassword) {
-      Toast.show({ content: '请填写完整信息' });
-      return;
-    }
+  // 封装后的提交逻辑
+  const handlePwdSubmit = async (form: { oldPassword: string; newPassword: string }) => {
     setPwdLoading(true);
     try {
-      await changePassword(pwdForm);
+      await changePassword(form);
       Toast.show({ icon: 'success', content: '密码修改成功' });
       setShowPwdDialog(false);
-      setPwdForm({ oldPassword: '', newPassword: '' });
     } catch (e: any) {
-      Toast.show({ icon: 'fail', content: e?.response?.data?.message || '修改失败' });
+      const msg = e?.response?.data?.message || e?.message || '修改失败';
+      Toast.show({ icon: 'fail', content: msg });
     } finally {
       setPwdLoading(false);
     }
@@ -292,35 +289,11 @@ export const Profile = () => {
         </div>
 
         {/* 修改密码弹窗 */}
-        <Dialog
+        <PasswordDialog
           visible={showPwdDialog}
-          title="修改密码"
-          content={
-            <Form layout="horizontal">
-              <Form.Item label="旧密码">
-                <Input
-                  type="password"
-                  value={pwdForm.oldPassword}
-                  onChange={val => setPwdForm(f => ({ ...f, oldPassword: val }))}
-                  placeholder="请输入旧密码"
-                />
-              </Form.Item>
-              <Form.Item label="新密码">
-                <Input
-                  type="password"
-                  value={pwdForm.newPassword}
-                  onChange={val => setPwdForm(f => ({ ...f, newPassword: val }))}
-                  placeholder="请输入新密码"
-                />
-              </Form.Item>
-            </Form>
-          }
+          loading={pwdLoading}
           onClose={() => setShowPwdDialog(false)}
-          closeOnAction
-          actions={[
-            { key: 'cancel', text: '取消' },
-            { key: 'ok', text: pwdLoading ? '处理中...' : '确定', onClick: handlePwdSubmit },
-          ]}
+          onSubmit={handlePwdSubmit}
         />
       </div>
     </div>

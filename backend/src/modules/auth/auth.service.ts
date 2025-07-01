@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -134,11 +134,11 @@ export class AuthService {
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.userModel.findById(userId);
     if (!user) {
-      throw new Error('用户不存在');
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
     }
     const isOldPasswordValid = await bcrypt.compare(dto.oldPassword, user.password);
     if (!isOldPasswordValid) {
-      throw new Error('旧密码错误');
+      throw new HttpException('旧密码错误', HttpStatus.BAD_REQUEST);
     }
     user.password = dto.newPassword;
     await user.save();
