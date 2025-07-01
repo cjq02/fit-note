@@ -98,22 +98,44 @@ const PageSelect: FC<PageSelectProps> = ({
       onClick={() => setVisible(true)}
     >
       <span>{selectedLabel || '请选择'}</span>
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ marginLeft: 8 }}
-      >
-        <path
-          d="M5 8L10 13L15 8"
-          stroke="#1677ff"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      {value ? (
+        <span
+          style={{ marginLeft: 8, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+          onClick={e => {
+            e.stopPropagation();
+            onChange('');
+          }}
+          title="清空"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="10" cy="10" r="9" stroke="#999" strokeWidth="1.5" fill="#f5f5f5" />
+            <path d="M7 7l6 6M13 7l-6 6" stroke="#999" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </span>
+      ) : (
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ marginLeft: 8 }}
+        >
+          <path
+            d="M5 8L10 13L15 8"
+            stroke="#1677ff"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
     </div>
   );
 
@@ -133,26 +155,6 @@ const PageSelect: FC<PageSelectProps> = ({
           padding: 0,
         }}
       >
-        {/* 清空按钮，仅单选且有选中时显示 */}
-        {!multiple && value && (
-          <div style={{ textAlign: 'right', padding: '12px 16px 0 16px' }}>
-            <button
-              style={{
-                color: '#1677ff',
-                background: 'none',
-                border: 'none',
-                fontSize: 15,
-                cursor: 'pointer',
-              }}
-              onClick={() => {
-                onChange('');
-                setVisible(false);
-              }}
-            >
-              清空
-            </button>
-          </div>
-        )}
         <div
           ref={listRef}
           style={{ maxHeight: '60vh', overflowY: 'auto', padding: 16 }}
