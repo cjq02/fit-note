@@ -17,6 +17,8 @@ changed_files=$(git diff --name-only $last_commit HEAD)
 need_build_frontend=false
 need_build_backend=false
 need_build_shared_utils=false
+need_rebuild_backend_image=false
+need_rebuild_frontend_image=false
 
 # 检查是否有 -f 参数（强制全量部署）
 force_all=false
@@ -44,6 +46,12 @@ for file in $changed_files; do
     need_build_shared_utils=true
     need_build_frontend=true
     need_build_backend=true
+  fi
+  if [[ $file == frontend/package.json ]]; then
+    need_rebuild_frontend_image=true
+  fi
+  if [[ $file == backend/package.json ]]; then
+    need_rebuild_backend_image=true
   fi
 done
 
@@ -88,9 +96,27 @@ build_shared_utils() {
     docker exec -it fit-note-frontend sh -c "cd /app/packages/shared-utils && pnpm run build"
 }
 
+# 定义函数：重建前端镜像
+docker_build_frontend() {
+    echo "重新构建前端 Docker 镜像..."
+    docker-compose -f docker-compose.prod.yml build frontend
+}
+
+# 定义函数：重建后端镜像
+docker_build_backend() {
+    echo "重新构建后端 Docker 镜像..."
+    docker-compose -f docker-compose.prod.yml build backend
+}
+
 # 按需构建
 if $need_build_shared_utils; then
     build_shared_utils
+fi
+if $need_rebuild_backend_image; then
+    docker_build_backend
+fi
+if $need_rebuild_frontend_image; then
+    docker_build_frontend
 fi
 if $need_build_backend; then
     build_backend
