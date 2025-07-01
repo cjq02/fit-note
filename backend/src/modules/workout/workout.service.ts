@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef 
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 
 import type { Project as _Project } from '../project/project.entity';
 import { ProjectService } from '../project/project.service';
@@ -163,6 +163,15 @@ export class WorkoutService {
     }
     if (query.projectId) {
       conditions.projectId = query.projectId;
+    } else if (query.category) {
+      // 按类别查找所有项目id
+      const projects = await this.projectService.findAll(query.userId);
+      const ids = projects.filter(p => p.category === query.category).map(p => p.id);
+      if (ids.length === 0) {
+        // 没有该类别的项目，直接返回空
+        return { data: {}, total: 0, page: query.page, pageSize: query.pageSize, hasMore: false };
+      }
+      conditions.projectId = { $in: ids };
     }
 
     // 1. 获取所有训练记录
@@ -300,10 +309,21 @@ export class WorkoutService {
     pageSize: number;
     hasMore: boolean;
   }> {
-    // 构建查询条件
     const conditions: Record<string, unknown> = { userId: query.userId };
+    if (query.date) {
+      conditions.date = query.date;
+    }
     if (query.projectId) {
       conditions.projectId = query.projectId;
+    } else if (query.category) {
+      // 按类别查找所有项目id
+      const projects = await this.projectService.findAll(query.userId);
+      const ids = projects.filter(p => p.category === query.category).map(p => p.id);
+      if (ids.length === 0) {
+        // 没有该类别的项目，直接返回空
+        return { data: [], total: 0, page: query.page, pageSize: query.pageSize, hasMore: false };
+      }
+      conditions.projectId = { $in: ids };
     }
 
     // 获取当前日期
@@ -449,9 +469,9 @@ export class WorkoutService {
     hasMore: boolean;
   }> {
     return this.findAllGroupByPeriod(query, {
-      dateFormat: 'YYYY-MM-DD',
-      periodsToShow: query.pageSize,
-      periodUnit: 'week'
+      dateFormat: 'GGGG-[W]WW',
+      periodsToShow: 12,
+      periodUnit: 'week',
     });
   }
 
@@ -470,8 +490,8 @@ export class WorkoutService {
   }> {
     return this.findAllGroupByPeriod(query, {
       dateFormat: 'YYYY-MM',
-      periodsToShow: query.pageSize,
-      periodUnit: 'month'
+      periodsToShow: 12,
+      periodUnit: 'month',
     });
   }
 

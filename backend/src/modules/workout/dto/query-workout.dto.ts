@@ -15,6 +15,10 @@ export class QueryWorkoutDto {
       userId?: string;
 
     @IsOptional()
+    @IsString()
+      category?: string;
+
+    @IsOptional()
     @IsNumber()
     @Type(() => Number)
     @Min(1)

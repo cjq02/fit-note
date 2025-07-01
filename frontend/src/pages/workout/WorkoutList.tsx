@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { ErrorBlock, InfiniteScroll } from 'antd-mobile';
 import { useEffect, useRef, useState } from 'react';
+import PageSelect from '@/components/PageSelect';
+import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
+import { getProjects } from '@/api/project.api';
 
 import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { getWorkoutsGroupByDate } from '@/api/workout.api';
@@ -20,16 +23,30 @@ export const WorkoutList = () => {
   const isFirstLoad = useRef(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // 新增：类别和项目筛选相关状态
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [projectOptions, setProjectOptions] = useState<
+    { label: string; value: string; category: string }[]
+  >([]);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [projectLoading, setProjectLoading] = useState(false);
+
   // 获取按日期分组的训练记录
   const { data: groupedWorkoutsData, refetch } = useQuery<
     ApiResponse<{ data: Record<string, WorkoutType[]>; total: number }>
   >({
-    queryKey: ['workouts', 'group-by-date', page],
+    queryKey: ['workouts', 'group-by-date', page, selectedProject, selectedCategory],
     queryFn: async () => {
-      const response = await getWorkoutsGroupByDate({
+      const params: any = {
         page,
         pageSize,
-      });
+      };
+      if (selectedProject) {
+        params.projectId = selectedProject;
+      } else if (selectedCategory) {
+        params.category = selectedCategory;
+      }
+      const response = await getWorkoutsGroupByDate(params);
       return response;
     },
     staleTime: 0, // 数据立即过期
@@ -90,11 +107,41 @@ export const WorkoutList = () => {
     loadMoreData();
   }, [page]);
 
+  // 获取所有项目并生成下拉选项
+  useEffect(() => {
+    setProjectLoading(true);
+    getProjects()
+      .then(res => {
+        let list = res.data || [];
+        // 按类别筛选
+        if (selectedCategory) {
+          list = list.filter((p: any) => p.category === selectedCategory);
+        }
+        const opts = list.map((p: any) => ({ label: p.name, value: p.id, category: p.category }));
+        setProjectOptions(opts);
+        // 如果当前选中的项目不在新列表中，重置
+        if (selectedProject && !opts.find(opt => opt.value === selectedProject)) {
+          setSelectedProject(null);
+        }
+      })
+      .finally(() => setProjectLoading(false));
+  }, [selectedCategory]);
+
+  // 监听类别或项目变化，自动查询
+  useEffect(() => {
+    // 只要类别或项目变化，重置页码并查询
+    setPage(1);
+    setAllWorkouts({});
+    if (isInitialized) {
+      setIsLoading(true);
+      refetch().finally(() => setIsLoading(false));
+    }
+  }, [selectedCategory, selectedProject]);
+
   /**
    * 处理删除成功后的刷新
    */
   const handleDeleteSuccess = async () => {
-    // 重置状态并重新加载
     setPage(1);
     setAllWorkouts({});
     isFirstLoad.current = true;
@@ -154,7 +201,42 @@ export const WorkoutList = () => {
 
   return (
     <div className="page-container from-gray-50 via-gray-50 to-gray-100">
-      <div className="flex-1 overflow-y-auto px-4 pt-4">
+      <div className="px-4 pt-4 pb-2 flex gap-2">
+        <PageSelect
+          options={CATEGORY_OPTIONS}
+          value={selectedCategory ?? ''}
+          onChange={val => {
+            setSelectedCategory(val as string);
+          }}
+          triggerRender={(selectedLabel, { onClick }) => (
+            <div className="flex-1 mr-2" onClick={onClick}>
+              <div className="h-10 flex items-center px-3 rounded-lg border border-gray-200 bg-white cursor-pointer">
+                <span className={selectedCategory ? 'text-gray-900' : 'text-gray-400'}>
+                  {selectedLabel || '请选择类别'}
+                </span>
+              </div>
+            </div>
+          )}
+        />
+        <PageSelect
+          options={projectOptions}
+          value={selectedProject ?? ''}
+          onChange={val => {
+            setSelectedProject(val as string);
+          }}
+          loading={projectLoading}
+          triggerRender={(selectedLabel, { onClick }) => (
+            <div className="flex-1" onClick={onClick}>
+              <div className="h-10 flex items-center px-3 rounded-lg border border-gray-200 bg-white cursor-pointer">
+                <span className={selectedProject ? 'text-gray-900' : 'text-gray-400'}>
+                  {selectedLabel || '请选择项目'}
+                </span>
+              </div>
+            </div>
+          )}
+        />
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 pt-2">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
           <WorkoutDayGroup
