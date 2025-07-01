@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Project } from '@/@typings/types.d.ts';
 import { deleteProject, getProjects } from '@/api/project.api';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
+import { generateColorFromCategory } from '@/utils/color.utils';
 
 /**
  * 训练项目列表页面组件
@@ -206,7 +207,10 @@ export const ProjectList = (): React.ReactElement => {
           <div className="p-1">
             <div className="flex items-start gap-3">
               {/* 项目图标/封面 */}
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-md">
+              <div
+                className="w-12 h-12 rounded-lg flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-md"
+                style={{ background: generateColorFromCategory(project.category) }}
+              >
                 {CATEGORY_LABEL_MAP[project.category] || project.category}
               </div>
 
