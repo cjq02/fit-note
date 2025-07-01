@@ -34,6 +34,9 @@ export class WorkoutService {
     if (!workout) {
       throw new NotFoundException('训练记录不存在');
     }
+    // 关联获取项目名称
+    const project = await this.projectService.findOne(workout.projectId.toString());
+    workout.projectName = project.name;
     return workout;
   }
 
