@@ -42,6 +42,7 @@ export const generateColorFromCategory = (category: string): string => {
     Shoulders: '#AB47BC', // 紫罗兰
     Arms: '#FFC107', // 金黄
     Legs: '#66BB6A', // 草绿
+    Glutes: '#FFB347', // 亮橙
     Abs: '#EF5350', // 鲜红
     Cardio: '#26C6DA', // 青蓝
     Core: '#8D6E63', // 深棕
