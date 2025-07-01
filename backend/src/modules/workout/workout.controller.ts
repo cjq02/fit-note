@@ -54,7 +54,6 @@ export class WorkoutController {
      * @param {string} pageSize - 每页数量
      * @param {string} date - 日期
      * @param {string} projectId - 项目ID
-     * @param {string} category - 分类
      * @param {Request} req - 请求对象
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周分组的训练记录和分页信息
      */
@@ -64,7 +63,6 @@ export class WorkoutController {
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
         @Query('projectId') projectId: string,
-        @Query('category') category: string,
         @Request() req
     ): Promise<{
         data: Array<{
@@ -81,7 +79,6 @@ export class WorkoutController {
         pageSize: Number(pageSize) || 10,
         date,
         projectId,
-        category,
         userId: req.user.id
       };
 
@@ -94,7 +91,6 @@ export class WorkoutController {
      * @param {string} pageSize - 每页数量
      * @param {string} date - 日期
      * @param {string} projectId - 项目ID
-     * @param {string} category - 分类
      * @param {Request} req - 请求对象
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按月分组的训练记录和分页信息
      */
@@ -104,7 +100,6 @@ export class WorkoutController {
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
         @Query('projectId') projectId: string,
-        @Query('category') category: string,
         @Request() req
     ): Promise<{
         data: Array<{
@@ -121,7 +116,6 @@ export class WorkoutController {
         pageSize: Number(pageSize) || 10,
         date,
         projectId,
-        category,
         userId: req.user.id
       };
 
@@ -134,7 +128,6 @@ export class WorkoutController {
      * @param {string} pageSize - 每页数量
      * @param {string} date - 日期
      * @param {string} projectId - 项目ID
-     * @param {string} category - 分类
      * @param {Request} req - 请求对象
      * @returns {Promise<{ data: Record<string, { projectName: string; totalGroups: number; totalReps: number; totalDays: number }[]>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按年分组的训练记录和分页信息
      */
@@ -144,7 +137,6 @@ export class WorkoutController {
         @Query('pageSize') pageSize: string,
         @Query('date') date: string,
         @Query('projectId') projectId: string,
-        @Query('category') category: string,
         @Request() req
     ): Promise<{
         data: Array<{
@@ -161,7 +153,6 @@ export class WorkoutController {
         pageSize: Number(pageSize) || 10,
         date,
         projectId,
-        category,
         userId: req.user.id
       };
 

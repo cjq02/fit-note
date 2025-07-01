@@ -35,18 +35,13 @@ export const WorkoutList = () => {
   const { data: groupedWorkoutsData, refetch } = useQuery<
     ApiResponse<{ data: Record<string, WorkoutType[]>; total: number }>
   >({
-    queryKey: ['workouts', 'group-by-date', page, selectedProject, selectedCategory],
+    queryKey: ['workouts', 'group-by-date', page, selectedProject],
     queryFn: async () => {
-      const params: any = {
+      const response = await getWorkoutsGroupByDate({
         page,
         pageSize,
-      };
-      if (selectedProject) {
-        params.projectId = selectedProject;
-      } else if (selectedCategory) {
-        params.category = selectedCategory;
-      }
-      const response = await getWorkoutsGroupByDate(params);
+        projectId: selectedProject || undefined,
+      });
       return response;
     },
     staleTime: 0, // 数据立即过期
@@ -127,16 +122,21 @@ export const WorkoutList = () => {
       .finally(() => setProjectLoading(false));
   }, [selectedCategory]);
 
-  // 监听类别或项目变化，自动查询
+  // 切换类别时自动查询
   useEffect(() => {
-    // 只要类别或项目变化，重置页码并查询
     setPage(1);
-    setAllWorkouts({});
     if (isInitialized) {
-      setIsLoading(true);
-      refetch().finally(() => setIsLoading(false));
+      refetch();
     }
-  }, [selectedCategory, selectedProject]);
+  }, [selectedCategory]);
+
+  // 切换项目时自动查询
+  useEffect(() => {
+    setPage(1);
+    if (isInitialized) {
+      refetch();
+    }
+  }, [selectedProject]);
 
   /**
    * 处理删除成功后的刷新

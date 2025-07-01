@@ -11,12 +11,12 @@ export class QueryWorkoutDto {
       projectId?: string;
 
     @IsOptional()
-    @IsMongoId()
-      userId?: string;
-
-    @IsOptional()
     @IsString()
       category?: string;
+
+    @IsOptional()
+    @IsMongoId()
+      userId?: string;
 
     @IsOptional()
     @IsNumber()

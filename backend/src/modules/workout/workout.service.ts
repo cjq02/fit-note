@@ -163,15 +163,23 @@ export class WorkoutService {
     }
     if (query.projectId) {
       conditions.projectId = query.projectId;
-    } else if (query.category) {
-      // 按类别查找所有项目id
+    }
+    // 新增：支持 category 参数
+    if (query.category) {
+      // 先查出该用户下所有该类别的项目id
       const projects = await this.projectService.findAll(query.userId);
-      const ids = projects.filter(p => p.category === query.category).map(p => p.id);
-      if (ids.length === 0) {
+      const categoryProjectIds = projects.filter(p => p.category === query.category).map(p => p.id);
+      if (categoryProjectIds.length === 0) {
         // 没有该类别的项目，直接返回空
-        return { data: {}, total: 0, page: query.page, pageSize: query.pageSize, hasMore: false };
+        return {
+          data: {},
+          total: 0,
+          page: query.page,
+          pageSize: query.pageSize,
+          hasMore: false
+        };
       }
-      conditions.projectId = { $in: ids };
+      conditions.projectId = { $in: categoryProjectIds };
     }
 
     // 1. 获取所有训练记录
@@ -309,21 +317,10 @@ export class WorkoutService {
     pageSize: number;
     hasMore: boolean;
   }> {
+    // 构建查询条件
     const conditions: Record<string, unknown> = { userId: query.userId };
-    if (query.date) {
-      conditions.date = query.date;
-    }
     if (query.projectId) {
       conditions.projectId = query.projectId;
-    } else if (query.category) {
-      // 按类别查找所有项目id
-      const projects = await this.projectService.findAll(query.userId);
-      const ids = projects.filter(p => p.category === query.category).map(p => p.id);
-      if (ids.length === 0) {
-        // 没有该类别的项目，直接返回空
-        return { data: [], total: 0, page: query.page, pageSize: query.pageSize, hasMore: false };
-      }
-      conditions.projectId = { $in: ids };
     }
 
     // 获取当前日期
@@ -469,9 +466,9 @@ export class WorkoutService {
     hasMore: boolean;
   }> {
     return this.findAllGroupByPeriod(query, {
-      dateFormat: 'GGGG-[W]WW',
-      periodsToShow: 12,
-      periodUnit: 'week',
+      dateFormat: 'YYYY-MM-DD',
+      periodsToShow: query.pageSize,
+      periodUnit: 'week'
     });
   }
 
@@ -490,8 +487,8 @@ export class WorkoutService {
   }> {
     return this.findAllGroupByPeriod(query, {
       dateFormat: 'YYYY-MM',
-      periodsToShow: 12,
-      periodUnit: 'month',
+      periodsToShow: query.pageSize,
+      periodUnit: 'month'
     });
   }
 
