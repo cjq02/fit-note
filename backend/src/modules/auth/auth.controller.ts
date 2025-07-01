@@ -33,8 +33,17 @@ export class AuthController {
 
     @Get('captcha')
     getCaptcha() {
-      // 生成4位字母数字验证码
-      const captcha = svgCaptcha.create({ size: 4, noise: 2, ignoreChars: '0o1ilI', color: true, background: '#fff' });
+      // 生成4位字母数字验证码，字体更大更黑、无干扰线、白底
+      const captcha = svgCaptcha.create({
+        size: 4,
+        noise: 0,
+        color: false, // 字体黑色
+        background: '#f5f5f5', // 淡灰色背景
+        fontSize: 60,
+        width: 140,
+        height: 48,
+        ignoreChars: '0o1ilI',
+      });
       const id = uuidv4();
       captchaStore.set(id, captcha.text.toLowerCase());
       // 5分钟后自动清除
