@@ -115,8 +115,8 @@ export default function ProjectForm() {
   if (loading) return <div className="p-8 text-center text-gray-400">加载中...</div>;
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-[var(--adm-color-primary-light)] to-white">
-      <div className="flex-1 overflow-auto">
+    <div className="h-full flex flex-col bg-gradient-to-b from-[var(--adm-color-primary-light)] to-white relative">
+      <div className="flex-1 overflow-auto pb-[80px]">
         <div className="p-4">
           <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-lg border border-white/20">
             {/* 项目名称 */}
@@ -182,29 +182,29 @@ export default function ProjectForm() {
                 onChange={val => setDescription(val)}
               />
             </div>
-            {/* 保存按钮 */}
-            <div className="mt-8 flex gap-4">
-              <Button
-                block
-                color="primary"
-                size="large"
-                onClick={handleSubmit}
-                className="rounded-full h-12 text-base font-medium shadow-lg shadow-[var(--adm-color-primary)]/20 hover:shadow-xl hover:shadow-[var(--adm-color-primary)]/30 transition-all duration-300"
-              >
-                保存
-              </Button>
-              <Button
-                block
-                color="default"
-                size="large"
-                onClick={handleCancel}
-                className="rounded-full h-12 text-base font-medium"
-              >
-                取消
-              </Button>
-            </div>
           </div>
         </div>
+      </div>
+      {/* 固定底部按钮栏 */}
+      <div className="fixed left-0 right-0 bottom-0 z-10 bg-white/90 backdrop-blur-md border-t border-white/30 px-4 py-2 flex gap-4 h-[60px] items-center justify-center">
+        <Button
+          block
+          color="primary"
+          size="large"
+          onClick={handleSubmit}
+          className="rounded-full h-12 text-base font-medium shadow-lg shadow-[var(--adm-color-primary)]/20 hover:shadow-xl hover:shadow-[var(--adm-color-primary)]/30 transition-all duration-300"
+        >
+          保存
+        </Button>
+        <Button
+          block
+          color="default"
+          size="large"
+          onClick={handleCancel}
+          className="rounded-full h-12 text-base font-medium"
+        >
+          取消
+        </Button>
       </div>
     </div>
   );
