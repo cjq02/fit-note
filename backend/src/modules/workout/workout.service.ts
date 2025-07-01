@@ -645,7 +645,6 @@ export class WorkoutService {
 
   // 查找某项目最近一次训练
   async findLatestByProject(projectId: string, userId: string): Promise<Workout | null> {
-    console.log('findLatestByProject params:', { projectId, userId });
     const result = await this.workoutModel.findOne({
       projectId,
       userId

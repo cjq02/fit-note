@@ -16,4 +16,11 @@ export class CreateProjectDto {
 
     @IsString()
       category: string;
+
+    @IsString()
+      unit: string;
+
+    @IsNumber()
+    @IsOptional()
+      defaultWeight?: number;
 }

@@ -14,6 +14,8 @@ export type ProjectDocument = Project & Document;
  * @property {Date} [createdAt] - 创建时间
  * @property {Date} [updatedAt] - 更新时间
  * @property {string} category - 分类
+ * @property {string} [defaultUnit] - 默认单位
+ * @property {number} [defaultWeight] - 默认重量
  */
 @Schema({ timestamps: true })
 export class Project {
@@ -43,6 +45,12 @@ export class Project {
 
     @Prop({ required: true })
       category: string;
+
+    @Prop({ required: true })
+      unit: string;
+
+    @Prop({ required: false })
+      defaultWeight?: number;
 }
 
 /**

@@ -74,7 +74,7 @@ export class ProjectService {
     try {
       const project = new this.projectModel({
         ...createProjectDto,
-        userId
+        userId,
       });
       return await project.save();
     } catch (error) {
@@ -93,8 +93,11 @@ export class ProjectService {
   // 更新训练项目
   async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
     try {
+      const updateData = {
+        ...updateProjectDto,
+      };
       const project = await this.projectModel
-        .findByIdAndUpdate(id, updateProjectDto, { new: true })
+        .findByIdAndUpdate(id, updateData, { new: true })
         .exec();
       if (!project) {
         throw new NotFoundException('训练项目不存在');

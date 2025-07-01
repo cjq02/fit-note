@@ -53,4 +53,16 @@ export const getMonthRange = (date: Date | string) => {
     start: d.startOf('month').format('YYYY-MM-DD'),
     end: d.endOf('month').format('YYYY-MM-DD'),
   };
-}; 
+};
+
+/**
+ * 获取一天中的时间段（上午/下午/晚上）
+ * @param date 日期对象或日期字符串
+ * @returns '上午' | '下午' | '晚上'
+ */
+export const getPeriodOfDay = (date: Date | string): '上午' | '下午' | '晚上' => {
+  const hour = dayjs(date).hour();
+  if (hour < 12) return '上午';
+  if (hour < 18) return '下午';
+  return '晚上';
+};
