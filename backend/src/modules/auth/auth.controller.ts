@@ -1,10 +1,11 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
 import * as svgCaptcha from 'svg-captcha';
 import { v4 as uuidv4 } from 'uuid';
 
 import { UserDocument } from './auth.entity';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -52,5 +53,13 @@ export class AuthController {
         id,
         data: 'data:image/svg+xml;base64,' + Buffer.from(captcha.data).toString('base64'),
       };
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('change-password')
+    async changePassword(@Req() req, @Body() dto: ChangePasswordDto) {
+      const userId = req.user?._id;
+      await this.authService.changePassword(userId, dto);
+      return { message: '密码修改成功' };
     }
 }

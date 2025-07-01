@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 
 import { captchaStore } from './auth.controller';
 import { User, UserDocument } from './auth.entity';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -128,5 +129,19 @@ export class AuthService {
         username: user.username,
       },
     };
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new Error('用户不存在');
+    }
+    const isOldPasswordValid = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!isOldPasswordValid) {
+      throw new Error('旧密码错误');
+    }
+    user.password = dto.newPassword;
+    await user.save();
+    return true;
   }
 }

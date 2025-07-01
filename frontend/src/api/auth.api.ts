@@ -41,3 +41,13 @@ export const getUserInfo = async (): Promise<ApiResponse<GetUserInfoResponse>> =
   const response = await http.get<GetUserInfoResponse>('/api/auth/profile');
   return response;
 };
+
+/**
+ *
+ * @param data
+ * @param data.oldPassword
+ * @param data.newPassword
+ */
+export const changePassword = (data: { oldPassword: string; newPassword: string }) => {
+  return http.post('/api/auth/change-password', data);
+};

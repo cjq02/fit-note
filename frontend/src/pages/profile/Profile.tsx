@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Dialog, List, Switch, Toast } from 'antd-mobile';
+import { Button, Card, Dialog, List, Switch, Toast, Form, Input } from 'antd-mobile';
 import {
   AntOutline,
   BellOutline,
@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import VConsole from 'vconsole';
 
-import { getUserInfo } from '@/api/auth.api';
+import { getUserInfo, changePassword } from '@/api/auth.api';
 
 /**
  * 个人中心页面组件
@@ -72,6 +72,34 @@ export const Profile = () => {
     return userInfo?.username || '未登录';
   };
 
+  // 修改密码弹窗相关
+  const [showPwdDialog, setShowPwdDialog] = useState(false);
+  const [pwdForm, setPwdForm] = useState({ oldPassword: '', newPassword: '' });
+  const [pwdLoading, setPwdLoading] = useState(false);
+
+  // 处理修改密码
+  const handleChangePassword = () => {
+    setShowPwdDialog(true);
+  };
+
+  const handlePwdSubmit = async () => {
+    if (!pwdForm.oldPassword || !pwdForm.newPassword) {
+      Toast.show({ content: '请填写完整信息' });
+      return;
+    }
+    setPwdLoading(true);
+    try {
+      await changePassword(pwdForm);
+      Toast.show({ icon: 'success', content: '密码修改成功' });
+      setShowPwdDialog(false);
+      setPwdForm({ oldPassword: '', newPassword: '' });
+    } catch (e: any) {
+      Toast.show({ icon: 'fail', content: e?.response?.data?.message || '修改失败' });
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
   // 处理退出登录
   const handleLogout = () => {
     Dialog.confirm({
@@ -85,13 +113,6 @@ export const Profile = () => {
         });
         navigate('/login');
       },
-    });
-  };
-
-  // 处理修改密码
-  const handleChangePassword = () => {
-    Toast.show({
-      content: '功能开发中...',
     });
   };
 
@@ -148,16 +169,6 @@ export const Profile = () => {
       icon: <KeyOutline />,
       onClick: handleChangePassword,
       arrow: true,
-    },
-    {
-      title: '训练提醒',
-      icon: <BellOutline />,
-      right: <Switch defaultChecked />,
-      onClick: () => {
-        Toast.show({
-          content: '功能开发中...',
-        });
-      },
     },
     {
       title: '隐私设置',
@@ -279,6 +290,38 @@ export const Profile = () => {
         <div className="text-center text-xs text-[var(--adm-color-text-light)] mt-8">
           Fit Note v1.0.0
         </div>
+
+        {/* 修改密码弹窗 */}
+        <Dialog
+          visible={showPwdDialog}
+          title="修改密码"
+          content={
+            <Form layout="horizontal">
+              <Form.Item label="旧密码">
+                <Input
+                  type="password"
+                  value={pwdForm.oldPassword}
+                  onChange={val => setPwdForm(f => ({ ...f, oldPassword: val }))}
+                  placeholder="请输入旧密码"
+                />
+              </Form.Item>
+              <Form.Item label="新密码">
+                <Input
+                  type="password"
+                  value={pwdForm.newPassword}
+                  onChange={val => setPwdForm(f => ({ ...f, newPassword: val }))}
+                  placeholder="请输入新密码"
+                />
+              </Form.Item>
+            </Form>
+          }
+          onClose={() => setShowPwdDialog(false)}
+          closeOnAction
+          actions={[
+            { key: 'cancel', text: '取消' },
+            { key: 'ok', text: pwdLoading ? '处理中...' : '确定', onClick: handlePwdSubmit },
+          ]}
+        />
       </div>
     </div>
   );
