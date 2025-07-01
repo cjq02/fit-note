@@ -22,10 +22,15 @@ need_rebuild_frontend_image=false
 
 # 检查是否有 -f 参数（强制全量部署）
 force_all=false
+# 新增：检查是否有 -b 参数（强制重建 docker 镜像）
+force_rebuild_images=false
 for arg in "$@"; do
   if [ "$arg" == "-f" ]; then
     force_all=true
     break
+  fi
+  if [ "$arg" == "-b" ]; then
+    force_rebuild_images=true
   fi
 done
 
@@ -33,6 +38,11 @@ if $force_all; then
   need_build_shared_utils=true
   need_build_backend=true
   need_build_frontend=true
+fi
+# 新增：如果有 -b 参数，强制重建 backend 和 frontend 镜像
+if $force_rebuild_images; then
+  need_rebuild_backend_image=true
+  need_rebuild_frontend_image=true
 fi
 
 for file in $changed_files; do
