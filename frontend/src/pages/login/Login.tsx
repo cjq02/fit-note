@@ -138,27 +138,32 @@ export const Login = () => {
             />
           </Form.Item>
           {showCaptcha && captchaImg && (
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="mb-4">
+              <div className="relative w-full">
                 <Form.Item
                   name="captcha"
                   label={<span className="font-semibold text-gray-700">验证码</span>}
                   rules={[{ required: true, message: '请输入验证码' }]}
-                  style={{ flex: 1, marginBottom: 0 }}
+                  style={{ marginBottom: 0 }}
                 >
-                  <Input
-                    placeholder="请输入验证码"
-                    className="rounded-full px-4 py-2 border border-gray-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                    maxLength={4}
-                  />
+                  <div className="relative w-full">
+                    <Input
+                      id="captcha-input"
+                      placeholder="请输入验证码"
+                      className="rounded-full px-4 py-2 pr-20 border border-gray-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 w-full"
+                      maxLength={4}
+                      style={{ minWidth: 0 }}
+                    />
+                    <img
+                      src={captchaImg}
+                      alt="验证码"
+                      className="absolute top-1 bottom-1 right-4 my-auto h-7 w-16 rounded cursor-pointer border border-gray-200 bg-white shadow"
+                      onClick={fetchCaptcha}
+                      title="点击刷新验证码"
+                      style={{ flexShrink: 0 }}
+                    />
+                  </div>
                 </Form.Item>
-                <img
-                  src={captchaImg}
-                  alt="验证码"
-                  className="h-10 w-20 rounded cursor-pointer border border-gray-200"
-                  onClick={fetchCaptcha}
-                  title="点击刷新验证码"
-                />
               </div>
               <div className="text-xs text-gray-400 mt-1 cursor-pointer" onClick={fetchCaptcha}>
                 看不清？点击图片或此处刷新
