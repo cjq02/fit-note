@@ -133,6 +133,26 @@ const PageSelect: FC<PageSelectProps> = ({
           padding: 0,
         }}
       >
+        {/* 清空按钮，仅单选且有选中时显示 */}
+        {!multiple && value && (
+          <div style={{ textAlign: 'right', padding: '12px 16px 0 16px' }}>
+            <button
+              style={{
+                color: '#1677ff',
+                background: 'none',
+                border: 'none',
+                fontSize: 15,
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                onChange('');
+                setVisible(false);
+              }}
+            >
+              清空
+            </button>
+          </div>
+        )}
         <div
           ref={listRef}
           style={{ maxHeight: '60vh', overflowY: 'auto', padding: 16 }}
