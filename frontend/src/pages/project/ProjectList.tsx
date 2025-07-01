@@ -160,6 +160,7 @@ export const ProjectList = (): React.ReactElement => {
     Shoulders: '肩',
     Arms: '臂',
     Legs: '腿',
+    Glutes: '臀',
     Abs: '腹',
     Cardio: '有氧',
     Core: '核心',
