@@ -23,6 +23,7 @@ import { NumberInput } from '@/components/NumberInput';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 import PageSelect from '@/components/PageSelect';
 import { UNIT_OPTIONS } from '@fit-note/shared-utils';
+import { getProject } from '@/api/project.api';
 
 // 添加NodeJS类型定义
 declare global {
@@ -697,6 +698,21 @@ export const WorkoutForm = () => {
       ],
     });
   };
+
+  // 新建训练时，根据projectId获取项目默认单位和默认重量
+  useEffect(() => {
+    if (projectId && !id) {
+      getProject(projectId).then(res => {
+        if (res.data) {
+          setUnit(res.data.defaultUnit || '自重');
+          setGroups([
+            { reps: '', weight: res.data.defaultWeight?.toString() || '0', seqNo: 1, isNew: true },
+          ]);
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, id]);
 
   return (
     <div
