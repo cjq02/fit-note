@@ -46,7 +46,7 @@ export const Register = () => {
       }
       const payload = { ...values, captchaId };
       const res = await register(payload);
-      if (res.code === 200) {
+      if (res.message === 'success') {
         Toast.show({
           icon: 'success',
           content: '注册成功，请登录',
@@ -152,36 +152,34 @@ export const Register = () => {
             />
           </Form.Item>
           {/* 图形验证码 */}
-          <div className="mb-4">
+          <Form.Item
+            name="captcha"
+            label={<span className="font-semibold text-gray-700">验证码</span>}
+            rules={[{ required: true, message: '请输入验证码' }]}
+            style={{ marginBottom: 0 }}
+          >
             <div className="relative w-full">
-              <Form.Item
-                name="captcha"
-                label={<span className="font-semibold text-gray-700">验证码</span>}
-                rules={[{ required: true, message: '请输入验证码' }]}
-                style={{ marginBottom: 0 }}
-              >
-                <Input
-                  id="captcha-input"
-                  placeholder="请输入验证码"
-                  className="rounded-full px-4 py-2 pr-20 border border-gray-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 w-full"
-                  maxLength={4}
-                  style={{ minWidth: 0 }}
-                />
-              </Form.Item>
+              <Input
+                id="captcha-input"
+                placeholder="请输入验证码"
+                className="rounded-full px-4 py-2 pr-20 border border-gray-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 w-full"
+                maxLength={4}
+                style={{ minWidth: 0 }}
+              />
               <img
                 src={captchaImg}
                 alt="验证码"
-                className="absolute bottom-5 right-6 my-auto h-7 w-16 rounded cursor-pointer border border-gray-200 bg-white shadow"
+                className="absolute top-1 bottom-1 right-4 my-auto h-7 w-16 rounded cursor-pointer border border-gray-200 bg-white shadow"
                 onClick={fetchCaptcha}
                 title="点击刷新验证码"
                 style={{ flexShrink: 0 }}
               />
             </div>
-            <div className="text-xs text-gray-400 mt-1 cursor-pointer" onClick={fetchCaptcha}>
-              看不清？点击图片或此处刷新
-            </div>
-            <div className="text-xs text-gray-400 mt-1">{captchaTip}</div>
+          </Form.Item>
+          <div className="text-xs text-gray-400 mt-1 cursor-pointer" onClick={fetchCaptcha}>
+            看不清？点击图片或此处刷新
           </div>
+          <div className="text-xs text-gray-400 mt-1">{captchaTip}</div>
         </Form>
         <div className="text-center mt-4">
           <span className="text-gray-500">已有账号？</span>
