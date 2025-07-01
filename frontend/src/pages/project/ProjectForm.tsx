@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Toast, Input, TextArea, Picker, Button } from 'antd-mobile';
-import type { Project, CreateProjectRequest } from '@/@typings/types';
+import { Toast, Input, TextArea, Button } from 'antd-mobile';
+import type { Project } from '@/@typings/types';
 import { getProjects, createProject, updateProject } from '@/api/project.api';
 import { NumberInput } from '@/components/NumberInput';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
@@ -22,9 +22,8 @@ export default function ProjectForm() {
   // 表单字段
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Project['category'] | ''>('');
-  const [seqNo, setSeqNo] = useState<number | ''>('');
+  const [seqNo, setSeqNo] = useState<number | ''>(''); // 只存储后两位
   const [description, setDescription] = useState('');
-  const [pickerVisible, setPickerVisible] = useState(false);
 
   // 支持从 location.state 传递 initialCategory
   const initialCategory = (location.state && (location.state as any).initialCategory) || undefined;
@@ -48,7 +47,9 @@ export default function ProjectForm() {
     if (project) {
       setName(project.name || '');
       setCategory(project.category || '');
-      setSeqNo(project.seqNo ?? '');
+      // 取后两位作为排序输入框的值
+      const seqNoStr = project.seqNo?.toString().padStart(3, '0') || '';
+      setSeqNo(seqNoStr ? parseInt(seqNoStr.slice(-2)) : '');
       setDescription(project.description || '');
     } else {
       setName('');
@@ -68,16 +69,25 @@ export default function ProjectForm() {
       Toast.show({ content: '请选择类别' });
       return;
     }
-    if (seqNo === '' || isNaN(Number(seqNo))) {
-      Toast.show({ content: '请输入排序号' });
+    if (seqNo === '' || isNaN(Number(seqNo)) || Number(seqNo) < 0 || Number(seqNo) > 99) {
+      Toast.show({ content: '请输入0-99的排序号' });
       return;
     }
+    // 获取类别的seqNo
+    const catObj = CATEGORY_OPTIONS.find(opt => opt.value === category);
+    if (!catObj) {
+      Toast.show({ content: '类别无效' });
+      return;
+    }
+    // 拼接最终seqNo：类别seqNo + 排序（两位，不足补0）
+    const seqNoStr = catObj.seqNo.toString() + Number(seqNo).toString().padStart(2, '0');
+    const finalSeqNo = Number(seqNoStr);
     try {
       if (project) {
         await updateProject({
           name,
           category: category as Project['category'],
-          seqNo: Number(seqNo),
+          seqNo: finalSeqNo,
           description,
           id: project.id,
         });
@@ -86,7 +96,7 @@ export default function ProjectForm() {
         await createProject({
           name,
           category: category as Project['category'],
-          seqNo: Number(seqNo),
+          seqNo: finalSeqNo,
           description,
         });
         Toast.show({ icon: 'success', content: '创建成功' });
@@ -143,11 +153,19 @@ export default function ProjectForm() {
             <div className="mb-8">
               <label className="text-base font-medium text-[var(--adm-color-text)]">排序</label>
               <NumberInput
-                value={seqNo === '' ? '' : seqNo.toString()}
-                onChange={value => setSeqNo(value ? parseInt(value) : '')}
+                value={seqNo === '' ? '' : seqNo.toString().padStart(2, '0')}
+                onChange={value => {
+                  let v: number | '' = value ? parseInt(value) : '';
+                  if (typeof v === 'number') {
+                    if (v > 99) v = 99;
+                    if (v < 0) v = 0;
+                  }
+                  setSeqNo(v);
+                }}
                 placeholder="请输入排序号"
                 min={0}
-                step={10}
+                max={99}
+                step={1}
                 className="rounded-xl bg-white border border-[var(--adm-color-text-light)] focus:border-[var(--adm-color-primary)] transition-colors duration-200"
               />
             </div>
