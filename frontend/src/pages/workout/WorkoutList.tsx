@@ -203,39 +203,25 @@ export const WorkoutList = () => {
   return (
     <div className="page-container from-gray-50 via-gray-50 to-gray-100">
       <div className="px-4 pt-4 pb-2 flex gap-2">
-        <PageSelect
-          options={CATEGORY_OPTIONS}
-          value={selectedCategory ?? ''}
-          onChange={val => {
-            setSelectedCategory(val as string);
-          }}
-          triggerRender={(selectedLabel, { onClick }) => (
-            <div className="flex-1 mr-2" onClick={onClick}>
-              <div className="h-10 flex items-center px-3 rounded-lg border border-gray-200 bg-white cursor-pointer">
-                <span className={selectedCategory ? 'text-gray-900' : 'text-gray-400'}>
-                  {selectedLabel || '请选择类别'}
-                </span>
-              </div>
-            </div>
-          )}
-        />
-        <PageSelect
-          options={projectOptions}
-          value={selectedProject ?? ''}
-          onChange={val => {
-            setSelectedProject(val as string);
-          }}
-          loading={projectLoading}
-          triggerRender={(selectedLabel, { onClick }) => (
-            <div className="flex-1" onClick={onClick}>
-              <div className="h-10 flex items-center px-3 rounded-lg border border-gray-200 bg-white cursor-pointer">
-                <span className={selectedProject ? 'text-gray-900' : 'text-gray-400'}>
-                  {selectedLabel || '请选择项目'}
-                </span>
-              </div>
-            </div>
-          )}
-        />
+        <div style={{ flex: 1 }}>
+          <PageSelect
+            options={CATEGORY_OPTIONS}
+            value={selectedCategory ?? ''}
+            onChange={val => {
+              setSelectedCategory(val as string);
+            }}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <PageSelect
+            options={projectOptions}
+            value={selectedProject ?? ''}
+            onChange={val => {
+              setSelectedProject(val as string);
+            }}
+            loading={projectLoading}
+          />
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto px-4 pt-2">
         {/* 训练记录列表 */}

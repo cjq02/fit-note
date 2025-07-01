@@ -108,7 +108,7 @@ const PageSelect: FC<PageSelectProps> = ({
       >
         <path
           d="M5 8L10 13L15 8"
-          stroke="var(--adm-color-primary)"
+          stroke="#1677ff"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
