@@ -1,6 +1,7 @@
 import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useNavigate, Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 import { login } from '@/api/auth.api';
 
@@ -12,6 +13,11 @@ import { login } from '@/api/auth.api';
 export const Login = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [captchaValue, setCaptchaValue] = useState('');
+  const [captchaTip, setCaptchaTip] = useState('');
+  const [captchaImg, setCaptchaImg] = useState('');
+  const [captchaId, setCaptchaId] = useState('');
 
   // 检查登录状态
   useEffect(() => {
@@ -21,23 +27,47 @@ export const Login = () => {
     }
   }, [navigate]);
 
+  // 获取验证码图片
+  const fetchCaptcha = async () => {
+    try {
+      const res = await axios.get('/api/auth/captcha');
+      console.log('验证码接口返回：', res);
+      console.log('res.data.data:', res.data.data);
+      setCaptchaImg(res.data.data.data);
+      setCaptchaId(res.data.data.id);
+    } catch {
+      setCaptchaTip('验证码加载失败，请重试');
+    }
+  };
+
   // 处理登录
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      const response = await login(values);
+      const payload = { ...values };
+      if (showCaptcha && captchaImg) {
+        payload.captchaId = captchaId;
+      }
+      const response = await login(payload);
       localStorage.setItem('token', response.data.token);
-      Toast.show({
-        icon: 'success',
-        content: '登录成功',
-      });
+      Toast.show({ icon: 'success', content: '登录成功' });
+      setShowCaptcha(false);
+      setCaptchaImg('');
+      setCaptchaId('');
+      setCaptchaTip('');
       navigate('/');
-    } catch (error: any) {
-      console.error('登录错误:', error);
-      Toast.show({
-        icon: 'fail',
-        content: error.message || '登录失败',
-      });
+    } catch (err) {
+      let msg = (err as any)?.message || '';
+      if ((err as any)?.response?.data?.message) msg += (err as any).response.data.message;
+      if (msg.includes('验证码')) {
+        setShowCaptcha(true);
+        fetchCaptcha();
+      } else {
+        setShowCaptcha(false);
+        setCaptchaImg('');
+        setCaptchaId('');
+      }
+      Toast.show({ icon: 'fail', content: msg || '请完整填写表单' });
     }
   };
 
@@ -107,6 +137,35 @@ export const Login = () => {
               className="rounded-full px-4 py-2 border border-gray-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </Form.Item>
+          {showCaptcha && captchaImg && (
+            <div>
+              <div className="flex items-center gap-2">
+                <Form.Item
+                  name="captcha"
+                  label={<span className="font-semibold text-gray-700">验证码</span>}
+                  rules={[{ required: true, message: '请输入验证码' }]}
+                  style={{ flex: 1, marginBottom: 0 }}
+                >
+                  <Input
+                    placeholder="请输入验证码"
+                    className="rounded-full px-4 py-2 border border-gray-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                    maxLength={4}
+                  />
+                </Form.Item>
+                <img
+                  src={captchaImg}
+                  alt="验证码"
+                  className="h-10 w-20 rounded cursor-pointer border border-gray-200"
+                  onClick={fetchCaptcha}
+                  title="点击刷新验证码"
+                />
+              </div>
+              <div className="text-xs text-gray-400 mt-1 cursor-pointer" onClick={fetchCaptcha}>
+                看不清？点击图片或此处刷新
+              </div>
+              <div className="text-xs text-gray-400 mt-1">{captchaTip}</div>
+            </div>
+          )}
         </Form>
         <div className="text-center mt-4">
           <span className="text-gray-500">还没有账号？</span>

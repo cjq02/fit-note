@@ -1,11 +1,19 @@
-import { IsString, Length } from 'class-validator';
+import { IsString, Length, IsOptional } from 'class-validator';
 
 export class LoginDto {
     @IsString()
     @Length(3, 20)
-    username: string;
+      username: string;
 
     @IsString()
     @Length(6, 20)
-    password: string;
+      password: string;
+
+    @IsOptional()
+    @IsString()
+      captcha?: string;
+
+    @IsOptional()
+    @IsString()
+      captchaId?: string;
 }
