@@ -1,5 +1,7 @@
 import { Button, Form, Input, Toast } from 'antd-mobile';
 import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 import { register } from '@/api/auth.api';
 
@@ -11,6 +13,25 @@ import { register } from '@/api/auth.api';
 export const Register = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [captchaImg, setCaptchaImg] = useState('');
+  const [captchaId, setCaptchaId] = useState('');
+  const [captchaTip, setCaptchaTip] = useState('');
+
+  // 获取验证码图片
+  const fetchCaptcha = async () => {
+    try {
+      const res = await axios.get('/api/auth/captcha');
+      setCaptchaImg(res.data.data.data);
+      setCaptchaId(res.data.data.id);
+    } catch {
+      setCaptchaTip('验证码加载失败，请重试');
+    }
+  };
+
+  // 页面加载时自动获取验证码
+  useEffect(() => {
+    fetchCaptcha();
+  }, []);
 
   // 处理注册
   const handleSubmit = async () => {
@@ -23,7 +44,8 @@ export const Register = () => {
         });
         return;
       }
-      const res = await register(values);
+      const payload = { ...values, captchaId };
+      const res = await register(payload);
       if (res.code === 200) {
         Toast.show({
           icon: 'success',
@@ -39,8 +61,9 @@ export const Register = () => {
     } catch (error: any) {
       Toast.show({
         icon: 'fail',
-        content: error.response?.data?.message || '注册失败',
+        content: error.message || '注册失败',
       });
+      fetchCaptcha(); // 注册失败时刷新验证码
     }
   };
 
@@ -128,6 +151,37 @@ export const Register = () => {
               className="rounded-full px-4 py-2 border border-gray-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
           </Form.Item>
+          {/* 图形验证码 */}
+          <div className="mb-4">
+            <div className="relative w-full">
+              <Form.Item
+                name="captcha"
+                label={<span className="font-semibold text-gray-700">验证码</span>}
+                rules={[{ required: true, message: '请输入验证码' }]}
+                style={{ marginBottom: 0 }}
+              >
+                <Input
+                  id="captcha-input"
+                  placeholder="请输入验证码"
+                  className="rounded-full px-4 py-2 pr-20 border border-gray-300 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 w-full"
+                  maxLength={4}
+                  style={{ minWidth: 0 }}
+                />
+              </Form.Item>
+              <img
+                src={captchaImg}
+                alt="验证码"
+                className="absolute bottom-5 right-6 my-auto h-7 w-16 rounded cursor-pointer border border-gray-200 bg-white shadow"
+                onClick={fetchCaptcha}
+                title="点击刷新验证码"
+                style={{ flexShrink: 0 }}
+              />
+            </div>
+            <div className="text-xs text-gray-400 mt-1 cursor-pointer" onClick={fetchCaptcha}>
+              看不清？点击图片或此处刷新
+            </div>
+            <div className="text-xs text-gray-400 mt-1">{captchaTip}</div>
+          </div>
         </Form>
         <div className="text-center mt-4">
           <span className="text-gray-500">已有账号？</span>

@@ -21,8 +21,18 @@ export class AuthService {
 
   // 注册
   async register(registerDto: RegisterDto): Promise<void> {
-    const { username, password } = registerDto;
+    const { username, password, captcha, captchaId } = registerDto;
     this.logger.debug(`尝试注册用户: ${username}`);
+
+    // 校验图形验证码
+    if (!captchaId || !captcha) {
+      throw new UnauthorizedException('请输入验证码');
+    }
+    const real = captchaStore.get(captchaId);
+    if (!real || captcha.toLowerCase() !== real) {
+      throw new UnauthorizedException('验证码错误');
+    }
+    captchaStore.delete(captchaId);
 
     // 检查用户名是否已存在
     const existingUser = await this.userModel.findOne({ username });
