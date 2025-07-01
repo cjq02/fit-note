@@ -6,6 +6,7 @@ import { getProjects, createProject, updateProject } from '@/api/project.api';
 import { NumberInput } from '@/components/NumberInput';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 import PageSelect from '@/components/PageSelect';
+import { UNIT_OPTIONS } from '@fit-note/shared-utils';
 
 /**
  * 训练项目表单页面（支持新建和编辑）
@@ -24,6 +25,8 @@ export default function ProjectForm() {
   const [category, setCategory] = useState<Project['category'] | ''>('');
   const [seqNo, setSeqNo] = useState<number | ''>(''); // 只存储后两位
   const [description, setDescription] = useState('');
+  const [defaultUnit, setDefaultUnit] = useState<string>('自重');
+  const [defaultWeight, setDefaultWeight] = useState<number | ''>('');
 
   // 支持从 location.state 传递 initialCategory
   const initialCategory = (location.state && (location.state as any).initialCategory) || undefined;
@@ -51,11 +54,15 @@ export default function ProjectForm() {
       const seqNoStr = project.seqNo?.toString().padStart(3, '0') || '';
       setSeqNo(seqNoStr ? parseInt(seqNoStr.slice(-2)) : '');
       setDescription(project.description || '');
+      setDefaultUnit(project.defaultUnit || '自重');
+      setDefaultWeight(project.defaultWeight ?? '');
     } else {
       setName('');
       setCategory(initialCategory || '');
       setSeqNo('');
       setDescription('');
+      setDefaultUnit('自重');
+      setDefaultWeight('');
     }
   }, [project, initialCategory]);
 
@@ -71,6 +78,10 @@ export default function ProjectForm() {
     }
     if (seqNo === '' || isNaN(Number(seqNo)) || Number(seqNo) < 0 || Number(seqNo) > 99) {
       Toast.show({ content: '请输入0-99的排序号' });
+      return;
+    }
+    if (!defaultUnit) {
+      Toast.show({ content: '请选择默认单位' });
       return;
     }
     // 获取类别的seqNo
@@ -90,6 +101,8 @@ export default function ProjectForm() {
           seqNo: finalSeqNo,
           description,
           id: project.id,
+          defaultUnit: defaultUnit,
+          defaultWeight: defaultWeight === '' ? undefined : Number(defaultWeight),
         });
         Toast.show({ icon: 'success', content: '更新成功' });
       } else {
@@ -98,6 +111,8 @@ export default function ProjectForm() {
           category: category as Project['category'],
           seqNo: finalSeqNo,
           description,
+          defaultUnit: defaultUnit,
+          defaultWeight: defaultWeight === '' ? undefined : Number(defaultWeight),
         });
         Toast.show({ icon: 'success', content: '创建成功' });
       }
@@ -147,6 +162,44 @@ export default function ProjectForm() {
                     {selectedLabel || '请选择类别'}
                   </div>
                 )}
+              />
+            </div>
+            {/* 默认单位 */}
+            <div className="mb-8">
+              <label className="text-base font-medium text-[var(--adm-color-text)]">默认单位</label>
+              <PageSelect
+                options={UNIT_OPTIONS}
+                value={defaultUnit}
+                onChange={val => setDefaultUnit(val as string)}
+                triggerRender={(selectedLabel, { onClick }) => (
+                  <div
+                    className={
+                      'flex items-center rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 w-full cursor-pointer ' +
+                      (!defaultUnit ? 'text-gray-400' : 'text-gray-900')
+                    }
+                    onClick={onClick}
+                  >
+                    {selectedLabel || '请选择单位'}
+                  </div>
+                )}
+              />
+            </div>
+            {/* 默认重量 */}
+            <div className="mb-8">
+              <label className="text-base font-medium text-[var(--adm-color-text)]">默认重量</label>
+              <NumberInput
+                value={defaultWeight === '' ? '' : defaultWeight.toString()}
+                onChange={value => {
+                  let v: number | '' = value ? parseFloat(value) : '';
+                  if (typeof v === 'number' && isNaN(v)) v = '';
+                  setDefaultWeight(v);
+                }}
+                placeholder="请输入默认重量"
+                min={0}
+                max={1000}
+                step={1}
+                className="rounded-xl bg-white border border-[var(--adm-color-text-light)] focus:border-[var(--adm-color-primary)] transition-colors duration-200"
+                disabled={defaultUnit === '自重'}
               />
             </div>
             {/* 排序号 */}

@@ -18,7 +18,7 @@ export class CreateProjectDto {
       category: string;
 
     @IsString()
-      unit: string;
+      defaultUnit: string;
 
     @IsNumber()
     @IsOptional()

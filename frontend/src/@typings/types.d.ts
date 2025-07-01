@@ -67,6 +67,8 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
   latestWorkoutDate: string | null; // 最近训练日期
+  defaultUnit: string;
+  defaultWeight?: number;
 }
 
 /**
@@ -82,6 +84,8 @@ export interface CreateProjectRequest {
   description?: string;
   seqNo: number;
   category: 'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Abs' | 'Cardio' | 'Core';
+  defaultUnit: string;
+  defaultWeight?: number;
 }
 
 /**

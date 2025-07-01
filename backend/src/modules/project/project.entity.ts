@@ -47,7 +47,7 @@ export class Project {
       category: string;
 
     @Prop({ required: true })
-      unit: string;
+      defaultUnit: string;
 
     @Prop({ required: false })
       defaultWeight?: number;
