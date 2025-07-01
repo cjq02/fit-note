@@ -164,26 +164,36 @@ export const WorkoutItem = ({
               {workout.groups.map((group, index) => (
                 <div
                   key={index}
-                  className="text-xs px-3 py-1 mb-3 rounded-full border shadow-sm relative"
+                  className="text-xs pl-0 mb-3 rounded-full border shadow-sm relative flex items-center gap-0 overflow-hidden"
                   style={{
                     color: '#666',
                     background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
                     borderColor: `${dateColor}22`,
                     width: '140px',
                     overflow: 'visible',
+                    paddingLeft: 0,
+                    height: '32px',
                   }}
                 >
-                  {/* 左上角角标悬浮在div外部 */}
-                  <span
-                    className="absolute -left-2.5 -top-2.5 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold shadow"
+                  {/* 直接用div左侧填充背景色显示序号 */}
+                  <div
+                    className="flex items-center justify-center mr-1"
                     style={{
-                      background: `linear-gradient(90deg, ${dateColor}99, ${dateColor}66)`,
+                      height: '100%',
+                      width: '22px',
+                      background: `linear-gradient(90deg, ${dateColor}66 80%, transparent 100%)`,
                       color: '#fff',
-                      boxShadow: `0 1px 4px ${dateColor}33`,
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      borderTopLeftRadius: '999px',
+                      borderBottomLeftRadius: '999px',
+                      borderTopRightRadius: '0',
+                      borderBottomRightRadius: '0',
+                      borderRight: 'none',
                     }}
                   >
                     {group.seqNo}
-                  </span>
+                  </div>
                   <span
                     style={{
                       overflow: 'hidden',
@@ -195,7 +205,7 @@ export const WorkoutItem = ({
                   >
                     {_.isEmpty(workout.unit) || workout.unit === '自重'
                       ? ''
-                      : `${group.weight}${workout.unit} × `}
+                      : `${group.weight}${workout.unit}×`}
                     <span className="font-bold text-base">{group.reps}</span>次
                     {typeof group.restTime === 'number' && group.restTime > 0 && (
                       <span className="ml-1 text-[10px] opacity-75">
