@@ -81,7 +81,7 @@ export const findByDateAndProject = async (
  * @param {string} [params.projectId] - 训练项目名称
  * @param {number} [params.page] - 页码
  * @param {number} [params.pageSize] - 每页数量
- * @param params.projectId
+ * @param {string} [params.category] - 分类
  * @returns {Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>>} 按日期分组的训练记录
  */
 export const getWorkoutsGroupByDate = async (params?: {
@@ -89,6 +89,7 @@ export const getWorkoutsGroupByDate = async (params?: {
   projectId?: string;
   page?: number;
   pageSize?: number;
+  category?: string;
 }): Promise<ApiResponse<{ data: Record<string, Workout[]>; total: number }>> => {
   return http.get('/api/workout/group-by-date', { params });
 };

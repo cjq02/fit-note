@@ -168,7 +168,7 @@ export class WorkoutService {
     if (query.category) {
       // 先查出该用户下所有该类别的项目id
       const projects = await this.projectService.findAll(query.userId);
-      const categoryProjectIds = projects.filter(p => p.category === query.category).map(p => p.id);
+      const categoryProjectIds = projects.filter(p => p.category === query.category).map(p => p.id.toString());
       if (categoryProjectIds.length === 0) {
         // 没有该类别的项目，直接返回空
         return {

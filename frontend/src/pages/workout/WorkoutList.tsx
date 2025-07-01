@@ -35,12 +35,13 @@ export const WorkoutList = () => {
   const { data: groupedWorkoutsData, refetch } = useQuery<
     ApiResponse<{ data: Record<string, WorkoutType[]>; total: number }>
   >({
-    queryKey: ['workouts', 'group-by-date', page, selectedProject],
+    queryKey: ['workouts', 'group-by-date', page, selectedProject, selectedCategory],
     queryFn: async () => {
       const response = await getWorkoutsGroupByDate({
         page,
         pageSize,
         projectId: selectedProject || undefined,
+        category: selectedCategory || undefined,
       });
       return response;
     },
