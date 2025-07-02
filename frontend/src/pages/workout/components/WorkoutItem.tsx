@@ -169,7 +169,7 @@ export const WorkoutItem = ({
                     color: '#666',
                     background: `linear-gradient(to right, ${dateColor}08, ${dateColor}15)`,
                     borderColor: `${dateColor}22`,
-                    width: '140px',
+                    width: '150px',
                     overflow: 'visible',
                     paddingLeft: 0,
                     height: '32px',
@@ -205,7 +205,7 @@ export const WorkoutItem = ({
                   >
                     {_.isEmpty(workout.unit) || workout.unit === '自重'
                       ? ''
-                      : `${group.weight}${workout.unit}×`}
+                      : `${group.weight}${workout.unit} × `}
                     <span className="font-bold text-base">{group.reps}</span>次
                     {typeof group.restTime === 'number' && group.restTime > 0 && (
                       <span className="ml-1 text-[10px] opacity-75">

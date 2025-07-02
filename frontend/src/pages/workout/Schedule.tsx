@@ -85,9 +85,9 @@ export const Schedule = () => {
 
   return (
     <div className="page-container bg-[var(--adm-color-background)]">
-      <div className="p-4">
+      <div className="p-2">
         {/* 年月选择器 */}
-        <Card className="mb-4">
+        <Card className="mb-2">
           <Picker
             columns={[yearColumns, monthColumns]}
             value={[selectedYearMonth.year, selectedYearMonth.month]}
@@ -106,7 +106,7 @@ export const Schedule = () => {
         </Card>
 
         {/* 日历 */}
-        <Card className="mb-4">
+        <Card className="mb-2">
           <Calendar
             selectionMode="single"
             value={selectedDate}

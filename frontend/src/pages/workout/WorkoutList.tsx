@@ -202,10 +202,11 @@ export const WorkoutList = () => {
 
   return (
     <div className="page-container from-gray-50 via-gray-50 to-gray-100">
-      <div className="px-4 pt-4 pb-2 flex gap-2">
+      <div className="px-2 pt-2 pb-0 flex gap-2">
         <div style={{ flex: 1 }}>
           <PageSelect
             options={CATEGORY_OPTIONS}
+            placeholder="请选择类别"
             value={selectedCategory ?? ''}
             onChange={val => {
               setSelectedCategory(val as string);
@@ -216,6 +217,7 @@ export const WorkoutList = () => {
           <PageSelect
             options={projectOptions}
             value={selectedProject ?? ''}
+            placeholder="请选择项目"
             onChange={val => {
               setSelectedProject(val as string);
             }}
@@ -223,7 +225,7 @@ export const WorkoutList = () => {
           />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto px-4 pt-2">
+      <div className="flex-1 overflow-y-auto px-2 pt-0">
         {/* 训练记录列表 */}
         {Object.entries(allWorkouts).map(([date, workouts]) => (
           <WorkoutDayGroup

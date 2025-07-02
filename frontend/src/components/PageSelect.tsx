@@ -16,6 +16,7 @@ import type { FC } from 'react';
  * @property {boolean} [hasMore] 是否还有更多数据
  * @property {() => void} [onLoadMore] 加载更多回调
  * @property {(selectedLabel: string, extra: { onClick: () => void }) => React.ReactNode} [triggerRender] 自定义触发区渲染，extra.onClick 必须绑定到触发区
+ * @property {string} [placeholder] 占位符，未选中时显示
  */
 export interface PageSelectProps {
   options: { label: string; value: string }[];
@@ -26,6 +27,7 @@ export interface PageSelectProps {
   hasMore?: boolean;
   onLoadMore?: () => void;
   triggerRender?: (selectedLabel: string, extra: { onClick: () => void }) => React.ReactNode;
+  placeholder?: string;
 }
 
 /**
@@ -43,6 +45,7 @@ const PageSelect: FC<PageSelectProps> = ({
   hasMore = false,
   onLoadMore,
   triggerRender,
+  placeholder = '请选择',
 }) => {
   const listRef = useRef<any>(null);
   const [visible, setVisible] = React.useState(false);
@@ -97,7 +100,7 @@ const PageSelect: FC<PageSelectProps> = ({
       className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors cursor-pointer flex items-center justify-between"
       onClick={() => setVisible(true)}
     >
-      <span>{selectedLabel || '请选择'}</span>
+      <span style={{ color: selectedLabel ? '#222' : '#999' }}>{selectedLabel || placeholder}</span>
       {value ? (
         <span
           style={{ marginLeft: 8, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
