@@ -2,7 +2,6 @@ import { Card, Dialog, List, SwipeAction, Toast } from 'antd-mobile';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { useEffect } from 'react';
 import _ from 'lodash';
 
 import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
@@ -138,12 +137,6 @@ export const WorkoutItem = ({
                   >
                     {workout.projectName}
                   </div>
-                  {typeof workout.trainingTime === 'number' && workout.trainingTime > 0 && (
-                    <div className="text-xs opacity-75">
-                      训练时间：
-                      <span className="font-bold text-sm">{formatTime(workout.trainingTime)}</span>
-                    </div>
-                  )}
                 </div>
               </div>
               <div className="font-medium">
@@ -158,6 +151,27 @@ export const WorkoutItem = ({
                 </span>
               </div>
             </div>
+            {/* 训练时间单独一行美化显示 */}
+            {typeof workout.trainingTime === 'number' && workout.trainingTime > 0 && (
+              <div
+                className="flex items-center gap-2 px-3 py-1 rounded-full w-fit"
+                style={{
+                  background: `linear-gradient(90deg, ${dateColor}22 60%, ${dateColor}08 100%)`,
+                  color: dateColor,
+                  fontWeight: 500,
+                  fontSize: '15px',
+                  margin: '4px 0 8px 0',
+                }}
+              >
+                <span style={{ fontSize: '18px', marginRight: '0px' }}>⏱️</span>
+                <span className="text-md" style={{ color: '#666' }}>
+                  训练时间：
+                </span>
+                <span className="font-bold text-base" style={{ color: dateColor }}>
+                  {formatTime(workout.trainingTime)}
+                </span>
+              </div>
+            )}
 
             {/* 训练组信息 */}
             <div className="flex gap-2 flex-wrap">
