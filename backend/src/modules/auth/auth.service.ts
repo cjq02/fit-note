@@ -109,6 +109,7 @@ export class AuthService {
         user: {
           id: user.id,
           username: user.username,
+          isAdmin: user.isAdmin,
         },
         needCaptcha: false,
       };

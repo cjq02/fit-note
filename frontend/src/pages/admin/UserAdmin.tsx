@@ -1,14 +1,21 @@
+/* global setTimeout */
 import { useEffect, useState } from 'react';
 import { getAllUsers, impersonateUser } from '@/api/auth.api';
+import { List, Card, Button, Toast, Dialog, Badge, Avatar } from 'antd-mobile';
+import { UserOutline } from 'antd-mobile-icons';
+import { useNavigate } from 'react-router-dom';
 
 /**
+ * 用户管理页面（仅管理员可见）
  *
+ * @returns {JSX.Element} 用户管理页
  */
 export default function UserAdmin() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 获取当前用户信息
@@ -19,28 +26,33 @@ export default function UserAdmin() {
     // 获取所有用户
     getAllUsers()
       .then(res => {
-        setUsers(res.data);
+        setUsers(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setError('无权限或获取用户失败');
         setLoading(false);
       });
   }, []);
 
   const handleImpersonate = async (userId: string) => {
-    if (!window.confirm('确定要切换为该用户吗？')) return;
-    try {
-      const res = await impersonateUser(userId);
-      if (res.token) {
-        localStorage.setItem('token', res.token);
-        window.location.reload();
-      } else {
-        alert('切换失败');
-      }
-    } catch (e) {
-      alert('切换失败');
-    }
+    Dialog.confirm({
+      content: '确定要切换为该用户吗？',
+      onConfirm: async () => {
+        try {
+          const res = await impersonateUser(userId);
+          if (res?.data?.token) {
+            localStorage.setItem('token', res.data.token);
+            Toast.show({ icon: 'success', content: '切换成功，正在跳转首页...' });
+            setTimeout(() => navigate('/'), 800);
+          } else {
+            Toast.show({ icon: 'fail', content: '切换失败' });
+          }
+        } catch {
+          Toast.show({ icon: 'fail', content: '切换失败' });
+        }
+      },
+    });
   };
 
   if (loading) return <div>加载中...</div>;
@@ -48,20 +60,58 @@ export default function UserAdmin() {
   if (!currentUser?.isAdmin) return <div>无权限</div>;
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto' }}>
-      <h2>用户管理（管理员）</h2>
-      <ul>
-        {users.map(u => (
-          <li key={u._id} style={{ marginBottom: 8 }}>
-            {u.username} {u.isAdmin ? <b>(管理员)</b> : ''}
-            {u._id !== currentUser.id && (
-              <button style={{ marginLeft: 16 }} onClick={() => handleImpersonate(u._id)}>
-                切换为该用户
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+    <div style={{ maxWidth: 600, margin: '0 auto', overflowY: 'auto', maxHeight: '100vh' }}>
+      {/* 顶部渐变背景和大标题 */}
+      <div
+        style={{
+          background: 'linear-gradient(90deg, #a18cd1 0%, #fbc2eb 100%)',
+          borderRadius: '0 0 32px 32px',
+          padding: '32px 0 24px 0',
+          marginBottom: 24,
+          textAlign: 'center',
+          color: '#333',
+          boxShadow: '0 4px 16px 0 rgba(161,140,209,0.08)',
+        }}
+      >
+        <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: 2 }}>用户管理</div>
+        <div style={{ fontSize: 15, color: '#666', marginTop: 8 }}>管理员可切换任意用户身份</div>
+      </div>
+      <Card style={{ borderRadius: 18, boxShadow: '0 2px 12px 0 rgba(161,140,209,0.10)' }}>
+        <div style={{ overflowY: 'auto', maxHeight: '60vh' }}>
+          <List>
+            {users.map(u => (
+              <List.Item
+                key={u._id || u.id || u.username}
+                prefix={
+                  <Avatar
+                    style={{
+                      background: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+                      color: '#fff',
+                      fontWeight: 700,
+                    }}
+                    icon={<UserOutline />}
+                  />
+                }
+                description={u.isAdmin ? <Badge color="gold">管理员</Badge> : ''}
+                extra={
+                  (u._id || u.id) !== currentUser.id && (
+                    <Button
+                      size="mini"
+                      color="primary"
+                      onClick={() => handleImpersonate(u._id || u.id)}
+                    >
+                      切换身份
+                    </Button>
+                  )
+                }
+                style={{ borderRadius: 12, marginBottom: 6 }}
+              >
+                <span style={{ fontWeight: 500 }}>{u.username}</span>
+              </List.Item>
+            ))}
+          </List>
+        </div>
+      </Card>
     </div>
   );
 }

@@ -50,6 +50,7 @@ export const Login = () => {
       }
       const response = await login(payload);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       Toast.show({ icon: 'success', content: '登录成功' });
       setShowCaptcha(false);
       setCaptchaImg('');
