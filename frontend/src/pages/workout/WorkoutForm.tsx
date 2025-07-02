@@ -749,7 +749,7 @@ export const WorkoutForm = () => {
             {/* 日期和项目名称卡片 */}
             <div className="mb-2 p-2 rounded-xl bg-white shadow-sm">
               <div className="flex gap-3">
-                <Form.Item label="训练日期" style={{ flex: 1 }}>
+                <Form.Item label="训练日期" style={{ flex: 0.8 }}>
                   <div
                     onClick={() => setDateVisible(true)}
                     className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border-2 border-solid border-gray-400 bg-white active:bg-[var(--adm-color-fill-light)] transition-colors"
@@ -766,7 +766,7 @@ export const WorkoutForm = () => {
                     onClose={() => setDateVisible(false)}
                   />
                 </Form.Item>
-                <Form.Item label="项目名称" style={{ flex: 1 }}>
+                <Form.Item label="项目名称" style={{ flex: 1.2 }}>
                   <div className="h-[40px] leading-[40px] pl-3 rounded-lg border-2 border-solid border-gray-400 bg-white text-base whitespace-nowrap overflow-hidden text-ellipsis">
                     {decodeURIComponent(projectName || '') ||
                       workoutData?.data.projectName ||
@@ -859,7 +859,7 @@ export const WorkoutForm = () => {
             >
               <div className="mb-2 p-4 rounded-xl bg-white shadow-sm">
                 <div className="flex gap-4">
-                  <div className="flex-1">
+                  <div className="flex-[0.8]">
                     <span className="text-[var(--adm-color-text)] text-base block mb-2">
                       训练单位
                     </span>
@@ -895,7 +895,7 @@ export const WorkoutForm = () => {
                       )}
                     />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-[1.2]">
                     <span className="text-[var(--adm-color-text)] text-base block mb-2">
                       训练时间
                     </span>
