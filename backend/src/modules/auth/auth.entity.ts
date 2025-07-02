@@ -18,6 +18,9 @@ export class User {
     @Prop()
       lastLoginFailAt?: Date;
 
+    @Prop({ default: false })
+      isAdmin: boolean;
+
     // 创建时间，由 timestamps 自动管理
     createdAt?: Date;
 

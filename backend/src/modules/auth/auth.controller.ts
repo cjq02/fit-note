@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req, NotFoundException, Param } from '@nestjs/common';
 import * as svgCaptcha from 'svg-captcha';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,6 +8,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { AdminGuard } from './guards/admin.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 export const captchaStore = new Map<string, string>();
@@ -61,5 +62,20 @@ export class AuthController {
       const userId = req.user?._id;
       await this.authService.changePassword(userId, dto);
       return { message: '密码修改成功' };
+    }
+
+    @UseGuards(JwtAuthGuard, AdminGuard)
+    @Get('users')
+    async getAllUsers() {
+      return this.authService.findAllUsers();
+    }
+
+    @UseGuards(JwtAuthGuard, AdminGuard)
+    @Post('impersonate/:userId')
+    async impersonate(@Param('userId') userId: string) {
+      const user = await this.authService.findById(userId);
+      if (!user) throw new NotFoundException('用户不存在');
+      const token = this.authService.generateJwtToken(user);
+      return { token };
     }
 }

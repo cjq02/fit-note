@@ -144,4 +144,17 @@ export class AuthService {
     await user.save();
     return true;
   }
+
+  async findAllUsers() {
+    return this.userModel.find().select('-password');
+  }
+
+  async findById(userId: string) {
+    return this.userModel.findById(userId);
+  }
+
+  generateJwtToken(user: UserDocument) {
+    const payload = { sub: user.id || user._id, username: user.username, isAdmin: user.isAdmin };
+    return this.jwtService.sign(payload);
+  }
 }
