@@ -43,11 +43,34 @@ export const getUserInfo = async (): Promise<ApiResponse<GetUserInfoResponse>> =
 };
 
 /**
+ * 修改密码
  *
  * @param data
- * @param data.oldPassword
- * @param data.newPassword
+ * @param data.oldPassword 旧密码
+ * @param data.newPassword 新密码
+ * @returns {Promise<any>} 修改结果
  */
 export const changePassword = (data: { oldPassword: string; newPassword: string }) => {
   return http.post('/api/auth/change-password', data);
+};
+
+// 获取所有用户（仅管理员）
+/**
+ * 获取所有用户（仅管理员）
+ *
+ * @returns {Promise<any>} 用户列表
+ */
+export const getAllUsers = async () => {
+  return http.get('/api/auth/users');
+};
+
+// 管理员切换为指定用户
+/**
+ * 管理员切换为指定用户
+ *
+ * @param {string} userId - 目标用户ID
+ * @returns {Promise<any>} 新的 token
+ */
+export const impersonateUser = async (userId: string) => {
+  return http.post(`/api/auth/impersonate/${userId}`);
 };

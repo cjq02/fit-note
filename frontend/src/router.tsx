@@ -11,6 +11,7 @@ import { WorkoutList } from './pages/workout/WorkoutList';
 import { WorkoutForm } from './pages/workout/WorkoutForm';
 import { Schedule } from './pages/workout/Schedule';
 import ProjectForm from '@/pages/project/ProjectForm';
+import UserAdmin from '@/pages/admin/UserAdmin';
 
 /**
  * 扩展路由类型，添加 title 属性
@@ -126,6 +127,15 @@ const routes: CustomRouteObject[] = [
           </PrivateRoute>
         ),
         title: '个人中心',
+      },
+      {
+        path: 'admin/users',
+        element: (
+          <PrivateRoute>
+            <UserAdmin />
+          </PrivateRoute>
+        ),
+        title: '用户管理',
       },
       {
         path: '/project/new',

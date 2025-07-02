@@ -194,6 +194,16 @@ export const Profile = () => {
     },
   ];
 
+  // 管理员专属设置项
+  if (userInfo?.isAdmin) {
+    settings.unshift({
+      title: '用户管理',
+      icon: <SetOutline />,
+      onClick: () => navigate('/admin/users'),
+      arrow: true,
+    });
+  }
+
   return (
     <div className="page-container bg-[var(--adm-color-background)]">
       <div className="p-4">

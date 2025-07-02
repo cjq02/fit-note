@@ -123,6 +123,7 @@ export interface LoginResponse {
 export interface UserInfo {
   id: string;
   username: string;
+  isAdmin: boolean;
 }
 
 // 获取用户信息响应
