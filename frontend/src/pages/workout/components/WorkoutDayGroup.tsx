@@ -1,4 +1,5 @@
 import { List } from 'antd-mobile';
+import dayjs from 'dayjs';
 
 import type { Workout as WorkoutType } from '@/@typings/types.d.ts';
 import { generateColorFromDate } from '@/utils/color.utils';
@@ -8,6 +9,19 @@ interface WorkoutDayGroupProps {
   date: string;
   workouts: WorkoutType[];
   onDeleteSuccess: () => void;
+}
+
+// 日期格式化函数
+function formatDisplayDate(dateStr: string) {
+  const date = dayjs(dateStr);
+  const today = dayjs();
+  const diff = today.startOf('day').diff(date.startOf('day'), 'day');
+  const weekMap = ['日', '一', '二', '三', '四', '五', '六'];
+  const dateText = `${date.format('YYYY年M月D日')}，周${weekMap[date.day()]}`;
+  if (diff === 0) return `今天（${dateText}）`;
+  if (diff === 1) return `昨天（${dateText}）`;
+  if (diff === 2) return `前天（${dateText}）`;
+  return `${dateText}`;
 }
 
 /**
@@ -30,7 +44,7 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
           }}
         />
         <div className="text-[15px] font-medium tracking-wide" style={{ color: dateColor }}>
-          {date}
+          {formatDisplayDate(date)}
         </div>
         <div
           className="flex-1 h-[1px]"
