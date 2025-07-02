@@ -168,7 +168,7 @@ export class WorkoutService {
       conditions.projectId = query.projectId;
     }
     // 新增：支持 category 参数
-    if (query.category) {
+    else if (query.category) {
       // 先查出该用户下所有该类别的项目id
       const projects = await this.projectService.findAll(query.userId);
       const categoryProjectIds = projects.filter(p => p.category === query.category).map(p => p.id.toString());
