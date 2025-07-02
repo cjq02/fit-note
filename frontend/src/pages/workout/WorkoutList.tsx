@@ -30,6 +30,8 @@ export const WorkoutList = () => {
   >([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [projectLoading, setProjectLoading] = useState(false);
+  // 新增：缓存所有项目
+  const [allProjects, setAllProjects] = useState<any[]>([]);
 
   // 获取按日期分组的训练记录
   const { data: groupedWorkoutsData, refetch } = useQuery<
@@ -91,7 +93,7 @@ export const WorkoutList = () => {
   // 页码变化时加载数据
   useEffect(() => {
     const loadMoreData = async () => {
-      if (page > 1) {
+      if (isInitialized) {
         setIsLoading(true);
         try {
           await refetch();
@@ -103,33 +105,47 @@ export const WorkoutList = () => {
     loadMoreData();
   }, [page]);
 
-  // 获取所有项目并生成下拉选项
+  // 只在挂载时请求一次所有项目
   useEffect(() => {
     setProjectLoading(true);
     getProjects()
       .then(res => {
-        let list = res.data || [];
-        // 按类别筛选
+        const list = res.data || [];
+        setAllProjects(list);
+        // 初始筛选
+        let filtered = list;
         if (selectedCategory) {
-          list = list.filter((p: any) => p.category === selectedCategory);
+          filtered = list.filter((p: any) => p.category === selectedCategory);
         }
-        const opts = list.map((p: any) => ({ label: p.name, value: p.id, category: p.category }));
+        const opts = filtered.map((p: any) => ({
+          label: p.name,
+          value: p.id,
+          category: p.category,
+        }));
         setProjectOptions(opts);
-        // 如果当前选中的项目不在新列表中，重置
         if (selectedProject && !opts.find(opt => opt.value === selectedProject)) {
           setSelectedProject(null);
         }
       })
       .finally(() => setProjectLoading(false));
-  }, [selectedCategory]);
+  }, []);
 
-  // 切换类别时自动查询
+  // 切换类别时本地筛选项目并查询
   useEffect(() => {
+    let filtered = allProjects;
+    if (selectedCategory) {
+      filtered = allProjects.filter((p: any) => p.category === selectedCategory);
+    }
+    const opts = filtered.map((p: any) => ({ label: p.name, value: p.id, category: p.category }));
+    setProjectOptions(opts);
+    if (selectedProject && !opts.find(opt => opt.value === selectedProject)) {
+      setSelectedProject(null);
+    }
     setPage(1);
     if (isInitialized) {
       refetch();
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, allProjects]);
 
   // 切换项目时自动查询
   useEffect(() => {
