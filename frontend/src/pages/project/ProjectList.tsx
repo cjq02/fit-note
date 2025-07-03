@@ -236,7 +236,10 @@ export const ProjectList = (): React.ReactElement => {
               {/* 项目图标/封面 */}
               <div
                 className="w-12 h-12 rounded-lg flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-md"
-                style={{ background: generateColorFromCategory(project.category) }}
+                style={{
+                  background: generateColorFromCategory(project.category),
+                  alignSelf: 'center',
+                }}
               >
                 {CATEGORY_LABEL_MAP[project.category] || project.category}
               </div>
@@ -248,7 +251,7 @@ export const ProjectList = (): React.ReactElement => {
                 </div>
 
                 {project.description && (
-                  <div className="text-xs text-gray-400 mt-1 line-clamp-2">
+                  <div className="text-xs text-gray-400 mt-1 line-clamp-1">
                     {project.description}
                   </div>
                 )}
