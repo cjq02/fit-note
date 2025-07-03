@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react';
 import { getAllUsers, impersonateUser } from '@/api/auth.api';
 import { List, Card, Button, Toast, Dialog, Badge, Avatar } from 'antd-mobile';
-import { UserOutline } from 'antd-mobile-icons';
+import { UserOutline, KeyOutline } from 'antd-mobile-icons';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 /**
  * 用户管理页面（仅管理员可见）
@@ -84,15 +85,26 @@ export default function UserAdmin() {
                 key={u._id || u.id || u.username}
                 prefix={
                   <Avatar
+                    src=""
                     style={{
                       background: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
                       color: '#fff',
                       fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 18,
                     }}
-                    icon={<UserOutline />}
+                    fallback={(u.username || '').charAt(0).toUpperCase()}
                   />
                 }
-                description={u.isAdmin ? <Badge color="gold">管理员</Badge> : ''}
+                description={
+                  u.createdAt && (
+                    <div style={{ color: '#888', fontSize: 12, textAlign: 'left' }}>
+                      创建于 {dayjs(u.createdAt).format('YYYY-MM-DD')}
+                    </div>
+                  )
+                }
                 extra={
                   (u._id || u.id) !== currentUser.id && (
                     <Button
@@ -106,7 +118,12 @@ export default function UserAdmin() {
                 }
                 style={{ borderRadius: 12, marginBottom: 6 }}
               >
-                <span style={{ fontWeight: 500 }}>{u.username}</span>
+                <span style={{ fontWeight: 500, display: 'inline-flex', alignItems: 'center' }}>
+                  {u.username}
+                  {u.isAdmin && (
+                    <KeyOutline style={{ color: '#faad14', marginLeft: 6, fontSize: 18 }} />
+                  )}
+                </span>
               </List.Item>
             ))}
           </List>
