@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ErrorBlock, InfiniteScroll } from 'antd-mobile';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import PageSelect from '@/components/PageSelect';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 import { getProjects } from '@/api/project.api';
@@ -32,6 +32,9 @@ export const WorkoutList = () => {
   const [projectLoading, setProjectLoading] = useState(false);
   // 新增：缓存所有项目
   const [allProjects, setAllProjects] = useState<any[]>([]);
+
+  // 新增：回到顶部按钮显示状态
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   // 获取按日期分组的训练记录
   const { data: groupedWorkoutsData, refetch } = useQuery<
@@ -155,6 +158,29 @@ export const WorkoutList = () => {
     }
   }, [selectedProject]);
 
+  // 监听滚动，控制回到顶部按钮显示（只监听第二个 overflow-y-auto 容器）
+  useEffect(() => {
+    const containers = document.querySelectorAll('.overflow-y-auto');
+    const container = containers[1]; // 只监听第二个
+    if (!container) return;
+    const handleScroll = () => {
+      setShowBackToTop(container.scrollTop > 200);
+    };
+    container.addEventListener('scroll', handleScroll);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // 回到顶部函数（只操作第二个 overflow-y-auto 容器）
+  const handleBackToTop = useCallback(() => {
+    const containers = document.querySelectorAll('.overflow-y-auto');
+    const container = containers[1];
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
   /**
    * 处理删除成功后的刷新
    */
@@ -216,6 +242,21 @@ export const WorkoutList = () => {
     setPage(prev => prev + 1);
   };
 
+  // 调试：打印所有 overflow-y-auto 元素
+  useEffect(() => {
+    const containers = document.querySelectorAll('.overflow-y-auto');
+    console.log('找到的overflow-y-auto元素数量:', containers.length, containers);
+  }, []);
+
+  // 调试：监听 window 的 scroll 事件
+  useEffect(() => {
+    const handleScroll = () => {
+      console.log('window scrollTop:', window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="page-container from-gray-50 via-gray-50 to-gray-100">
       <div className="px-2 pt-2 pb-0 flex gap-2">
@@ -262,6 +303,63 @@ export const WorkoutList = () => {
           </div>
         )}
       </div>
+      {/* 回到顶部悬浮按钮 */}
+      {showBackToTop && (
+        <button
+          onClick={handleBackToTop}
+          style={{
+            position: 'fixed',
+            right: 24,
+            bottom: 80,
+            zIndex: 100,
+            width: 52,
+            height: 52,
+            borderRadius: '50%',
+            background:
+              'linear-gradient(135deg, rgba(79,140,255,0.85) 0%, rgba(51,88,224,0.85) 100%)',
+            color: '#fff',
+            border: 'none',
+            boxShadow: '0 8px 32px 0 rgba(51,88,224,0.18), 0 1.5px 6px 0 rgba(0,0,0,0.10)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'box-shadow 0.2s, background 0.2s, opacity 0.2s',
+            opacity: 0.82,
+            backdropFilter: 'blur(2px)',
+          }}
+          aria-label="回到顶部"
+          onMouseOver={e => {
+            e.currentTarget.style.boxShadow =
+              '0 12px 36px 0 rgba(51,88,224,0.28), 0 2px 8px 0 rgba(0,0,0,0.13)';
+            e.currentTarget.style.opacity = '1';
+          }}
+          onMouseOut={e => {
+            e.currentTarget.style.boxShadow =
+              '0 8px 32px 0 rgba(51,88,224,0.18), 0 1.5px 6px 0 rgba(0,0,0,0.10)';
+            e.currentTarget.style.opacity = '0.82';
+          }}
+        >
+          {/* SVG 向上箭头图标 */}
+          <svg
+            width="30"
+            height="30"
+            viewBox="0 0 30 30"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* 背景色完全透明 */}
+            <circle cx="15" cy="15" r="15" fill="none" />
+            <path
+              d="M10 17l5-5 5 5"
+              stroke="#fff"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 };
