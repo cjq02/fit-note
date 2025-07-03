@@ -315,11 +315,10 @@ export const WorkoutList = () => {
             width: 52,
             height: 52,
             borderRadius: '50%',
-            background:
-              'linear-gradient(135deg, rgba(79,140,255,0.85) 0%, rgba(51,88,224,0.85) 100%)',
+            background: 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)',
             color: '#fff',
             border: 'none',
-            boxShadow: '0 8px 32px 0 rgba(51,88,224,0.18), 0 1.5px 6px 0 rgba(0,0,0,0.10)',
+            boxShadow: '0 8px 32px 0 rgba(51,88,224,0.10), 0 1.5px 6px 0 rgba(0,0,0,0.10)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -331,12 +330,12 @@ export const WorkoutList = () => {
           aria-label="回到顶部"
           onMouseOver={e => {
             e.currentTarget.style.boxShadow =
-              '0 12px 36px 0 rgba(51,88,224,0.28), 0 2px 8px 0 rgba(0,0,0,0.13)';
+              '0 12px 36px 0 rgba(51,88,224,0.18), 0 2px 8px 0 rgba(0,0,0,0.13)';
             e.currentTarget.style.opacity = '1';
           }}
           onMouseOut={e => {
             e.currentTarget.style.boxShadow =
-              '0 8px 32px 0 rgba(51,88,224,0.18), 0 1.5px 6px 0 rgba(0,0,0,0.10)';
+              '0 8px 32px 0 rgba(51,88,224,0.10), 0 1.5px 6px 0 rgba(0,0,0,0.10)';
             e.currentTarget.style.opacity = '0.82';
           }}
         >
@@ -348,7 +347,6 @@ export const WorkoutList = () => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* 背景色完全透明 */}
             <circle cx="15" cy="15" r="15" fill="none" />
             <path
               d="M10 17l5-5 5 5"
