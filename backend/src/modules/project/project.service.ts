@@ -2,7 +2,6 @@ import { Injectable, NotFoundException, ConflictException, Inject, forwardRef } 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { getTodayString } from '../../shared/utils/date.utils.js';
 import { Workout } from '../workout/workout.entity';
 import { WorkoutService } from '../workout/workout.service';
 
@@ -26,13 +25,9 @@ export class ProjectService {
   // 获取所有训练项目
   // @param {string} userId - 用户ID
   // @returns {Promise<Project[]>} 返回所有训练项目，每个项目包含当天的训练记录ID（如果存在）
-  async findAll(userId: string): Promise<(Project & { todayWorkoutId?: string, latestWorkoutDate?: string })[]> {
+  async findAll(userId: string): Promise<(Project & { latestWorkoutId?: string, latestWorkoutDate?: string })[]> {
     // 获取当前用户的所有项目
     const projects = await this.projectModel.find({ userId }).sort({ seqNo: 1, createdAt: -1 }).exec();
-
-    // 获取今天的日期字符串
-    const today = getTodayString();
-    /* console.log('today', today); */
 
     // 为每个项目查询今天的训练记录和最近训练日期
     const projectsWithWorkout = await Promise.all(
@@ -42,10 +37,10 @@ export class ProjectService {
           userId
         ) as WorkoutWithId | null;
         // 判断是否为今天的训练
-        const todayWorkoutId = (latestWorkout && latestWorkout.date === today) ? latestWorkout.id : undefined;
+        const latestWorkoutId = latestWorkout ? latestWorkout.id : undefined;
         return {
           ...project.toObject(),
-          todayWorkoutId,
+          latestWorkoutId,
           latestWorkoutDate: latestWorkout?.date || null,
         };
       })

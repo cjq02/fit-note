@@ -53,7 +53,8 @@ export interface UpdateWorkoutRequest extends CreateWorkoutRequest {
  * @property {string} [description] - 项目描述
  * @property {number} seqNo - 排序号
  * @property {'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Abs' | 'Cardio' | 'Core'} category - 项目类别
- * @property {string | null} todayWorkoutId - 当天训练记录ID
+ * @property {string | null} latestWorkoutId - 最近一次训练记录ID，如果没有则为null
+ * @property {string} latestWorkoutDate - 最近训练日期
  * @property {string} createdAt - 创建时间
  * @property {string} updatedAt - 更新时间
  */
@@ -63,10 +64,11 @@ export interface Project {
   description?: string;
   seqNo: number;
   category: 'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Abs' | 'Cardio' | 'Core';
-  todayWorkoutId: string | null; // 当天的训练记录ID，如果没有则为null
+  latestWorkoutId: string | null; // 最近一次训练记录ID，如果没有则为null
+  latestWorkoutDate: string | null; // 最近训练日期
   createdAt: string;
   updatedAt: string;
-  latestWorkoutDate: string | null; // 最近训练日期
+  totalDays: number;
   defaultUnit: string;
   defaultWeight?: number;
 }

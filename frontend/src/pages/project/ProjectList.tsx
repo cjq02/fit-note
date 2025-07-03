@@ -132,11 +132,16 @@ export const ProjectList = (): React.ReactElement => {
    */
   const handleCardClick = useCallback(
     (project: Project) => {
-      if (project.todayWorkoutId) {
-        // 如果存在当天的训练记录，进入编辑页面
-        navigate(`/workout/edit/${project.todayWorkoutId}`);
+      // 判断 latestWorkoutDate 是否为今天
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const latestStr = project.latestWorkoutDate
+        ? new Date(project.latestWorkoutDate).toISOString().slice(0, 10)
+        : '';
+      if (project.latestWorkoutId && latestStr === todayStr) {
+        // 如果存在今天的训练记录，进入编辑页面
+        navigate(`/workout/edit/${project.latestWorkoutId}`);
       } else {
-        // 如果不存在当天的训练记录，进入新增页面
+        // 如果不存在今天的训练记录，进入新增页面
         navigate(
           `/workout/new?projectId=${project.id}&projectName=${encodeURIComponent(project.name)}`,
         );
@@ -279,16 +284,27 @@ export const ProjectList = (): React.ReactElement => {
                 </div>
 
                 {/* 训练进度 */}
-                {project.todayWorkoutId && (
-                  <div className="mt-2">
-                    <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full"
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                  </div>
-                )}
+                {/* 只有 latestWorkoutId 存在且 latestWorkoutDate 是今天才显示进度条 */}
+                {project.latestWorkoutId &&
+                  (() => {
+                    const todayStr = new Date().toISOString().slice(0, 10);
+                    const latestStr = project.latestWorkoutDate
+                      ? new Date(project.latestWorkoutDate).toISOString().slice(0, 10)
+                      : '';
+                    if (latestStr === todayStr) {
+                      return (
+                        <div className="mt-2">
+                          <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full"
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
               </div>
             </div>
           </div>
