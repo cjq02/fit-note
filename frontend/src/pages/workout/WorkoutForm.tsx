@@ -472,13 +472,6 @@ export const WorkoutForm = () => {
    * @returns {Promise<void>} 无返回值
    */
   const onFinish = async () => {
-    // 如果有正在进行的计时，先终止它
-    if (timerRef.current) {
-      window.clearInterval(timerRef.current);
-      timerRef.current = null;
-      setIsPaused(false);
-    }
-
     if (isTraining) {
       Dialog.show({
         content: '训练计时还在进行，是否暂停计时并保存？',
