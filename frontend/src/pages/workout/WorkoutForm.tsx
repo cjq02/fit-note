@@ -479,6 +479,48 @@ export const WorkoutForm = () => {
       setIsPaused(false);
     }
 
+    if (isTraining) {
+      Dialog.show({
+        content: '训练计时还在进行，是否暂停计时并保存？',
+        closeOnAction: true,
+        actions: [
+          {
+            key: 'cancel',
+            text: '取消保存',
+            onClick: () => {
+              // 什么都不做，直接关闭弹窗
+            },
+          },
+          {
+            key: 'noPause',
+            text: '不暂停，直接保存',
+            bold: false,
+            onClick: async () => {
+              await handleSave();
+            },
+          },
+          {
+            key: 'pauseAndSave',
+            text: '暂停并保存',
+            bold: true,
+            onClick: async () => {
+              setIsTraining(false);
+              if (trainingTimerRef.current) {
+                window.clearInterval(trainingTimerRef.current);
+                trainingTimerRef.current = null;
+              }
+              await handleSave();
+            },
+          },
+        ],
+      });
+      return;
+    }
+    await handleSave();
+  };
+
+  // 新增 handleSave 方法，原 onFinish 逻辑迁移到这里
+  const handleSave = async () => {
     if (!projectName && !id) {
       Toast.show({ icon: 'fail', content: '项目名称不能为空' });
       return;
@@ -528,6 +570,16 @@ export const WorkoutForm = () => {
    * 返回到训练计划页面
    */
   const handleBack = () => {
+    if (isTraining) {
+      Dialog.confirm({
+        content: '训练计时未结束，确定要关闭吗？',
+        onConfirm: () => {
+          setIsTraining(false); // 可选：顺便停止计时
+          navigate(fromPage === 'project' ? '/project' : '/workout', { replace: true });
+        },
+      });
+      return;
+    }
     if (isFormModified) {
       Dialog.confirm({
         content: '表单已修改，确定要放弃修改吗？',
