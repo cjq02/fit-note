@@ -21,6 +21,7 @@ import {
 } from 'antd-mobile-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 import type { Project } from '@/@typings/types.d.ts';
 import { deleteProject, getProjects } from '@/api/project.api';
@@ -133,9 +134,9 @@ export const ProjectList = (): React.ReactElement => {
   const handleCardClick = useCallback(
     (project: Project) => {
       // 判断 latestWorkoutDate 是否为今天
-      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayStr = dayjs().format('YYYY-MM-DD');
       const latestStr = project.latestWorkoutDate
-        ? new Date(project.latestWorkoutDate).toISOString().slice(0, 10)
+        ? dayjs(project.latestWorkoutDate).format('YYYY-MM-DD')
         : '';
       if (project.latestWorkoutId && latestStr === todayStr) {
         // 如果存在今天的训练记录，进入编辑页面
@@ -236,15 +237,11 @@ export const ProjectList = (): React.ReactElement => {
                 <div className="mt-2 text-xs flex items-center gap-1">
                   {project.latestWorkoutDate ? (
                     (() => {
-                      const today = new Date();
-                      const latest = new Date(project.latestWorkoutDate);
-                      // 只比较年月日
-                      const todayStr = today.toISOString().slice(0, 10);
-                      const latestStr = latest.toISOString().slice(0, 10);
-                      let diffDays = Math.floor(
-                        (today.setHours(0, 0, 0, 0) - latest.setHours(0, 0, 0, 0)) /
-                          (1000 * 60 * 60 * 24),
-                      );
+                      const todayStr = dayjs().format('YYYY-MM-DD');
+                      const latestStr = project.latestWorkoutDate
+                        ? dayjs(project.latestWorkoutDate).format('YYYY-MM-DD')
+                        : '';
+                      const diffDays = dayjs(todayStr).diff(dayjs(latestStr), 'day');
                       if (latestStr === todayStr) {
                         return (
                           <span className="text-green-600 font-bold flex items-center gap-1">
@@ -259,7 +256,14 @@ export const ProjectList = (): React.ReactElement => {
                             昨天训练
                           </span>
                         );
-                      } else if (diffDays > 1 && diffDays <= 5) {
+                      } else if (diffDays === 2) {
+                        return (
+                          <span className="text-blue-400 font-bold flex items-center gap-1">
+                            <ClockCircleOutline className="text-base" />
+                            前天训练
+                          </span>
+                        );
+                      } else if (diffDays > 2 && diffDays <= 5) {
                         return (
                           <span className="text-orange-500 font-bold flex items-center gap-1">
                             <ClockCircleOutline className="text-base" />
@@ -287,9 +291,9 @@ export const ProjectList = (): React.ReactElement => {
                 {/* 只有 latestWorkoutId 存在且 latestWorkoutDate 是今天才显示进度条 */}
                 {project.latestWorkoutId &&
                   (() => {
-                    const todayStr = new Date().toISOString().slice(0, 10);
+                    const todayStr = dayjs().format('YYYY-MM-DD');
                     const latestStr = project.latestWorkoutDate
-                      ? new Date(project.latestWorkoutDate).toISOString().slice(0, 10)
+                      ? dayjs(project.latestWorkoutDate).format('YYYY-MM-DD')
                       : '';
                     if (latestStr === todayStr) {
                       return (
