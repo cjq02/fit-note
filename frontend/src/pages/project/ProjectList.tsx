@@ -152,7 +152,7 @@ export const ProjectList = (): React.ReactElement => {
     [navigate],
   );
 
-  const CATEGORY_OPTIONS_WITH_ALL = [{ label: '全部', value: '' }, ...CATEGORY_OPTIONS];
+  const CATEGORY_OPTIONS_WITH_ALL = [{ label: '所有', value: '' }, ...CATEGORY_OPTIONS];
   const [selectedCategory, setSelectedCategory] = useState('');
   const [workoutDateFilter, setWorkoutDateFilter] = useState('');
 
@@ -228,7 +228,7 @@ export const ProjectList = (): React.ReactElement => {
       >
         <Card
           className="rounded-xl active:opacity-80 cursor-pointer transition-all duration-300 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05),0_8px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08),0_16px_48px_rgba(0,0,0,0.12)] hover:-translate-y-0.5"
-          style={{ background: '#fff' }}
+          style={{ background: '#fff', borderRadius: '0.75rem' }}
           onClick={() => handleCardClick(project)}
         >
           <div className="p-1">
@@ -398,7 +398,7 @@ export const ProjectList = (): React.ReactElement => {
         </div>
       </div>
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="flex pl-2 pt-2 max-w-2xl mx-auto">
+        <div className="flex pl-2 max-w-2xl mx-auto">
           {/* 左侧类别筛选栏 */}
           <div
             className="flex flex-col items-center py-4 px-2 bg-white/80 rounded-lg shadow-md mr-2"
@@ -426,7 +426,7 @@ export const ProjectList = (): React.ReactElement => {
             ))}
           </div>
           {/* 右侧项目列表 */}
-          <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 110px)' }}>
+          <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 170px)' }}>
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map(i => (
