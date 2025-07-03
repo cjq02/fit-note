@@ -254,7 +254,7 @@ export const ProjectList = (): React.ReactElement => {
                 )}
 
                 {/* 训练天数提示 */}
-                <div className="mt-2 text-xs flex items-center gap-1">
+                <div className="mt-2 text-xs flex items-center gap-1 justify-between">
                   {project.latestWorkoutDate ? (
                     (() => {
                       const todayStr = dayjs().format('YYYY-MM-DD');
@@ -262,42 +262,51 @@ export const ProjectList = (): React.ReactElement => {
                         ? dayjs(project.latestWorkoutDate).format('YYYY-MM-DD')
                         : '';
                       const diffDays = dayjs(todayStr).diff(dayjs(latestStr), 'day');
+                      let content = null;
+                      let colorClass = '';
+                      let icon = null;
                       if (latestStr === todayStr) {
-                        return (
-                          <span className="text-green-600 font-bold flex items-center gap-1">
-                            <CheckCircleOutline className="text-base" />
-                            今天已训练
-                          </span>
-                        );
+                        colorClass = 'text-green-600';
+                        icon = <CheckCircleOutline className="text-base" />;
+                        content = '今天已训练';
                       } else if (diffDays === 1) {
-                        return (
-                          <span className="text-blue-600 font-bold flex items-center gap-1">
-                            <ClockCircleOutline className="text-base" />
-                            昨天训练
-                          </span>
-                        );
+                        colorClass = 'text-blue-600';
+                        icon = <ClockCircleOutline className="text-base" />;
+                        content = '昨天训练';
                       } else if (diffDays === 2) {
-                        return (
-                          <span className="text-blue-400 font-bold flex items-center gap-1">
-                            <ClockCircleOutline className="text-base" />
-                            前天训练
-                          </span>
-                        );
+                        colorClass = 'text-blue-400';
+                        icon = <ClockCircleOutline className="text-base" />;
+                        content = '前天训练';
                       } else if (diffDays > 2 && diffDays <= 5) {
-                        return (
-                          <span className="text-orange-500 font-bold flex items-center gap-1">
-                            <ClockCircleOutline className="text-base" />
-                            {`${diffDays}天前训练`}
-                          </span>
-                        );
+                        colorClass = 'text-orange-500';
+                        icon = <ClockCircleOutline className="text-base" />;
+                        content = `${diffDays}天前训练`;
                       } else {
-                        return (
-                          <span className="text-red-500 font-bold flex items-center gap-1">
-                            <CloseCircleOutline className="text-base" />
-                            {`${diffDays}天前训练`}
-                          </span>
-                        );
+                        colorClass = 'text-red-500';
+                        icon = <CloseCircleOutline className="text-base" />;
+                        content = `${diffDays}天前训练`;
                       }
+                      return (
+                        <>
+                          <span className={`${colorClass} font-bold flex items-center gap-1`}>
+                            {icon}
+                            {content}
+                          </span>
+                          {/* 右侧小按钮，只有latestWorkoutId存在时显示，靠右对齐 */}
+                          {project.latestWorkoutId && (
+                            <button
+                              className="ml-auto px-2 py-0.5 rounded bg-blue-100 text-blue-600 text-xs hover:bg-blue-200 border border-blue-200 transition"
+                              onClick={e => {
+                                e.stopPropagation();
+                                navigate(`/workout/edit/${project.latestWorkoutId}`);
+                              }}
+                              style={{ lineHeight: '1.2', fontSize: 12 }}
+                            >
+                              查看记录
+                            </button>
+                          )}
+                        </>
+                      );
                     })()
                   ) : (
                     <span className="text-gray-400 flex items-center gap-1">
