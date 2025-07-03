@@ -68,7 +68,7 @@ export default function UserAdmin() {
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        padding: '12px 16px 16px 16px',
+        padding: '12px 16px 60px 16px',
         boxSizing: 'border-box',
         overflowY: 'auto',
       }}
