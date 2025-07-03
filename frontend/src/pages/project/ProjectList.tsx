@@ -10,6 +10,7 @@ import {
   SwipeAction,
   Tag,
   Toast,
+  Tabs,
 } from 'antd-mobile';
 import {
   AddOutline,
@@ -153,11 +154,33 @@ export const ProjectList = (): React.ReactElement => {
 
   const CATEGORY_OPTIONS_WITH_ALL = [{ label: '全部', value: '' }, ...CATEGORY_OPTIONS];
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [workoutDateFilter, setWorkoutDateFilter] = useState('');
+
+  const WORKOUT_DATE_FILTERS = [
+    { title: '全部', key: '' },
+    { title: '今天', key: 'today' },
+    { title: '昨天', key: 'yesterday' },
+    { title: '前天', key: 'beforeYesterday' },
+    { title: '更早', key: 'earlier' },
+  ];
+
+  const getWorkoutDateFilter = (project: Project, filter: string) => {
+    if (!filter) return true;
+    if (!project.latestWorkoutDate) return filter === 'earlier';
+    const today = dayjs().format('YYYY-MM-DD');
+    const latest = dayjs(project.latestWorkoutDate).format('YYYY-MM-DD');
+    const diffDays = dayjs(today).diff(dayjs(latest), 'day');
+    if (filter === 'today') return diffDays === 0;
+    if (filter === 'yesterday') return diffDays === 1;
+    if (filter === 'beforeYesterday') return diffDays === 2;
+    if (filter === 'earlier') return diffDays > 2;
+    return true;
+  };
 
   // 根据类别筛选项目
-  const filteredProjects = selectedCategory
-    ? projects.filter(p => p.category === selectedCategory)
-    : projects;
+  const filteredProjects = projects
+    .filter(p => (selectedCategory ? p.category === selectedCategory : true))
+    .filter(p => getWorkoutDateFilter(p, workoutDateFilter));
 
   // 类别中文映射
   const CATEGORY_LABEL_MAP: Record<string, string> = {
@@ -204,11 +227,8 @@ export const ProjectList = (): React.ReactElement => {
         ]}
       >
         <Card
-          className="rounded-xl active:opacity-80 cursor-pointer transition-all duration-300
-            bg-white
-            shadow-[0_4px_12px_rgba(0,0,0,0.05),0_8px_24px_rgba(0,0,0,0.08)]
-            hover:shadow-[0_8px_24px_rgba(0,0,0,0.08),0_16px_48px_rgba(0,0,0,0.12)]
-            hover:-translate-y-0.5"
+          className="rounded-xl active:opacity-80 cursor-pointer transition-all duration-300 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05),0_8px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08),0_16px_48px_rgba(0,0,0,0.12)] hover:-translate-y-0.5"
+          style={{ background: '#fff' }}
           onClick={() => handleCardClick(project)}
         >
           <div className="p-1">
@@ -323,6 +343,60 @@ export const ProjectList = (): React.ReactElement => {
       className="page-container bg-gradient-to-b from-gray-100 to-gray-200"
       style={{ overflow: 'hidden' }}
     >
+      {/* 顶部训练日期筛选 Tabs */}
+      <div className="w-full px-2 pt-2 pb-2">
+        <div
+          className="w-full rounded-xl shadow bg-white"
+          style={{
+            padding: '2px 8px',
+            minHeight: 36,
+            boxShadow: '0 4px 18px 0 rgba(30,64,175,0.08)',
+            background: '#fff',
+          }}
+        >
+          <Tabs
+            activeKey={workoutDateFilter}
+            onChange={key => setWorkoutDateFilter(key)}
+            stretch
+            className="custom-tabs w-full"
+            style={
+              {
+                '--active-line-height': '6px',
+                '--active-line-border-radius': '6px',
+                '--active-title-color': '#2563eb',
+                '--active-line-color': '#2563eb',
+                '--title-font-size': '16px',
+              } as any
+            }
+          >
+            {WORKOUT_DATE_FILTERS.map(opt => (
+              <Tabs.Tab
+                title={
+                  <span
+                    className={
+                      workoutDateFilter === opt.key
+                        ? 'font-bold text-blue-700 drop-shadow-sm'
+                        : 'text-gray-500'
+                    }
+                    style={{
+                      display: 'inline-block',
+                      width: '100%',
+                      textAlign: 'center',
+                      padding: '4px 0',
+                      borderRadius: '10px 10px 0 0',
+                      fontSize: 15,
+                      transition: 'color 0.2s',
+                    }}
+                  >
+                    {opt.title}
+                  </span>
+                }
+                key={opt.key}
+              />
+            ))}
+          </Tabs>
+        </div>
+      </div>
       <PullToRefresh onRefresh={handleRefresh}>
         <div className="flex pl-2 pt-2 max-w-2xl mx-auto">
           {/* 左侧类别筛选栏 */}
