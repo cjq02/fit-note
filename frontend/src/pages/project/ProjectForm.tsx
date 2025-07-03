@@ -228,7 +228,7 @@ export default function ProjectForm() {
               <TextArea
                 placeholder="请输入项目描述"
                 maxLength={200}
-                rows={3}
+                rows={5}
                 showCount
                 className="rounded-xl bg-white border border-[var(--adm-color-text-light)] text-base px-4 py-3 focus:border-[var(--adm-color-primary)] transition-colors duration-200"
                 value={description}
