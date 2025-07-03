@@ -61,74 +61,72 @@ export default function UserAdmin() {
   if (!currentUser?.isAdmin) return <div>无权限</div>;
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', overflowY: 'auto', maxHeight: '100vh' }}>
-      {/* 顶部渐变背景和大标题 */}
-      <div
-        style={{
-          background: 'linear-gradient(90deg, #a18cd1 0%, #fbc2eb 100%)',
-          borderRadius: '0 0 32px 32px',
-          padding: '32px 0 24px 0',
-          marginBottom: 24,
-          textAlign: 'center',
-          color: '#333',
-          boxShadow: '0 4px 16px 0 rgba(161,140,209,0.08)',
-        }}
-      >
-        <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: 2 }}>用户管理</div>
-        <div style={{ fontSize: 15, color: '#666', marginTop: 8 }}>管理员可切换任意用户身份</div>
-      </div>
-      <Card style={{ borderRadius: 18, boxShadow: '0 2px 12px 0 rgba(161,140,209,0.10)' }}>
-        <div style={{ overflowY: 'auto', maxHeight: '60vh' }}>
-          <List>
-            {users.map(u => (
-              <List.Item
-                key={u._id || u.id || u.username}
-                prefix={
-                  <Avatar
-                    src=""
-                    style={{
-                      background: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-                      color: '#fff',
-                      fontWeight: 700,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 18,
-                    }}
-                    fallback={(u.username || '').charAt(0).toUpperCase()}
-                  />
-                }
-                description={
-                  u.createdAt && (
-                    <div style={{ color: '#888', fontSize: 12, textAlign: 'left' }}>
+    <div
+      style={{
+        maxWidth: 600,
+        margin: '0 auto',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '12px 16px 16px 16px',
+        boxSizing: 'border-box',
+        overflowY: 'auto',
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {users.map(u => (
+          <Card
+            key={u._id || u.id || u.username}
+            style={{
+              borderRadius: 12,
+              margin: 0,
+              padding: 0,
+              boxShadow: '0 1px 6px 0 rgba(161,140,209,0.07)',
+            }}
+            bodyStyle={{ padding: '14px 14px 12px 14px' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Avatar
+                  src=""
+                  style={{
+                    background: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                  }}
+                  fallback={(u.username || '').charAt(0).toUpperCase()}
+                />
+                <div style={{ marginLeft: 12, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 600, fontSize: 16 }}>{u.username}</span>
+                    {u.isAdmin && (
+                      <KeyOutline style={{ color: '#faad14', marginLeft: 6, fontSize: 18 }} />
+                    )}
+                  </div>
+                  {u.createdAt && (
+                    <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
                       创建于 {dayjs(u.createdAt).format('YYYY-MM-DD')}
                     </div>
-                  )
-                }
-                extra={
-                  (u._id || u.id) !== currentUser.id && (
-                    <Button
-                      size="mini"
-                      color="primary"
-                      onClick={() => handleImpersonate(u._id || u.id)}
-                    >
-                      切换身份
-                    </Button>
-                  )
-                }
-                style={{ borderRadius: 12, marginBottom: 6 }}
-              >
-                <span style={{ fontWeight: 500, display: 'inline-flex', alignItems: 'center' }}>
-                  {u.username}
-                  {u.isAdmin && (
-                    <KeyOutline style={{ color: '#faad14', marginLeft: 6, fontSize: 18 }} />
                   )}
-                </span>
-              </List.Item>
-            ))}
-          </List>
-        </div>
-      </Card>
+                </div>
+              </div>
+              {(u._id || u.id) !== currentUser.id && (
+                <Button
+                  size="mini"
+                  color="primary"
+                  onClick={() => handleImpersonate(u._id || u.id)}
+                >
+                  切换身份
+                </Button>
+              )}
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
