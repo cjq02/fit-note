@@ -366,6 +366,7 @@ export const ProjectList = (): React.ReactElement => {
                 '--active-title-color': '#2563eb',
                 '--active-line-color': '#2563eb',
                 '--title-font-size': '16px',
+                borderBottom: 'none',
               } as any
             }
           >
@@ -471,6 +472,7 @@ export const ProjectList = (): React.ReactElement => {
       >
         <AddOutline fontSize={24} />
       </FloatingBubble>
+      <style>{`.adm-tabs-header { border-bottom: none !important; }`}</style>
     </div>
   );
 };
