@@ -64,6 +64,7 @@ export const WorkoutForm = () => {
   const [historyData, setHistoryData] = useState<any>(null);
   const [unitSelectVisible, setUnitSelectVisible] = useState(false);
   const [remark, setRemark] = useState<string>('');
+  const [projectDescription, setProjectDescription] = useState<string>('');
 
   // 备注展开/收起状态，初始值根据remark内容
   const [remarkExpanded, setRemarkExpanded] = useState(!!remark);
@@ -744,7 +745,7 @@ export const WorkoutForm = () => {
     });
   };
 
-  // 新建训练时，根据projectId获取项目默认单位和默认重量
+  // 新建训练时，根据projectId获取项目默认单位和默认重量和描述
   useEffect(() => {
     if (projectId && !id) {
       getProject(projectId).then(res => {
@@ -753,10 +754,22 @@ export const WorkoutForm = () => {
           setGroups([
             { reps: '', weight: res.data.defaultWeight?.toString() || '0', seqNo: 1, isNew: true },
           ]);
+          setProjectDescription(res.data.description || '');
         }
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, id]);
+
+  // 编辑训练时，根据projectId获取项目描述
+  useEffect(() => {
+    if (projectId && id) {
+      getProject(projectId).then(res => {
+        if (res.data) {
+          setProjectDescription(res.data.description || '');
+        }
+      });
+    }
   }, [projectId, id]);
 
   return (
@@ -812,7 +825,23 @@ export const WorkoutForm = () => {
                   />
                 </Form.Item>
                 <Form.Item label="项目名称" style={{ flex: 1.2 }}>
-                  <div className="h-[40px] leading-[40px] pl-3 rounded-lg border-2 border-solid border-gray-400 bg-white text-base whitespace-nowrap overflow-hidden text-ellipsis">
+                  <div
+                    className="h-[40px] leading-[40px] pl-3 rounded-lg border-2 border-solid border-gray-400 bg-white text-base whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer"
+                    onClick={() => {
+                      if (projectDescription) {
+                        Dialog.show({
+                          title: '项目描述',
+                          content: (
+                            <div style={{ whiteSpace: 'pre-wrap' }}>{projectDescription}</div>
+                          ),
+                          closeOnAction: true,
+                          actions: [[{ key: 'close', text: '关闭', bold: true }]],
+                        });
+                      } else {
+                        Toast.show({ content: '暂无项目描述', icon: 'info' });
+                      }
+                    }}
+                  >
                     {decodeURIComponent(projectName || '') ||
                       workoutData?.data.projectName ||
                       '新训练'}

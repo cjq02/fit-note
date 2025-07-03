@@ -248,7 +248,7 @@ export const ProjectList = (): React.ReactElement => {
                 </div>
 
                 {project.description && (
-                  <div className="text-sm text-gray-500 mt-1 line-clamp-2">
+                  <div className="text-xs text-gray-400 mt-1 line-clamp-2">
                     {project.description}
                   </div>
                 )}
