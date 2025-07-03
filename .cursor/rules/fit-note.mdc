@@ -3,6 +3,9 @@ description:
 globs:
 alwaysApply: false
 ---
-创建和修改的前端和后端文件, spaces都要是2, End of Line Sequence是LF
-eslint配置文件eslint.config.js
-日期处理统一用dayjs
+1. 前端和后端所有新建及修改的文件，统一使用 2 个空格缩进，行尾符号为 LF（Unix 格式）。
+2. 代码风格遵循 eslint.config.js 配置。
+3. 日期处理统一使用 dayjs 库。
+4. 注释要求：
+   - 使用单独一行注释（// 注释内容）。
+   - 所有方法（函数）必须添加方法注释，简要说明功能和参数。
