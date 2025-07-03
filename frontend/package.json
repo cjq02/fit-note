@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@antv/f2": "4",
     "@fit-note/shared-utils": "workspace:*",
     "@tanstack/react-query": "^5.76.2",
     "antd-mobile": "^5.39.0",
