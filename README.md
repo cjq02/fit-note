@@ -188,22 +188,52 @@ docker-compose -f docker-compose.prod.yml logs frontend
 ```
 
 4. 重新编译服务
-```bash
 
-# 添加执行权限
+你可以通过 `deploy.sh` 脚本一键部署和重启服务。常用命令如下：
+
+```bash
+# 添加执行权限（首次或拉取新代码后）
 chmod +x deploy.sh
 
-# 重新编译前端
-./deploy.sh frontend
-
-# 重新编译后端
-./deploy.sh backend
-
-# 重新编译所有服务
+# 全量部署（前端、后端、shared-utils）
 ./deploy.sh
+
+# 只全量部署前端
+./deploy.sh -f frontend
+
+# 只全量部署后端
+./deploy.sh -f backend
 ```
 
-注意：每次修改 `deploy.sh` 文件后，都需要先执行 `chmod -x deploy.sh` 移除执行权限，拉取代码后再执行 `chmod +x deploy.sh` 重新添加执行权限。
+- 脚本会自动判断哪些模块有变更，只构建和重启需要的服务。
+- 使用 `-f` 参数可强制全量部署指定模块。
+- 每次修改 `deploy.sh` 文件后，建议重新赋予执行权限。
+
+## 部署流程图（deploy.sh）
+
+```mermaid
+flowchart TD
+    A[开始] --> B[记录上次commit/拉取最新代码]
+    B --> C[获取变更文件]
+    C --> D{参数解析 -f}
+    D -->|全量| E[全部模块标记为需构建]
+    D -->|只frontend| F[只标记前端需构建]
+    D -->|只backend| G[只标记后端需构建]
+    D --> H[根据变更文件自动标记需构建模块]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    I{需构建哪些模块?}
+    I -->|shared-utils| J[build_shared_utils]
+    I -->|backend| K[build_backend]
+    I -->|frontend| L[build_frontend]
+    J --> M[检查容器状态]
+    K --> M
+    L --> M
+    M --> N[更新commit记录]
+    N --> O[输出耗时/结束]
+```
 
 ### 服务访问
 
@@ -340,55 +370,4 @@ chmod +x scripts/backup-mongodb.sh
 - 自动创建带时间戳的备份文件
 - 备份文件以 `.tar.gz` 格式压缩存储
 - 自动清理 7 天前的旧备份文件
-- 备份文件保存在 `/backup/mongodb` 目录
-
-#### 恢复脚本 (restore-mongodb.sh)
-
-用于从备份文件恢复 MongoDB 数据库。
-
-```bash
-# 添加执行权限
-chmod +x scripts/restore-mongodb.sh
-
-# 执行恢复（需要指定备份文件路径）
-./scripts/restore-mongodb.sh /backup/mongodb/20240101_120000.tar.gz
-```
-
-恢复脚本功能：
-- 支持从压缩的备份文件恢复数据
-- 恢复前会自动清空目标数据库
-- 使用临时目录进行解压和恢复操作
-- 恢复完成后自动清理临时文件
-
-注意事项：
-- 执行脚本前请确保已添加执行权限
-- 恢复操作会覆盖现有数据，请谨慎操作
-- 建议在恢复前先备份当前数据
-- 确保有足够的磁盘空间存储备份文件
-
-## 贡献指南
-
-1. Fork 项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
-
-### 提交规范
-- feat: 新功能
-- fix: 修复 bug
-- docs: 文档更新
-- style: 代码格式（不影响代码运行的变动）
-- refactor: 重构（既不是新增功能，也不是修改 bug 的代码变动）
-- test: 增加测试
-- chore: 构建过程或辅助工具的变动
-
-## 许可证
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
-## 联系方式
-
-- 项目维护者：[您的名字]
-- 邮箱：[您的邮箱]
-- 项目链接：[项目仓库地址]
+- 备份文件保存在 `/backup/mongodb`
