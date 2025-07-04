@@ -20,7 +20,6 @@ COPY frontend/ ./frontend/
 COPY packages/shared-utils/ ./packages/shared-utils/
 
 # 安装依赖并构建
-RUN echo "==== pnpm-lock.yaml begin ====" && cat pnpm-lock.yaml && echo "==== pnpm-lock.yaml end ===="
 RUN pnpm install
 
 # 先构建 shared-utils

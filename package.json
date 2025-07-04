@@ -1,6 +1,6 @@
 {
     "name": "fit-note",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "健身记录应用",
     "private": true,
     "scripts": {
