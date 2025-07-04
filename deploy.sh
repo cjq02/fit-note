@@ -17,19 +17,11 @@ changed_files=$(git diff --name-only $last_commit HEAD)
 need_build_frontend=false
 need_build_backend=false
 need_build_shared_utils=false
-need_rebuild_backend_image=false
-need_rebuild_frontend_image=false
-
-# 新增：只重建 frontend/backend
-only_build_frontend=false
-only_build_backend=false
 
 # 检查是否有 -f 参数（强制全量部署）
 force_all=false
-# 新增：检查是否有 -b 参数（强制重建 docker 镜像）
-force_rebuild_images=false
 
-# 参数解析，支持 -b frontend/backend
+# 参数解析，支持 -f frontend/backend
 args=("$@")
 for ((i=0; i<${#args[@]}; i++)); do
   arg=${args[$i]}
@@ -37,46 +29,24 @@ for ((i=0; i<${#args[@]}; i++)); do
   if [ "$arg" == "-f" ]; then
     if [ "$next_arg" == "frontend" ]; then
       force_all=true
-      only_build_frontend=true
+      need_build_frontend=true
+      need_build_backend=false
       i=$((i+1))
     elif [ "$next_arg" == "backend" ]; then
       force_all=true
-      only_build_backend=true
+      need_build_backend=true
+      need_build_frontend=false
       i=$((i+1))
     else
       force_all=true
     fi
   fi
-  if [ "$arg" == "-b" ]; then
-    force_rebuild_images=true
-    if [ "$next_arg" == "frontend" ]; then
-      only_build_frontend=true
-      i=$((i+1))
-    elif [ "$next_arg" == "backend" ]; then
-      only_build_backend=true
-      i=$((i+1))
-    fi
-  fi
-
 done
 
 if $force_all; then
   need_build_shared_utils=true
   need_build_backend=true
   need_build_frontend=true
-fi
-# 新增：如果有 -b 参数，强制重建 backend 和 frontend 镜像
-if $force_rebuild_images; then
-  if $only_build_frontend; then
-    need_rebuild_frontend_image=true
-    need_rebuild_backend_image=false
-  elif $only_build_backend; then
-    need_rebuild_backend_image=true
-    need_rebuild_frontend_image=false
-  else
-    need_rebuild_backend_image=true
-    need_rebuild_frontend_image=true
-  fi
 fi
 
 for file in $changed_files; do
@@ -91,12 +61,6 @@ for file in $changed_files; do
     need_build_frontend=true
     need_build_backend=true
   fi
-  if [[ $file == frontend/package.json ]]; then
-    need_rebuild_frontend_image=true
-  fi
-  if [[ $file == backend/package.json ]]; then
-    need_rebuild_backend_image=true
-  fi
 done
 
 # 定义函数：构建前端
@@ -105,6 +69,13 @@ build_frontend() {
     # 同步文件到容器
     echo "同步文件到前端容器..."
     docker cp frontend/. fit-note-frontend:/app/frontend/
+    # 检查 package.json 是否被修改
+    if echo "$changed_files" | grep -q "frontend/package.json"; then
+        echo "frontend/package.json 发生变化，拷贝根目录 package.json 和 pnpm-lock.yaml 到容器并安装依赖..."
+        docker cp package.json fit-note-frontend:/app/
+        docker cp pnpm-lock.yaml fit-note-frontend:/app/
+        docker exec -it fit-note-frontend sh -c "cd /app && pnpm install"
+    fi
     # 在容器中构建
     docker exec -it fit-note-frontend sh -c "cd /app/frontend && pnpm run build"
     # 重启容器
@@ -116,6 +87,12 @@ build_frontend() {
 build_backend() {
     echo "同步文件到后端容器..."
     docker cp backend/. fit-note-backend:/app/backend/
+    if echo "$changed_files" | grep -q "backend/package.json"; then
+        echo "backend/package.json 发生变化，拷贝根目录 package.json 和 pnpm-lock.yaml 到容器并安装依赖..."
+        docker cp package.json fit-note-backend:/app/
+        docker cp pnpm-lock.yaml fit-note-backend:/app/
+        docker exec -it fit-note-backend sh -c "cd /app && pnpm install"
+    fi
     echo "进入后端容器并编译..."
     docker exec -it fit-note-backend sh -c "cd /app/backend && pnpm run build"
     # 重启后端容器以运行新的构建结果
@@ -140,64 +117,15 @@ build_shared_utils() {
     docker exec -it fit-note-frontend sh -c "cd /app/packages/shared-utils && pnpm run build"
 }
 
-# 定义函数：重建前端镜像
-docker_build_frontend() {
-    echo "重新构建前端 Docker 镜像..."
-    docker-compose -f docker-compose.prod.yml build frontend
-}
-
-# 定义函数：重建后端镜像
-docker_build_backend() {
-    echo "重新构建后端 Docker 镜像..."
-    docker-compose -f docker-compose.prod.yml build backend
-}
-
 # 按需构建
-if $only_build_frontend; then
-    if $need_rebuild_frontend_image; then
-        docker_build_frontend
-    fi
-    if $need_build_frontend; then
-        build_frontend
-    fi
-    check_containers
-    git rev-parse HEAD > .last_deploy_commit
-    echo "部署结束时间: $(date '+%Y-%m-%d %H:%M:%S')"
-    end_time=$(date +%s)
-    elapsed_time=$((end_time - start_time))
-    echo "部署总耗时: ${elapsed_time} 秒"
-    exit 0
-fi
-if $only_build_backend; then
-    if $need_rebuild_backend_image; then
-        docker_build_backend
-    fi
-    if $need_build_backend; then
-        build_backend
-    fi
-    check_containers
-    git rev-parse HEAD > .last_deploy_commit
-    echo "部署结束时间: $(date '+%Y-%m-%d %H:%M:%S')"
-    end_time=$(date +%s)
-    elapsed_time=$((end_time - start_time))
-    echo "部署总耗时: ${elapsed_time} 秒"
-    exit 0
-fi
-
-if $need_build_shared_utils; then
-    build_shared_utils
-fi
-if $need_rebuild_backend_image; then
-    docker_build_backend
-fi
-if $need_rebuild_frontend_image; then
-    docker_build_frontend
+if $need_build_frontend; then
+    build_frontend
 fi
 if $need_build_backend; then
     build_backend
 fi
-if $need_build_frontend; then
-    build_frontend
+if $need_build_shared_utils; then
+    build_shared_utils
 fi
 
 # 检查容器状态
