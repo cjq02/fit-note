@@ -1,10 +1,11 @@
 /// <reference lib="dom" />
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, CalendarPicker, Dialog, Form, SwipeAction, Toast, Popup } from 'antd-mobile';
-import { AddOutline, DeleteOutline, HistogramOutline } from 'antd-mobile-icons';
+import { AddOutline, HistogramOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { HTMLDivElement } from 'react';
 
 import type {
   ApiResponse,
@@ -341,10 +342,12 @@ export const WorkoutForm = () => {
 
     // 使用 setTimeout 确保在 DOM 更新后执行滚动
     window.setTimeout(() => {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth',
-      });
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTo({
+          top: scrollContainerRef.current.scrollHeight,
+          behavior: 'smooth',
+        });
+      }
     }, 100);
   };
 
@@ -611,8 +614,10 @@ export const WorkoutForm = () => {
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const rootRef = useRef<globalThis.HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const initialHeightRef = useRef(window.innerHeight);
+  // 新增：滚动容器ref
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // 监听键盘弹出
   useEffect(() => {
@@ -795,6 +800,7 @@ export const WorkoutForm = () => {
         }
       `}</style>
       <div
+        ref={scrollContainerRef}
         className="h-full overflow-y-auto overscroll-contain"
         style={{
           height: '100%',
