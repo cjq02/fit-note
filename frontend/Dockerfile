@@ -20,6 +20,7 @@ COPY frontend/ ./frontend/
 COPY packages/shared-utils/ ./packages/shared-utils/
 
 # 安装依赖并构建
+RUN pwd
 RUN pnpm install
 
 # 先构建 shared-utils
