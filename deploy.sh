@@ -20,18 +20,44 @@ need_build_shared_utils=false
 need_rebuild_backend_image=false
 need_rebuild_frontend_image=false
 
+# 新增：只重建 frontend/backend
+only_build_frontend=false
+only_build_backend=false
+
 # 检查是否有 -f 参数（强制全量部署）
 force_all=false
 # 新增：检查是否有 -b 参数（强制重建 docker 镜像）
 force_rebuild_images=false
-for arg in "$@"; do
+
+# 参数解析，支持 -b frontend/backend
+args=("$@")
+for ((i=0; i<${#args[@]}; i++)); do
+  arg=${args[$i]}
+  next_arg=${args[$((i+1))]:-}
   if [ "$arg" == "-f" ]; then
-    force_all=true
-    break
+    if [ "$next_arg" == "frontend" ]; then
+      force_all=true
+      only_build_frontend=true
+      i=$((i+1))
+    elif [ "$next_arg" == "backend" ]; then
+      force_all=true
+      only_build_backend=true
+      i=$((i+1))
+    else
+      force_all=true
+    fi
   fi
   if [ "$arg" == "-b" ]; then
     force_rebuild_images=true
+    if [ "$next_arg" == "frontend" ]; then
+      only_build_frontend=true
+      i=$((i+1))
+    elif [ "$next_arg" == "backend" ]; then
+      only_build_backend=true
+      i=$((i+1))
+    fi
   fi
+
 done
 
 if $force_all; then
@@ -41,8 +67,16 @@ if $force_all; then
 fi
 # 新增：如果有 -b 参数，强制重建 backend 和 frontend 镜像
 if $force_rebuild_images; then
-  need_rebuild_backend_image=true
-  need_rebuild_frontend_image=true
+  if $only_build_frontend; then
+    need_rebuild_frontend_image=true
+    need_rebuild_backend_image=false
+  elif $only_build_backend; then
+    need_rebuild_backend_image=true
+    need_rebuild_frontend_image=false
+  else
+    need_rebuild_backend_image=true
+    need_rebuild_frontend_image=true
+  fi
 fi
 
 for file in $changed_files; do
@@ -119,6 +153,37 @@ docker_build_backend() {
 }
 
 # 按需构建
+if $only_build_frontend; then
+    if $need_rebuild_frontend_image; then
+        docker_build_frontend
+    fi
+    if $need_build_frontend; then
+        build_frontend
+    fi
+    check_containers
+    git rev-parse HEAD > .last_deploy_commit
+    echo "部署结束时间: $(date '+%Y-%m-%d %H:%M:%S')"
+    end_time=$(date +%s)
+    elapsed_time=$((end_time - start_time))
+    echo "部署总耗时: ${elapsed_time} 秒"
+    exit 0
+fi
+if $only_build_backend; then
+    if $need_rebuild_backend_image; then
+        docker_build_backend
+    fi
+    if $need_build_backend; then
+        build_backend
+    fi
+    check_containers
+    git rev-parse HEAD > .last_deploy_commit
+    echo "部署结束时间: $(date '+%Y-%m-%d %H:%M:%S')"
+    end_time=$(date +%s)
+    elapsed_time=$((end_time - start_time))
+    echo "部署总耗时: ${elapsed_time} 秒"
+    exit 0
+fi
+
 if $need_build_shared_utils; then
     build_shared_utils
 fi
