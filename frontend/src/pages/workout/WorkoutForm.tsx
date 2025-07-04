@@ -5,7 +5,6 @@ import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { HTMLDivElement } from 'react';
 
 import type {
   ApiResponse,
