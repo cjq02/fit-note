@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { faker } from '@faker-js/faker';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -74,6 +75,7 @@ const options = {
 const Stats: React.FC = () => (
   <div style={{ padding: 16 }}>
     <Line data={data} options={options} style={{ maxHeight: 320 }} />
+    <div>随机名字: {faker.person.fullName()}</div>
   </div>
 );
 
