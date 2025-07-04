@@ -10,7 +10,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { v4 as uuidv4 } from 'uuid';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -75,7 +74,6 @@ const options = {
 const Stats: React.FC = () => (
   <div style={{ padding: 16 }}>
     <Line data={data} options={options} style={{ maxHeight: 320 }} />
-    <div>随机UUID: {uuidv4()}</div>
   </div>
 );
 
