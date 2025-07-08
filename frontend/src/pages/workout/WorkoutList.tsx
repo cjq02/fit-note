@@ -312,31 +312,31 @@ export const WorkoutList = () => {
             right: 24,
             bottom: 80,
             zIndex: 100,
-            width: 52,
-            height: 52,
+            width: 50,
+            height: 50,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)',
-            color: '#fff',
+            background: '#fff', // 背景白色
+            color: '#222', // 文字颜色黑色
             border: 'none',
-            boxShadow: '0 8px 32px 0 rgba(51,88,224,0.10), 0 1.5px 6px 0 rgba(0,0,0,0.10)',
+            boxShadow: '0 8px 32px 0 rgba(128,128,128,0.18), 0 1.5px 6px 0 rgba(128,128,128,0.13)', // 灰色阴影
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'box-shadow 0.2s, background 0.2s, opacity 0.2s',
-            opacity: 0.82,
+            opacity: 0.7,
             backdropFilter: 'blur(2px)',
           }}
           aria-label="回到顶部"
           onMouseOver={e => {
             e.currentTarget.style.boxShadow =
-              '0 12px 36px 0 rgba(51,88,224,0.18), 0 2px 8px 0 rgba(0,0,0,0.13)';
+              '0 12px 36px 0 rgba(128,128,128,0.28), 0 2px 8px 0 rgba(128,128,128,0.18)';
             e.currentTarget.style.opacity = '1';
           }}
           onMouseOut={e => {
             e.currentTarget.style.boxShadow =
-              '0 8px 32px 0 rgba(51,88,224,0.10), 0 1.5px 6px 0 rgba(0,0,0,0.10)';
-            e.currentTarget.style.opacity = '0.82';
+              '0 8px 32px 0 rgba(128,128,128,0.18), 0 1.5px 6px 0 rgba(128,128,128,0.13)';
+            e.currentTarget.style.opacity = '0.92';
           }}
         >
           {/* SVG 向上箭头图标 */}
@@ -350,7 +350,7 @@ export const WorkoutList = () => {
             <circle cx="15" cy="15" r="15" fill="none" />
             <path
               d="M10 17l5-5 5 5"
-              stroke="#fff"
+              stroke="#222" // 图标颜色黑色
               strokeWidth="2.4"
               strokeLinecap="round"
               strokeLinejoin="round"
