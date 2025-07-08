@@ -9,6 +9,7 @@ interface WorkoutDayGroupProps {
   date: string;
   workouts: WorkoutType[];
   onDeleteSuccess: () => void;
+  disableClick?: boolean;
 }
 
 // 日期格式化函数
@@ -30,7 +31,12 @@ function formatDisplayDate(dateStr: string) {
  * @param {WorkoutDayGroupProps} props - 组件属性
  * @returns {JSX.Element} 按天分组的训练记录
  */
-export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayGroupProps) => {
+export const WorkoutDayGroup = ({
+  date,
+  workouts,
+  onDeleteSuccess,
+  disableClick,
+}: WorkoutDayGroupProps) => {
   // 生成基于日期的颜色
   const dateColor = generateColorFromDate(date);
 
@@ -68,6 +74,7 @@ export const WorkoutDayGroup = ({ date, workouts, onDeleteSuccess }: WorkoutDayG
               workouts={workouts}
               onDeleteSuccess={onDeleteSuccess}
               dateColor={dateColor}
+              disableClick={disableClick}
             />
           ))}
         </div>

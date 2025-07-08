@@ -616,7 +616,7 @@ export const WorkoutForm = () => {
   const rootRef = useRef(null);
   const initialHeightRef = useRef(window.innerHeight);
   // 新增：滚动容器ref
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   // 监听键盘弹出
   useEffect(() => {
@@ -1239,6 +1239,7 @@ export const WorkoutForm = () => {
                   onDeleteSuccess={() => {
                     queryClient.invalidateQueries({ queryKey: ['workouts', 'history', projectId] });
                   }}
+                  disableClick
                 />
               ))}
           </div>

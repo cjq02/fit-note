@@ -41,6 +41,7 @@ interface WorkoutItemProps {
   workouts: WorkoutType[];
   onDeleteSuccess: () => void;
   dateColor: string;
+  disableClick?: boolean;
 }
 
 /**
@@ -54,6 +55,7 @@ export const WorkoutItem = ({
   workouts,
   onDeleteSuccess,
   dateColor,
+  disableClick,
 }: WorkoutItemProps) => {
   const navigate = useNavigate();
 
@@ -118,7 +120,7 @@ export const WorkoutItem = ({
             marginBottom: '2px',
             border: `1px solid ${dateColor}22`,
           }}
-          onClick={() => handleEdit(workout.id)}
+          onClick={disableClick ? undefined : () => handleEdit(workout.id)}
         >
           <div className="flex flex-col gap-3">
             {/* 项目名称和总训练量 */}
