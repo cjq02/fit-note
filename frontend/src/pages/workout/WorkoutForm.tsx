@@ -613,7 +613,7 @@ export const WorkoutForm = () => {
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef(null);
   const initialHeightRef = useRef(window.innerHeight);
   // 新增：滚动容器ref
   const scrollContainerRef = useRef<HTMLDivElement>(null);
