@@ -51,6 +51,9 @@ export class Project {
 
     @Prop({ required: false })
       defaultWeight?: number;
+
+    @Prop({ required: false, type: [String], default: [] })
+      equipments?: string[]; // 器械，数组
 }
 
 /**

@@ -57,7 +57,7 @@ const PageSelect: FC<PageSelectProps> = ({
         return options
           .filter(opt => value.includes(opt.value))
           .map(opt => opt.label)
-          .join('/');
+          .join(' / ');
       }
       return '';
     } else {

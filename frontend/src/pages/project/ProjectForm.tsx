@@ -2,7 +2,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Toast, Input, TextArea, Button } from 'antd-mobile';
 import type { Project } from '@/@typings/types';
-import { getProjects, createProject, updateProject } from '@/api/project.api';
+import { getProjects, getProject, createProject, updateProject } from '@/api/project.api';
 import { NumberInput } from '@/components/NumberInput';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 import PageSelect from '@/components/PageSelect';
@@ -38,11 +38,15 @@ export default function ProjectForm() {
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getProjects().then(res => {
-        const found = res.data.find((p: Project) => p.id === id);
-        setProject(found || null);
-        setLoading(false);
-      });
+      getProject(id)
+        .then(res => {
+          setProject(res.data || null);
+          setLoading(false);
+        })
+        .catch(() => {
+          setProject(null);
+          setLoading(false);
+        });
     } else {
       setProject(null);
     }

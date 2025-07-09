@@ -28,6 +28,7 @@ import type { Project } from '@/@typings/types.d.ts';
 import { deleteProject, getProjects } from '@/api/project.api';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 import { generateColorFromCategory } from '@/utils/color.utils';
+import { EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/src/index';
 
 /**
  * 训练项目列表页面组件
@@ -209,7 +210,7 @@ export const ProjectList = (): React.ReactElement => {
           {
             key: 'edit',
             text: '编辑',
-            color: 'primary',
+            color: 'warning',
             onClick: e => {
               e.stopPropagation();
               handleEdit(project);
@@ -249,6 +250,31 @@ export const ProjectList = (): React.ReactElement => {
                 <div className="flex items-center gap-2">
                   <div className="font-medium text-base text-gray-800 truncate">{project.name}</div>
                 </div>
+                {/* 器械标签显示 */}
+                {project.equipments && project.equipments.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {project.equipments.map(val => {
+                      const found = EQUIPMENT_OPTIONS.find(opt => opt.value === val);
+                      const label = found ? found.label : val;
+                      return (
+                        <Tag
+                          key={val}
+                          color="primary"
+                          style={{
+                            background: '#e0f2fe',
+                            color: '#2563eb',
+                            border: 'none',
+                            fontSize: 12,
+                            padding: '2px 8px',
+                            borderRadius: 8,
+                          }}
+                        >
+                          {label}
+                        </Tag>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {project.description && (
                   <div className="text-xs text-gray-400 mt-1 line-clamp-1">
