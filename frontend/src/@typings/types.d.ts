@@ -71,6 +71,7 @@ export interface Project {
   totalDays: number;
   defaultUnit: string;
   defaultWeight?: number;
+  equipments?: string[]; // 器械，数组
 }
 
 /**
@@ -88,6 +89,7 @@ export interface CreateProjectRequest {
   category: 'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Abs' | 'Cardio' | 'Core';
   defaultUnit: string;
   defaultWeight?: number;
+  equipments?: string[]; // 器械，数组
 }
 
 /**
@@ -98,6 +100,7 @@ export interface CreateProjectRequest {
  */
 export interface UpdateProjectRequest extends CreateProjectRequest {
   id: string;
+  equipments?: string[]; // 器械，数组
 }
 
 // 登录请求参数

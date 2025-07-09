@@ -57,7 +57,7 @@ const PageSelect: FC<PageSelectProps> = ({
         return options
           .filter(opt => value.includes(opt.value))
           .map(opt => opt.label)
-          .join(', ');
+          .join('/');
       }
       return '';
     } else {
@@ -65,6 +65,14 @@ const PageSelect: FC<PageSelectProps> = ({
       return found ? found.label : '';
     }
   }, [options, value, multiple]);
+
+  // 省略显示处理
+  const getEllipsisLabel = (label: string) => {
+    if (!label) return '';
+    // 简单按字符数截断，实际可根据宽度优化
+    const maxLen = 16;
+    return label.length > maxLen ? label.slice(0, maxLen) + '...' : label;
+  };
 
   // 滚动到底部加载更多
   const handleScroll = () => {
@@ -98,9 +106,22 @@ const PageSelect: FC<PageSelectProps> = ({
   ) : (
     <div
       className="mb-2 h-[40px] leading-[40px] px-3 rounded-lg border border-solid border-[var(--adm-color-border)] bg-white active:bg-[var(--adm-color-fill-light)] transition-colors cursor-pointer flex items-center justify-between"
+      style={{ maxWidth: 240 }}
       onClick={() => setVisible(true)}
     >
-      <span style={{ color: selectedLabel ? '#222' : '#999' }}>{selectedLabel || placeholder}</span>
+      <span
+        style={{
+          color: selectedLabel ? '#222' : '#999',
+          display: 'inline-block',
+          width: '100%',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+        title={selectedLabel || placeholder}
+      >
+        {selectedLabel || placeholder}
+      </span>
       {value ? (
         <span
           style={{ marginLeft: 8, display: 'flex', alignItems: 'center', cursor: 'pointer' }}

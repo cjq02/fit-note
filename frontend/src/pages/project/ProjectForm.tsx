@@ -7,6 +7,7 @@ import { NumberInput } from '@/components/NumberInput';
 import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 import PageSelect from '@/components/PageSelect';
 import { UNIT_OPTIONS } from '@fit-note/shared-utils';
+import { EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/src/index';
 
 /**
  * 训练项目表单页面（支持新建和编辑）
@@ -22,6 +23,8 @@ export default function ProjectForm() {
 
   // 表单字段
   const [name, setName] = useState('');
+  const [equipments, setEquipments] = useState<string[]>([]); // 由字符串改为数组
+  const [equipmentsInput, setEquipmentsInput] = useState(''); // 输入框内容
   const [category, setCategory] = useState<Project['category'] | ''>('');
   const [seqNo, setSeqNo] = useState<number | ''>(''); // 只存储后两位
   const [description, setDescription] = useState('');
@@ -49,6 +52,8 @@ export default function ProjectForm() {
   useEffect(() => {
     if (project) {
       setName(project.name || '');
+      setEquipments(project.equipments || []); // 由字符串改为数组
+      setEquipmentsInput((project.equipments || []).join(',')); // 初始化输入框
       setCategory(project.category || '');
       // 取后两位作为排序输入框的值
       const seqNoStr = project.seqNo?.toString().padStart(3, '0') || '';
@@ -58,6 +63,8 @@ export default function ProjectForm() {
       setDefaultWeight(project.defaultWeight ?? '');
     } else {
       setName('');
+      setEquipments([]); // 由字符串改为数组
+      setEquipmentsInput('');
       setCategory(initialCategory || '');
       setSeqNo('');
       setDescription('');
@@ -84,6 +91,8 @@ export default function ProjectForm() {
       Toast.show({ content: '请选择默认单位' });
       return;
     }
+    // 处理器械输入
+    const equipmentsArr = equipments;
     // 获取类别的seqNo
     const catObj = CATEGORY_OPTIONS.find(opt => opt.value === category);
     if (!catObj) {
@@ -97,6 +106,7 @@ export default function ProjectForm() {
       if (project) {
         await updateProject({
           name,
+          equipments: equipmentsArr, // 传数组
           category: category as Project['category'],
           seqNo: finalSeqNo,
           description,
@@ -108,6 +118,7 @@ export default function ProjectForm() {
       } else {
         await createProject({
           name,
+          equipments: equipmentsArr, // 传数组
           category: category as Project['category'],
           seqNo: finalSeqNo,
           description,
@@ -142,6 +153,30 @@ export default function ProjectForm() {
                 className="rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 [&_input]:px-0"
                 value={name}
                 onChange={val => setName(val)}
+              />
+            </div>
+            {/* 器械 */}
+            <div className="mb-8">
+              <label className="text-base font-medium text-[var(--adm-color-text)]">器械</label>
+              <PageSelect
+                options={EQUIPMENT_OPTIONS}
+                value={equipments}
+                multiple
+                onChange={vals => {
+                  setEquipments(vals as string[]);
+                  setEquipmentsInput((vals as string[]).join(','));
+                }}
+                triggerRender={(selectedLabels, { onClick }) => (
+                  <div
+                    className={
+                      'flex items-center rounded-xl bg-white border border-[var(--adm-color-text-light)] h-12 text-base px-4 focus:border-[var(--adm-color-primary)] transition-colors duration-200 w-full cursor-pointer ' +
+                      (!equipments.length ? 'text-gray-400' : 'text-gray-900')
+                    }
+                    onClick={onClick}
+                  >
+                    {selectedLabels ? selectedLabels : '请选择器械'}
+                  </div>
+                )}
               />
             </div>
             {/* 类别 */}
