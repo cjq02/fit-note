@@ -5,6 +5,20 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./dict.options": {
+      "import": "./dist/dict.options.mjs",
+      "types": "./dist/dict.options.d.ts"
+    },
+    "./date.utils": {
+      "import": "./dist/date.utils.mjs",
+      "types": "./dist/date.utils.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],

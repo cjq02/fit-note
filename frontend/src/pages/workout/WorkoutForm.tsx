@@ -22,9 +22,8 @@ import {
 import { NumberInput } from '@/components/NumberInput';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 import PageSelect from '@/components/PageSelect';
-import { UNIT_OPTIONS } from '@fit-note/shared-utils';
+import { UNIT_OPTIONS, EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/dict.options';
 import { getProject } from '@/api/project.api';
-import { EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/src/index';
 import { Tag } from 'antd-mobile';
 
 // 添加NodeJS类型定义

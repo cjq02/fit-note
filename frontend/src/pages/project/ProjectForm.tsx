@@ -6,7 +6,7 @@ import {
   CATEGORY_OPTIONS,
   EQUIPMENT_OPTIONS,
   UNIT_OPTIONS,
-} from '@fit-note/shared-utils/src/dict.options';
+} from '@fit-note/shared-utils/dict.options';
 import { Button, Input, TextArea, Toast } from 'antd-mobile';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -26,7 +26,6 @@ export default function ProjectForm() {
   // 表单字段
   const [name, setName] = useState('');
   const [equipments, setEquipments] = useState<string[]>([]); // 由字符串改为数组
-  const [equipmentsInput, setEquipmentsInput] = useState(''); // 输入框内容
   const [category, setCategory] = useState<Project['category'] | ''>('');
   const [seqNo, setSeqNo] = useState<number | ''>(''); // 只存储后两位
   const [description, setDescription] = useState('');
@@ -59,7 +58,6 @@ export default function ProjectForm() {
     if (project) {
       setName(project.name || '');
       setEquipments(project.equipments || []); // 由字符串改为数组
-      setEquipmentsInput((project.equipments || []).join(',')); // 初始化输入框
       setCategory(project.category || '');
       // 取后两位作为排序输入框的值
       const seqNoStr = project.seqNo?.toString().padStart(3, '0') || '';
@@ -70,7 +68,6 @@ export default function ProjectForm() {
     } else {
       setName('');
       setEquipments([]); // 由字符串改为数组
-      setEquipmentsInput('');
       setCategory(initialCategory || '');
       setSeqNo('');
       setDescription('');
@@ -169,7 +166,6 @@ export default function ProjectForm() {
                 multiple
                 onChange={vals => {
                   setEquipments(vals as string[]);
-                  setEquipmentsInput((vals as string[]).join(','));
                 }}
                 triggerRender={(selectedLabels, { onClick }) => (
                   <div
