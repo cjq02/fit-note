@@ -155,6 +155,7 @@ export interface WorkoutWeekStats {
 export interface WorkoutWeekResponse {
   data: Array<{
     period: string;
+    periodTotalDays: number;
     stats: WorkoutWeekStats[];
   }>;
   total: number;

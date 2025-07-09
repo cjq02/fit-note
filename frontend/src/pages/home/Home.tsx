@@ -1,9 +1,4 @@
-import type {
-  ApiResponse,
-  WorkoutStats,
-  WorkoutWeekResponse,
-  WorkoutPeriodData,
-} from '@/@typings/types.d.ts';
+import type { ApiResponse, WorkoutStats, WorkoutWeekResponse } from '@/@typings/types.d.ts';
 import {
   getWorkoutsGroupByWeek,
   getWorkoutStats,
@@ -269,6 +264,7 @@ export const Home = () => {
                     key={item.period}
                     periodKey={item.period}
                     projects={item.stats}
+                    periodTotalDays={item.periodTotalDays}
                     customTitle={getCustomTitle()}
                   />
                 );

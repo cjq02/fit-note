@@ -417,11 +417,20 @@ export class WorkoutService {
     const total = Object.keys(result).length;
     const hasMore = total > query.pageSize;
 
-    // 7. 转换为列表格式
-    let data = Object.entries(result).map(([period, stats]) => ({
-      period,
-      stats
-    }));
+    // 7. 转换为列表格式，并统计每个周期的训练天数（去重）
+    let data = Object.entries(result).map(([period, stats]) => {
+      // 统计该周期所有项目的 uniqueDates 的并集
+      const projectGroups = periodGroups[period] || {};
+      const allDatesSet = new Set<string>();
+      Object.values(projectGroups).forEach(g => {
+        g.uniqueDates.forEach(date => allDatesSet.add(date));
+      });
+      return {
+        period,
+        periodTotalDays: allDatesSet.size,
+        stats
+      };
+    });
 
     // 按 period 降序排序（年份大的在前面）
     data = data.sort((a, b) => b.period.localeCompare(a.period));

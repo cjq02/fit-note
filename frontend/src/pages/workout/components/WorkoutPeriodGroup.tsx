@@ -13,6 +13,10 @@ interface WorkoutPeriodGroupProps {
    */
   projects: WorkoutWeekStats[];
   /**
+   * 该时间段的总训练天数
+   */
+  periodTotalDays?: number;
+  /**
    * 自定义标题
    */
   customTitle?: string;
@@ -27,6 +31,7 @@ interface WorkoutPeriodGroupProps {
 export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
   periodKey,
   projects,
+  periodTotalDays,
   customTitle,
 }) => {
   // 将日期转换为更友好的显示格式
@@ -55,6 +60,9 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
   const groupColorLight = `${groupColor}40`; // 增加透明度到40%
   const groupColorMedium = `${groupColor}80`; // 增加透明度到80%
 
+  // 按 totalDays 降序排序 projects
+  const sortedProjects = [...projects].sort((a, b) => b.totalDays - a.totalDays);
+
   return (
     <div className="mb-6">
       <div className="relative mb-4">
@@ -78,6 +86,11 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
             style={{ background: groupColor }}
           />
           <span className="relative z-10">{dateDisplay}</span>
+          {typeof periodTotalDays === 'number' && (
+            <span className="ml-4 text-sm font-normal text-gray-500 relative z-10">
+              训练天数：{periodTotalDays}天
+            </span>
+          )}
         </div>
       </div>
       <div className="space-y-3">
@@ -100,7 +113,7 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
             </div>
           </div>
         ) : (
-          projects.map(project => (
+          sortedProjects.map(project => (
             <div
               key={project.projectName}
               className="rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border"
