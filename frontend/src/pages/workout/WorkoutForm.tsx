@@ -24,6 +24,8 @@ import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 import PageSelect from '@/components/PageSelect';
 import { UNIT_OPTIONS } from '@fit-note/shared-utils';
 import { getProject } from '@/api/project.api';
+import { EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/src/index';
+import { Tag } from 'antd-mobile';
 
 // 添加NodeJS类型定义
 declare global {
@@ -63,14 +65,7 @@ export const WorkoutForm = () => {
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<any>(null);
   const [unitSelectVisible, setUnitSelectVisible] = useState(false);
-  const [remark, setRemark] = useState<string>('');
   const [projectDescription, setProjectDescription] = useState<string>('');
-
-  // 备注展开/收起状态，初始值根据remark内容
-  const [remarkExpanded, setRemarkExpanded] = useState(!!remark);
-  useEffect(() => {
-    if (remark) setRemarkExpanded(true);
-  }, [remark]);
 
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
@@ -140,7 +135,6 @@ export const WorkoutForm = () => {
           restTime: group.restTime || 0,
         })),
       );
-      setRemark(workout.remark || '');
     }
   }, [workoutData, dateWorkoutData, id]);
 
@@ -538,7 +532,6 @@ export const WorkoutForm = () => {
         seqNo: g.seqNo,
         restTime: g.restTime || 0,
       })),
-      remark,
     };
 
     console.log('提交 workout 数据：', data);
@@ -749,6 +742,16 @@ export const WorkoutForm = () => {
     });
   };
 
+  // 训练器械状态
+  const [equipments, setEquipments] = useState<string[]>([]);
+  useEffect(() => {
+    if (projectId) {
+      getProject(projectId).then(res => {
+        setEquipments(res.data?.equipments || []);
+      });
+    }
+  }, [projectId]);
+
   // 新建训练时，根据projectId获取项目默认单位和默认重量和描述
   useEffect(() => {
     if (projectId && !id) {
@@ -829,7 +832,7 @@ export const WorkoutForm = () => {
                     onClose={() => setDateVisible(false)}
                   />
                 </Form.Item>
-                <Form.Item label="项目名称" style={{ flex: 1.2 }}>
+                <Form.Item label="训练项目" style={{ flex: 1.2 }}>
                   <div
                     className="h-[40px] leading-[40px] pl-3 rounded-lg border-2 border-solid border-gray-400 bg-white text-base whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer"
                     onClick={() => {
@@ -855,32 +858,45 @@ export const WorkoutForm = () => {
               </div>
             </div>
 
-            {/* 备注单独卡片 */}
-            <div className="mb-2 p-2 rounded-xl bg-white shadow-sm">
-              <div className="flex items-center justify-between mb-2 pl-3">
-                <span className="text-[var(--adm-color-text)] text-base font-medium">备注</span>
-                <button
-                  type="button"
-                  className="text-primary text-sm focus:outline-none"
-                  onClick={() => setRemarkExpanded(expanded => !expanded)}
-                >
-                  {remarkExpanded ? '收起' : '展开'}
-                </button>
+            {/* 训练器械卡片 */}
+            {projectId && (
+              <div className="mb-2 p-2 rounded-xl bg-white shadow-sm">
+                <div className="flex items-center mb-2 pl-3">
+                  <span className="text-[var(--adm-color-text)] text-base font-medium">
+                    训练器械
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2 pl-3">
+                  {equipments.length === 0 ? (
+                    <span className="text-gray-400 text-sm">无</span>
+                  ) : (
+                    equipments.map(val => {
+                      const found = EQUIPMENT_OPTIONS.find(opt => opt.value === val);
+                      const label = found ? found.label : val;
+                      const color = found && found.color ? found.color : '#e0f2fe';
+                      const textColor = found && found.color ? '#fff' : '#2563eb';
+                      return (
+                        <Tag
+                          key={val}
+                          color="primary"
+                          style={{
+                            background: color,
+                            color: textColor,
+                            border: 'none',
+                            fontSize: 14,
+                            padding: '4px 14px',
+                            borderRadius: 2,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {label}
+                        </Tag>
+                      );
+                    })
+                  )}
+                </div>
               </div>
-              {remarkExpanded ? (
-                <Form.Item className="mt-0 pl-3">
-                  <textarea
-                    className="w-full min-h-[60px] max-h-[120px] px-3 py-2 rounded-lg border-2 border-solid border-gray-400 bg-white resize-none"
-                    placeholder="请输入备注"
-                    value={remark}
-                    onChange={e => setRemark(e.target.value)}
-                    maxLength={200}
-                  />
-                </Form.Item>
-              ) : (
-                remark && <div className="text-gray-500 text-sm px-1 truncate pl-3">{remark}</div>
-              )}
-            </div>
+            )}
 
             {/* 重量单位卡片 */}
             <SwipeAction
