@@ -233,7 +233,7 @@ export const ProjectList = (): React.ReactElement => {
           onClick={() => handleCardClick(project)}
         >
           <div className="p-1">
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               {/* 左侧：封面+器械标签 垂直排列 */}
               <div className="flex flex-col items-center w-12 flex-shrink-0">
                 {/* 项目图标/封面 */}
@@ -261,10 +261,10 @@ export const ProjectList = (): React.ReactElement => {
                             background: color,
                             color: textColor,
                             border: 'none',
-                            fontSize: 12,
-                            padding: '4px',
-                            borderRadius: 2,
-                            fontWeight: 'bold',
+                            fontSize: 13,
+                            padding: '4px 8px',
+                            borderRadius: 4,
+                            fontWeight: 'normal',
                           }}
                         >
                           {label}
