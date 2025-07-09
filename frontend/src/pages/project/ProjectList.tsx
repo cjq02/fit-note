@@ -235,25 +235,20 @@ export const ProjectList = (): React.ReactElement => {
         >
           <div className="p-1">
             <div className="flex items-start gap-3">
-              {/* 项目图标/封面 */}
-              <div
-                className="w-12 h-12 rounded-lg flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-md"
-                style={{
-                  background: generateColorFromCategory(project.category),
-                  alignSelf: 'center',
-                }}
-              >
-                {CATEGORY_LABEL_MAP[project.category] || project.category}
-              </div>
-
-              {/* 项目信息 */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <div className="font-medium text-base text-gray-800 truncate">{project.name}</div>
+              {/* 左侧：封面+器械标签 垂直排列 */}
+              <div className="flex flex-col items-center w-12 flex-shrink-0">
+                {/* 项目图标/封面 */}
+                <div
+                  className="w-12 h-12 rounded-lg flex items-center justify-center text-white text-xl font-bold shadow-md"
+                  style={{
+                    background: generateColorFromCategory(project.category),
+                  }}
+                >
+                  {CATEGORY_LABEL_MAP[project.category] || project.category}
                 </div>
-                {/* 器械标签显示 */}
+                {/* 器械标签显示（封面下方） */}
                 {project.equipments && project.equipments.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
+                  <div className="flex flex-wrap gap-1 mt-2 justify-center">
                     {project.equipments.map(val => {
                       const found = EQUIPMENT_OPTIONS.find(opt => opt.value === val);
                       const label = found ? found.label : val;
@@ -268,7 +263,7 @@ export const ProjectList = (): React.ReactElement => {
                             fontSize: 12,
                             padding: '4px',
                             borderRadius: 2,
-                            fontWeight: 800,
+                            fontWeight: 'bold',
                           }}
                         >
                           {label}
@@ -277,9 +272,15 @@ export const ProjectList = (): React.ReactElement => {
                     })}
                   </div>
                 )}
+              </div>
 
+              {/* 项目信息 */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="font-medium text-base text-gray-800 truncate">{project.name}</div>
+                </div>
                 {project.description && (
-                  <div className="text-xs text-gray-400 mt-1 line-clamp-1">
+                  <div className="text-xs text-gray-400 mt-1 line-clamp-2">
                     {project.description}
                   </div>
                 )}
