@@ -26,9 +26,8 @@ import { useNavigate } from 'react-router-dom';
 
 import type { Project } from '@/@typings/types.d.ts';
 import { deleteProject, getProjects } from '@/api/project.api';
-import { CATEGORY_OPTIONS } from '@fit-note/shared-utils/src/dict.options';
+import { CATEGORY_OPTIONS, EQUIPMENT_OPTIONS } from '@fit-note/shared-utils';
 import { generateColorFromCategory } from '@/utils/color.utils';
-import { EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/src/index';
 
 /**
  * 训练项目列表页面组件
@@ -450,7 +449,7 @@ export const ProjectList = (): React.ReactElement => {
             className="flex flex-col items-center py-4 px-2 bg-white/80 rounded-lg shadow-md mr-2"
             style={{ minWidth: 80 }}
           >
-            {CATEGORY_OPTIONS_WITH_ALL.map(opt => (
+            {CATEGORY_OPTIONS_WITH_ALL.map((opt: { label: string; value: string }) => (
               <button
                 key={opt.value}
                 onClick={() => setSelectedCategory(opt.value)}
