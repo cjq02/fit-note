@@ -71,7 +71,7 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
           style={{ background: groupColor }}
         />
         <div
-          className="text-lg font-semibold pl-6 pr-8 py-3 rounded-2xl relative overflow-hidden"
+          className="text-lg font-semibold pl-6 pr-8 py-3 rounded-2xl relative overflow-hidden flex items-center justify-between"
           style={{
             background: `linear-gradient(135deg, ${groupColorLight}, ${groupColor}20)`,
             color: groupColor,
@@ -87,8 +87,23 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
           />
           <span className="relative z-10">{dateDisplay}</span>
           {typeof periodTotalDays === 'number' && (
-            <span className="ml-4 text-sm font-normal text-gray-500 relative z-10">
-              训练天数：{periodTotalDays}天
+            <span
+              className="ml-auto flex items-center gap-2 relative z-10"
+              style={{ minWidth: 120, justifyContent: 'flex-end' }}
+            >
+              <span
+                className="px-3 py-1 rounded-full font-bold text-white shadow"
+                style={{
+                  background: `linear-gradient(90deg, ${groupColor}, ${groupColorLight})`,
+                  fontSize: 18,
+                  letterSpacing: 1,
+                  minWidth: 44,
+                  textAlign: 'center',
+                  boxShadow: `0 2px 8px 0 ${groupColor}22`,
+                }}
+              >
+                {periodTotalDays}天
+              </span>
             </span>
           )}
         </div>
