@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ErrorBlock, InfiniteScroll } from 'antd-mobile';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import PageSelect from '@/components/PageSelect';
-import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
+import { CATEGORY_OPTIONS } from '@fit-note/shared-utils/src/dict.options';
 import { getProjects } from '@/api/project.api';
 
 import type { ApiResponse, Workout as WorkoutType } from '@/@typings/types.d.ts';

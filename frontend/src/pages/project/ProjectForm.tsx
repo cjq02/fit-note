@@ -1,13 +1,15 @@
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Toast, Input, TextArea, Button } from 'antd-mobile';
 import type { Project } from '@/@typings/types';
-import { getProjects, getProject, createProject, updateProject } from '@/api/project.api';
+import { createProject, getProject, updateProject } from '@/api/project.api';
 import { NumberInput } from '@/components/NumberInput';
-import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
 import PageSelect from '@/components/PageSelect';
-import { UNIT_OPTIONS } from '@fit-note/shared-utils';
-import { EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/src/index';
+import {
+  CATEGORY_OPTIONS,
+  EQUIPMENT_OPTIONS,
+  UNIT_OPTIONS,
+} from '@fit-note/shared-utils/src/dict.options';
+import { Button, Input, TextArea, Toast } from 'antd-mobile';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 /**
  * 训练项目表单页面（支持新建和编辑）

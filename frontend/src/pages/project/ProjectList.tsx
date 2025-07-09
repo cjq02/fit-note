@@ -8,26 +8,25 @@ import {
   PullToRefresh,
   Skeleton,
   SwipeAction,
+  Tabs,
   Tag,
   Toast,
-  Tabs,
 } from 'antd-mobile';
 import {
   AddOutline,
-  ClockCircleOutline,
-  StarOutline,
   CheckCircleOutline,
+  ClockCircleOutline,
   CloseCircleOutline,
-  MinusCircleOutline,
   EyeOutline,
+  MinusCircleOutline,
 } from 'antd-mobile-icons';
+import dayjs from 'dayjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
 
 import type { Project } from '@/@typings/types.d.ts';
 import { deleteProject, getProjects } from '@/api/project.api';
-import { CATEGORY_OPTIONS } from '@/pages/project/categoryOptions';
+import { CATEGORY_OPTIONS } from '@fit-note/shared-utils/src/dict.options';
 import { generateColorFromCategory } from '@/utils/color.utils';
 import { EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/src/index';
 
