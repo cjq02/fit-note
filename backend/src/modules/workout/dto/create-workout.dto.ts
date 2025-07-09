@@ -7,6 +7,7 @@ import {
   IsNumber,
   Min,
   Max,
+  IsOptional,
 } from 'class-validator';
 
 // 训练组 DTO
@@ -61,6 +62,7 @@ export class CreateWorkoutDto {
    * @type {string} 备注信息
    */
   @IsString()
+  @IsOptional()
     remark?: string;
 
   @IsArray()
