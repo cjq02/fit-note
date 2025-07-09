@@ -117,15 +117,15 @@ build_shared_utils() {
     docker exec -it fit-note-frontend sh -c "cd /app/packages/shared-utils && pnpm run build"
 }
 
-# 按需构建
-if $need_build_frontend; then
-    build_frontend
+# 按需构建，顺序：shared-utils -> backend -> frontend
+if $need_build_shared_utils; then
+    build_shared_utils
 fi
 if $need_build_backend; then
     build_backend
 fi
-if $need_build_shared_utils; then
-    build_shared_utils
+if $need_build_frontend; then
+    build_frontend
 fi
 
 # 检查容器状态
