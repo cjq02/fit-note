@@ -252,13 +252,15 @@ export const ProjectList = (): React.ReactElement => {
                     {project.equipments.map(val => {
                       const found = EQUIPMENT_OPTIONS.find(opt => opt.value === val);
                       const label = found ? found.label : val;
+                      const color = found ? found.color : '#e0f2fe';
+                      const textColor = found ? '#fff' : '#2563eb';
                       return (
                         <Tag
                           key={val}
                           color="primary"
                           style={{
-                            background: '#e0f2fe',
-                            color: '#2563eb',
+                            background: color,
+                            color: textColor,
                             border: 'none',
                             fontSize: 12,
                             padding: '4px',

@@ -22,10 +22,10 @@ export const EQUIPMENT_OPTIONS = [
   { label: '卧推带', value: 'benchBelt', color: '#FF6B6B' },
   // 薄荷绿
   { label: '训练杆', value: 'trainingBar', color: '#4ECDC4' },
-  // 柠檬黄
-  { label: '脚蹬', value: 'pedalMagicBand', color: '#FFD93D' },
-  // 深青色
-  { label: '门扣', value: 'doorAnchor', color: '#1A535C' },
+  // 橙黄色
+  { label: '脚蹬', value: 'pedalMagicBand', color: '#FF9800' },
+  // 深蓝色
+  { label: '门扣', value: 'doorAnchor', color: '#1976D2' },
   // 橙色
   { label: '把手', value: 'handle', color: '#FF922B' },
   // 靛蓝色
