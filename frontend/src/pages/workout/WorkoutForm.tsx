@@ -860,39 +860,39 @@ export const WorkoutForm = () => {
             {/* 训练器械卡片 */}
             {projectId && (
               <div className="mb-2 p-2 rounded-xl bg-white shadow-sm">
-                <div className="flex items-center mb-2 pl-3">
+                <div className="flex items-center justify-between mb-2 px-3">
                   <span className="text-[var(--adm-color-text)] text-base font-medium">
                     训练器械
                   </span>
-                </div>
-                <div className="flex flex-wrap gap-2 pl-3">
-                  {equipments.length === 0 ? (
-                    <span className="text-gray-400 text-sm">无</span>
-                  ) : (
-                    equipments.map(val => {
-                      const found = EQUIPMENT_OPTIONS.find(opt => opt.value === val);
-                      const label = found ? found.label : val;
-                      const color = found && found.color ? found.color : '#e0f2fe';
-                      const textColor = found && found.color ? '#fff' : '#2563eb';
-                      return (
-                        <Tag
-                          key={val}
-                          color="primary"
-                          style={{
-                            background: color,
-                            color: textColor,
-                            border: 'none',
-                            fontSize: 14,
-                            padding: '4px 14px',
-                            borderRadius: 2,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {label}
-                        </Tag>
-                      );
-                    })
-                  )}
+                  <div className="flex flex-wrap gap-2 justify-end">
+                    {equipments.length === 0 ? (
+                      <span className="text-gray-400 text-sm">无</span>
+                    ) : (
+                      equipments.map(val => {
+                        const found = EQUIPMENT_OPTIONS.find(opt => opt.value === val);
+                        const label = found ? found.label : val;
+                        const color = found && found.color ? found.color : '#e0f2fe';
+                        const textColor = found && found.color ? '#fff' : '#2563eb';
+                        return (
+                          <Tag
+                            key={val}
+                            color="primary"
+                            style={{
+                              background: color,
+                              color: textColor,
+                              border: 'none',
+                              fontSize: 14,
+                              padding: '4px 14px',
+                              borderRadius: 2,
+                              fontWeight: 500,
+                            }}
+                          >
+                            {label}
+                          </Tag>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               </div>
             )}
