@@ -91,8 +91,6 @@ export default function ProjectForm() {
       Toast.show({ content: '请选择默认单位' });
       return;
     }
-    // 处理器械输入
-    const equipmentsArr = equipments;
     // 获取类别的seqNo
     const catObj = CATEGORY_OPTIONS.find(opt => opt.value === category);
     if (!catObj) {
@@ -102,6 +100,7 @@ export default function ProjectForm() {
     // 拼接最终seqNo：类别seqNo + 排序（两位，不足补0）
     const seqNoStr = catObj.seqNo.toString() + Number(seqNo).toString().padStart(2, '0');
     const finalSeqNo = Number(seqNoStr);
+    const equipmentsArr = equipments;
     try {
       if (project) {
         await updateProject({

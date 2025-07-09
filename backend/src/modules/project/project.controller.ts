@@ -25,7 +25,7 @@ export class ProjectController {
     @Post('create')
     create(
         @Request() req,
-        @Body() createProjectDto: CreateProjectDto
+        @Body() createProjectDto: CreateProjectDto // 包含equipments字段
     ): Promise<Project> {
       return this.projectService.create(createProjectDto, req.user.id);
     }
@@ -33,7 +33,7 @@ export class ProjectController {
     @Put('update/:id')
     update(
         @Param('id') id: string,
-        @Body() updateProjectDto: UpdateProjectDto,
+        @Body() updateProjectDto: UpdateProjectDto, // 包含equipments字段
     ): Promise<Project> {
       return this.projectService.update(id, updateProjectDto);
     }

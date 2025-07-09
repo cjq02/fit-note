@@ -1,4 +1,4 @@
-import { IsString, IsOptional, Length, IsNumber, Min } from 'class-validator';
+import { IsString, IsOptional, Length, IsNumber, Min, IsArray, ArrayUnique } from 'class-validator';
 
 export class CreateProjectDto {
     @IsString()
@@ -23,4 +23,10 @@ export class CreateProjectDto {
     @IsNumber()
     @IsOptional()
       defaultWeight?: number;
+
+    @IsArray()
+    @IsOptional()
+    @ArrayUnique()
+    @IsString({ each: true })
+      equipments?: string[]; // 器械，数组
 }
