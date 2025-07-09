@@ -19,6 +19,7 @@ import {
   CheckCircleOutline,
   CloseCircleOutline,
   MinusCircleOutline,
+  EyeOutline,
 } from 'antd-mobile-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -265,8 +266,9 @@ export const ProjectList = (): React.ReactElement => {
                             color: '#2563eb',
                             border: 'none',
                             fontSize: 12,
-                            padding: '2px 8px',
-                            borderRadius: 8,
+                            padding: '4px',
+                            borderRadius: 2,
+                            fontWeight: 800,
                           }}
                         >
                           {label}
@@ -323,16 +325,19 @@ export const ProjectList = (): React.ReactElement => {
                           </span>
                           {/* 右侧小按钮，只有latestWorkoutId存在时显示，靠右对齐 */}
                           {project.latestWorkoutId && (
-                            <button
-                              className="ml-auto px-2 py-0.5 rounded bg-blue-100 text-blue-600 text-xs hover:bg-blue-200 border border-blue-200 transition"
-                              onClick={e => {
-                                e.stopPropagation();
-                                navigate(`/workout/edit/${project.latestWorkoutId}`);
-                              }}
-                              style={{ lineHeight: '1.2', fontSize: 12 }}
-                            >
-                              查看记录
-                            </button>
+                            <span className="ml-auto flex items-center">
+                              <button
+                                className="flex items-center justify-center rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-600 transition p-1 shadow-sm"
+                                style={{ width: 28, height: 28 }}
+                                title="查看训练记录"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  navigate(`/workout/edit/${project.latestWorkoutId}`);
+                                }}
+                              >
+                                <EyeOutline style={{ fontSize: 18 }} />
+                              </button>
+                            </span>
                           )}
                         </>
                       );
