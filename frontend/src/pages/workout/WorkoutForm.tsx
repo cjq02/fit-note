@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { Button, CalendarPicker, Dialog, Form, SwipeAction, Toast, Popup } from 'antd-mobile';
+import { Button, CalendarPicker, Dialog, Form, SwipeAction, Toast } from 'antd-mobile';
 import { AddOutline, HistogramOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
@@ -12,15 +12,9 @@ import type {
   Workout,
   WorkoutGroup,
 } from '@/@typings/types.d.ts';
-import {
-  createWorkout,
-  findByDateAndProject,
-  getWorkout,
-  updateWorkout,
-  getWorkoutsGroupByDate,
-} from '@/api/workout.api';
+import { createWorkout, findByDateAndProject, getWorkout, updateWorkout } from '@/api/workout.api';
 import { NumberInput } from '@/components/NumberInput';
-import { WorkoutDayGroup } from './components/WorkoutDayGroup';
+import { WorkoutHistoryDrawer } from './components/WorkoutHistoryDrawer';
 import PageSelect from '@/components/PageSelect';
 import { UNIT_OPTIONS, EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/dict.options';
 import { getProject } from '@/api/project.api';
@@ -62,8 +56,6 @@ export const WorkoutForm = () => {
   const [isTraining, setIsTraining] = useState(false);
   const trainingTimerRef = useRef<number | null>(null);
   const [historyVisible, setHistoryVisible] = useState(false);
-  const [historyData, setHistoryData] = useState<any>(null);
-  const [unitSelectVisible, setUnitSelectVisible] = useState(false);
   const [projectDescription, setProjectDescription] = useState<string>('');
 
   // 计算三个月前的日期作为最小值
@@ -96,28 +88,6 @@ export const WorkoutForm = () => {
     gcTime: 0,
     retry: 1,
   });
-
-  // 获取历史记录
-  const { data: historyWorkouts } = useQuery({
-    queryKey: ['workouts', 'history', projectId],
-    queryFn: async () => {
-      if (!projectId) return null;
-      const response = await getWorkoutsGroupByDate({
-        projectId: projectId,
-        page: 1,
-        pageSize: 10,
-      });
-      return response.data;
-    },
-    enabled: !!projectId && historyVisible,
-  });
-
-  // 监听历史记录数据变化
-  useEffect(() => {
-    if (historyWorkouts) {
-      setHistoryData(historyWorkouts);
-    }
-  }, [historyWorkouts]);
 
   // 统一处理数据加载
   useEffect(() => {
@@ -580,14 +550,10 @@ export const WorkoutForm = () => {
     }
   };
 
-  // 添加视口高度状态
-  const [vh, setVh] = useState(window.innerHeight * 0.01);
-
   // 监听视口大小变化
   useEffect(() => {
     const updateHeight = () => {
       const newVh = window.innerHeight * 0.01;
-      setVh(newVh);
       document.documentElement.style.setProperty('--vh', `${newVh}px`);
     };
 
@@ -608,13 +574,13 @@ export const WorkoutForm = () => {
   const rootRef = useRef(null);
   const initialHeightRef = useRef(window.innerHeight);
   // 新增：滚动容器ref
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<any>(null);
 
   // 监听键盘弹出
   useEffect(() => {
     if (!rootRef.current) return;
 
-    const resizeObserver = new window.ResizeObserver(entries => {
+    const resizeObserver = new window.ResizeObserver(_entries => {
       const currentHeight = window.innerHeight;
       const heightDiff = initialHeightRef.current - currentHeight;
 
@@ -764,7 +730,6 @@ export const WorkoutForm = () => {
         }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, id]);
 
   // 编辑训练时，根据projectId获取项目描述
@@ -1227,39 +1192,11 @@ export const WorkoutForm = () => {
       </div>
 
       {/* 历史记录抽屉 */}
-      <Popup
+      <WorkoutHistoryDrawer
         visible={historyVisible}
-        onMaskClick={() => setHistoryVisible(false)}
-        position="right"
-        bodyStyle={{ width: '80vw', height: '100vh' }}
-      >
-        <div className="h-full overflow-y-auto">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">历史记录</h3>
-              <Button
-                fill="none"
-                onClick={() => setHistoryVisible(false)}
-                className="text-[var(--adm-color-text-light)]"
-              >
-                关闭
-              </Button>
-            </div>
-            {historyData &&
-              Object.entries(historyData.data).map(([date, workouts]) => (
-                <WorkoutDayGroup
-                  key={date}
-                  date={date}
-                  workouts={workouts as any[]}
-                  onDeleteSuccess={() => {
-                    queryClient.invalidateQueries({ queryKey: ['workouts', 'history', projectId] });
-                  }}
-                  disableClick
-                />
-              ))}
-          </div>
-        </div>
-      </Popup>
+        onClose={() => setHistoryVisible(false)}
+        projectId={projectId}
+      />
     </div>
   );
 };

@@ -70,7 +70,9 @@ const options = {
 };
 
 /**
+ * 统计页面组件
  *
+ * @returns {JSX.Element} 统计页面
  */
 const Stats: React.FC = () => (
   <div style={{ padding: 16 }}>
