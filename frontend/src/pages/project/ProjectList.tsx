@@ -28,6 +28,7 @@ import type { Project } from '@/@typings/types.d.ts';
 import { deleteProject, getProjects } from '@/api/project.api';
 import { CATEGORY_OPTIONS, EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/dict.options';
 import { generateColorFromCategory } from '@/utils/color.utils';
+import { WorkoutHistoryDrawer } from '../workout/components/WorkoutHistoryDrawer';
 
 /**
  * 训练项目列表页面组件
@@ -155,6 +156,8 @@ export const ProjectList = (): React.ReactElement => {
   const CATEGORY_OPTIONS_WITH_ALL = [{ label: '所有', value: '' }, ...CATEGORY_OPTIONS];
   const [selectedCategory, setSelectedCategory] = useState('');
   const [workoutDateFilter, setWorkoutDateFilter] = useState('');
+  const [historyVisible, setHistoryVisible] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   const WORKOUT_DATE_FILTERS = [
     { title: '全部', key: '' },
@@ -333,7 +336,8 @@ export const ProjectList = (): React.ReactElement => {
                                 title="查看训练记录"
                                 onClick={e => {
                                   e.stopPropagation();
-                                  navigate(`/workout/edit/${project.latestWorkoutId}`);
+                                  setSelectedProjectId(project.id);
+                                  setHistoryVisible(true);
                                 }}
                               >
                                 <EyeOutline style={{ fontSize: 18 }} />
@@ -517,6 +521,13 @@ export const ProjectList = (): React.ReactElement => {
         <AddOutline fontSize={24} />
       </FloatingBubble>
       <style>{`.adm-tabs-header { border-bottom: none !important; }`}</style>
+
+      {/* 历史记录抽屉 */}
+      <WorkoutHistoryDrawer
+        visible={historyVisible}
+        onClose={() => setHistoryVisible(false)}
+        projectId={selectedProjectId}
+      />
     </div>
   );
 };
