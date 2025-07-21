@@ -254,7 +254,7 @@ export default function ProjectForm() {
                 placeholder="请输入排序号"
                 min={0}
                 max={99}
-                step={1}
+                step={5}
                 className="rounded-xl bg-white border border-[var(--adm-color-text-light)] focus:border-[var(--adm-color-primary)] transition-colors duration-200"
               />
             </div>

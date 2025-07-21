@@ -1090,7 +1090,7 @@ export const WorkoutForm = () => {
                           onChange={val => handleGroupChange(idx, 'weight', val)}
                           min={0}
                           max={999}
-                          step={0.5}
+                          step={1}
                           allowDecimal={true}
                           disabled={unit === '自重'}
                         />
