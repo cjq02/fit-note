@@ -138,13 +138,13 @@ export const Schedule = () => {
                   >
                     {date.getDate()}
                   </div>
-                  {hasWorkout && (
-                    <div
-                      className={`text-[10px] mt-1 w-8 text-center ${isSelected ? 'text-white' : 'text-gray-600'}`}
-                    >
-                      {workoutCount}项
-                    </div>
-                  )}
+                  <div
+                    className={`text-[10px] mt-1 w-8 text-center h-3 flex items-center justify-center ${
+                      isSelected ? 'text-white' : 'text-gray-600'
+                    }`}
+                  >
+                    {hasWorkout ? `${workoutCount}项` : ''}
+                  </div>
                 </div>
               );
             }}
