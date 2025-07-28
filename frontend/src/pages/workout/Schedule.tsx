@@ -1,12 +1,14 @@
-import type { Workout } from '@/@typings/types.d.ts';
+import type { Workout, Project } from '@/@typings/types.d.ts';
 import { getWorkoutsByYearMonth } from '@/api/workout.api';
-import { Calendar, Card, List, Picker } from 'antd-mobile';
+import { getProjects } from '@/api/project.api';
+import { Calendar, Card, List, Picker, Tabs } from 'antd-mobile';
 import type { PickerValue } from 'antd-mobile/es/components/picker';
 import { useEffect, useState } from 'react';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
 import dayjs from 'dayjs';
 import './Schedule.css';
 import emptySvg from '@/assets/svg/empty-date.svg';
+import { CATEGORY_OPTIONS } from '@fit-note/shared-utils/dict.options';
 
 /**
  * 训练日程页面组件
@@ -23,8 +25,12 @@ export const Schedule = () => {
   });
   // 训练数据
   const [workoutData, setWorkoutData] = useState<Record<string, Workout[]>>({});
+  // 项目数据
+  const [projects, setProjects] = useState<Project[]>([]);
   // 加载状态
   const [loading, setLoading] = useState(false);
+  // 显示模式：'count' | 'category'
+  const [displayMode, setDisplayMode] = useState<'count' | 'category'>('count');
 
   // 生成年份选项
   const yearColumns = Array.from({ length: 5 }, (_, i) => {
@@ -59,16 +65,63 @@ export const Schedule = () => {
     }
   };
 
+  // 获取项目数据
+  const fetchProjects = async () => {
+    try {
+      const response = await getProjects();
+      if (response.code === 0 && response.data) {
+        setProjects(response.data);
+      }
+    } catch (error) {
+      console.error('获取项目数据失败:', error);
+    }
+  };
+
   // 年月变化时重新获取数据
   useEffect(() => {
     const { year, month } = selectedYearMonth;
     fetchWorkoutData(year, month);
   }, [selectedYearMonth.year, selectedYearMonth.month]);
 
+  // 组件初始化时获取项目数据
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   // 获取选中日期的训练计划
   const getSelectedDateSchedule = () => {
     const dateStr = dayjs(selectedDate).format('YYYY-MM-DD');
     return workoutData[dateStr] || [];
+  };
+
+  // 根据项目名称获取项目类别
+  const getProjectCategory = (projectName: string) => {
+    const project = projects.find(p => p.name === projectName);
+    return project?.category || '';
+  };
+
+  // 根据类别代码获取中文名称
+  const getCategoryLabel = (categoryCode: string) => {
+    const categoryOption = CATEGORY_OPTIONS.find(opt => opt.value === categoryCode);
+    return categoryOption?.label || categoryCode;
+  };
+
+  // 获取日期显示内容
+  const getDateDisplayContent = (date: Date) => {
+    const dateStr = dayjs(date).format('YYYY-MM-DD');
+    const workouts = workoutData[dateStr] || [];
+
+    if (displayMode === 'count') {
+      return workouts.length > 0 ? `${workouts.length}项` : '';
+    } else {
+      // 项目类别模式
+      if (workouts.length === 0) return '';
+
+      // 获取所有不重复的项目类别
+      const categories = [...new Set(workouts.map(w => getProjectCategory(w.projectName)))];
+      const categoryLabels = categories.filter(cat => cat).map(cat => getCategoryLabel(cat));
+      return categoryLabels.join('|');
+    }
   };
 
   // 渲染日历标签
@@ -105,6 +158,19 @@ export const Schedule = () => {
           </Picker>
         </Card>
 
+        {/* 显示模式选择器 */}
+        <Card className="mb-2">
+          <div className="[&_.adm-tabs-header]:h-8 [&_.adm-tabs-header]:border-b-0">
+            <Tabs
+              activeKey={displayMode}
+              onChange={key => setDisplayMode(key as 'count' | 'category')}
+            >
+              <Tabs.Tab title="项目数" key="count" />
+              <Tabs.Tab title="项目类别" key="category" />
+            </Tabs>
+          </div>
+        </Card>
+
         {/* 日历 */}
         <Card className="mb-2">
           <Calendar
@@ -124,6 +190,7 @@ export const Schedule = () => {
               const workoutCount = workouts.length;
               const hasWorkout = workoutCount > 0;
               const isSelected = dayjs(date).isSame(selectedDate, 'day');
+              const displayContent = getDateDisplayContent(date);
 
               return (
                 <div
@@ -139,11 +206,11 @@ export const Schedule = () => {
                     {date.getDate()}
                   </div>
                   <div
-                    className={`text-[10px] mt-1 w-8 text-center h-3 flex items-center justify-center ${
+                    className={`text-[10px] mt-1 w-8 text-center h-3 flex items-center justify-center overflow-hidden whitespace-nowrap ${
                       isSelected ? 'text-white' : 'text-gray-600'
                     }`}
                   >
-                    {hasWorkout ? `${workoutCount}项` : ''}
+                    {displayContent}
                   </div>
                 </div>
               );
