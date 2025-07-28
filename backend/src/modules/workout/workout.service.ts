@@ -12,6 +12,11 @@ import { QueryWorkoutDto } from './dto/query-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { Workout } from './workout.entity';
 
+// 扩展的训练记录类型，包含分类信息
+interface WorkoutWithCategory extends Workout {
+  category: string;
+}
+
 dayjs.extend(isoWeek);
 
 @Injectable()
@@ -593,11 +598,11 @@ export class WorkoutService {
    * @param {string} year - 年份
    * @param {string} month - 月份
    * @param {string} userId - 用户ID
-   * @returns {Promise<{ data: Record<string, Workout[]>; total: number }>} 按日期分组的训练记录和总数
+   * @returns {Promise<{ data: Record<string, WorkoutWithCategory[]>; total: number }>} 按日期分组的训练记录和总数
    * @throws {BadRequestException} 当年月参数无效时抛出异常
    */
   async findByYearMonth(year: string, month: string, userId: string): Promise<{
-    data: Record<string, Workout[]>;
+    data: Record<string, WorkoutWithCategory[]>;
     total: number;
   }> {
     // 验证参数
@@ -634,36 +639,50 @@ export class WorkoutService {
       .sort({ date: -1, _id: -1 })
       .exec();
 
-    // 获取项目名称映射和排序映射
-    const { nameMap, seqNoMap } = await this.getProjectMaps(workouts, userId);
+    // 获取项目信息映射
+    const projects = await this.projectService.findAll(userId);
+    const projectMap = new Map<string, { name: string; category: string; seqNo: number }>();
 
-    // 按日期分组，并设置项目名称
+    projects.forEach(project => {
+      const projectId = project.id.toString();
+      projectMap.set(projectId, {
+        name: project.name,
+        category: project.category,
+        seqNo: project.seqNo
+      });
+    });
+
+    // 按日期分组，并设置项目名称和分类
     const groupedWorkouts = workouts.reduce((acc, workout) => {
       if (!acc[workout.date]) {
         acc[workout.date] = [];
       }
-      // 设置项目名称
-      workout.projectName = nameMap.get(workout.projectId.toString()) || workout.projectName;
-      acc[workout.date].push(workout);
+
+      // 获取项目信息
+      const projectInfo = projectMap.get(workout.projectId.toString());
+      if (projectInfo) {
+        workout.projectName = projectInfo.name;
+      }
+
+      // 创建扩展的训练记录对象，包含分类信息
+      const workoutWithCategory: WorkoutWithCategory = {
+        ...workout.toObject(),
+        category: projectInfo?.category || '未知分类'
+      };
+
+      acc[workout.date].push(workoutWithCategory);
       return acc;
-    }, {} as Record<string, Workout[]>);
+    }, {} as Record<string, WorkoutWithCategory[]>);
 
     // 对每个日期的训练记录按项目排序号排序
     Object.keys(groupedWorkouts).forEach(date => {
-      const dateStats = groupedWorkouts[date].map(workout => ({
-        projectName: workout.projectName,
-        totalGroups: workout.groups.length,
-        totalReps: workout.groups.reduce((sum, group) => sum + group.reps, 0),
-        totalDays: 1
-      }));
-
-      // 使用通用排序方法
-      const sortedStats = this.sortStatsByProjectSeqNo(dateStats, workouts, seqNoMap, nameMap);
-
-      // 更新排序后的训练记录
-      groupedWorkouts[date] = sortedStats.map(stat =>
-        groupedWorkouts[date].find(w => w.projectName === stat.projectName)
-      ).filter(Boolean) as Workout[];
+      groupedWorkouts[date].sort((a, b) => {
+        const projectA = projectMap.get(a.projectId.toString());
+        const projectB = projectMap.get(b.projectId.toString());
+        const seqNoA = projectA?.seqNo || 0;
+        const seqNoB = projectB?.seqNo || 0;
+        return seqNoA - seqNoB;
+      });
     });
 
     return {
