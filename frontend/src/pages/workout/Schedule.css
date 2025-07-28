@@ -2,3 +2,12 @@
   height: 8px !important;
   line-height: 8px !important;
 }
+
+.adm-calendar-cell {
+  margin-top: 8px !important;
+}
+
+.adm-calendar-cell.adm-calendar-cell-selected.adm-calendar-cell.adm-calendar-cell-selected {
+  background: transparent !important;
+  color: var(--adm-color-white);
+}

@@ -120,16 +120,31 @@ export const Schedule = () => {
             weekStartsOn="Monday"
             renderDate={date => {
               const dateStr = dayjs(date).format('YYYY-MM-DD');
-              const hasWorkout = workoutData[dateStr]?.length > 0;
+              const workouts = workoutData[dateStr] || [];
+              const workoutCount = workouts.length;
+              const hasWorkout = workoutCount > 0;
+              const isSelected = dayjs(date).isSame(selectedDate, 'day');
+
               return (
-                <div className="relative flex h-full w-full items-center justify-center">
+                <div
+                  className={`relative flex h-full w-full flex-col items-center justify-center rounded-lg p-1 ${
+                    isSelected ? 'bg-[var(--adm-color-primary)]' : ''
+                  }`}
+                >
                   <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full -mt-1 ${
-                      hasWorkout ? 'bg-orange-500 text-white' : ''
-                    }`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium -mt-1 ${
+                      hasWorkout && !isSelected ? 'bg-orange-500 text-white' : ''
+                    } ${isSelected ? 'text-white' : ''}`}
                   >
                     {date.getDate()}
                   </div>
+                  {hasWorkout && (
+                    <div
+                      className={`text-[10px] mt-1 w-8 text-center ${isSelected ? 'text-white' : 'text-gray-600'}`}
+                    >
+                      {workoutCount}项
+                    </div>
+                  )}
                 </div>
               );
             }}
