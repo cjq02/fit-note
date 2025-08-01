@@ -160,6 +160,120 @@ export class WorkoutController {
     }
 
     /**
+     * 获取按周根据category分组的训练记录列表
+     * @param {string} page - 页码
+     * @param {string} pageSize - 每页数量
+     * @param {string} date - 日期
+     * @param {string} projectId - 项目ID
+     * @param {Request} req - 请求对象
+     * @returns {Promise<{ data: Array<{ period: string; periodTotalDays: number; stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }> }>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周根据category分组的训练记录和分页信息
+     */
+    @Get('group-by-week-category')
+    async findAllGroupByWeekCategory(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+        @Query('date') date: string,
+        @Query('projectId') projectId: string,
+        @Request() req
+    ): Promise<{
+        data: Array<{
+            period: string;
+            periodTotalDays: number;
+            stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }>;
+        }>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+      const query: QueryWorkoutDto = {
+        page: Number(page) || 1,
+        pageSize: Number(pageSize) || 10,
+        date,
+        projectId,
+        userId: req.user.id
+      };
+
+      return this.workoutService.findAllGroupByWeekCategory(query);
+    }
+
+    /**
+     * 获取按月根据category分组的训练记录列表
+     * @param {string} page - 页码
+     * @param {string} pageSize - 每页数量
+     * @param {string} date - 日期
+     * @param {string} projectId - 项目ID
+     * @param {Request} req - 请求对象
+     * @returns {Promise<{ data: Array<{ period: string; periodTotalDays: number; stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }> }>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按月根据category分组的训练记录和分页信息
+     */
+    @Get('group-by-month-category')
+    async findAllGroupByMonthCategory(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+        @Query('date') date: string,
+        @Query('projectId') projectId: string,
+        @Request() req
+    ): Promise<{
+        data: Array<{
+            period: string;
+            periodTotalDays: number;
+            stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }>;
+        }>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+      const query: QueryWorkoutDto = {
+        page: Number(page) || 1,
+        pageSize: Number(pageSize) || 10,
+        date,
+        projectId,
+        userId: req.user.id
+      };
+
+      return this.workoutService.findAllGroupByMonthCategory(query);
+    }
+
+    /**
+     * 获取按年根据category分组的训练记录列表
+     * @param {string} page - 页码
+     * @param {string} pageSize - 每页数量
+     * @param {string} date - 日期
+     * @param {string} projectId - 项目ID
+     * @param {Request} req - 请求对象
+     * @returns {Promise<{ data: Array<{ period: string; periodTotalDays: number; stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }> }>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按年根据category分组的训练记录和分页信息
+     */
+    @Get('group-by-year-category')
+    async findAllGroupByYearCategory(
+        @Query('page') page: string,
+        @Query('pageSize') pageSize: string,
+        @Query('date') date: string,
+        @Query('projectId') projectId: string,
+        @Request() req
+    ): Promise<{
+        data: Array<{
+            period: string;
+            periodTotalDays: number;
+            stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }>;
+        }>;
+        total: number;
+        page: number;
+        pageSize: number;
+        hasMore: boolean;
+    }> {
+      const query: QueryWorkoutDto = {
+        page: Number(page) || 1,
+        pageSize: Number(pageSize) || 10,
+        date,
+        projectId,
+        userId: req.user.id
+      };
+
+      return this.workoutService.findAllGroupByYearCategory(query);
+    }
+
+    /**
      * 根据日期和项目ID查找训练记录
      * @param {string} date - 日期
      * @param {string} projectId - 项目ID

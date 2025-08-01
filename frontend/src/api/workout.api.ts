@@ -6,6 +6,7 @@ import type {
   Workout,
   WorkoutStats,
   WorkoutWeekResponse,
+  WorkoutCategoryResponse,
 } from '@/@typings/types.d.ts';
 
 /**
@@ -182,4 +183,61 @@ export const getWorkoutsGroupByYear = (params: {
   project?: string;
 }): Promise<ApiResponse<WorkoutWeekResponse>> => {
   return http.get('/api/workout/group-by-year', { params });
+};
+
+/**
+ * 获取按周根据category分组的训练记录
+ *
+ * @param {object} params - 查询参数
+ * @param {number} params.page - 页码
+ * @param {number} params.pageSize - 每页数量
+ * @param {string} [params.date] - 日期
+ * @param {string} [params.projectId] - 项目ID
+ * @returns {Promise<ApiResponse<WorkoutCategoryResponse>>} 按周根据category分组的训练记录
+ */
+export const getWorkoutsGroupByWeekCategory = (params: {
+  page: number;
+  pageSize: number;
+  date?: string;
+  projectId?: string;
+}): Promise<ApiResponse<WorkoutCategoryResponse>> => {
+  return http.get('/api/workout/group-by-week-category', { params });
+};
+
+/**
+ * 获取按月根据category分组的训练记录
+ *
+ * @param {object} params - 查询参数
+ * @param {number} params.page - 页码
+ * @param {number} params.pageSize - 每页数量
+ * @param {string} [params.date] - 日期
+ * @param {string} [params.projectId] - 项目ID
+ * @returns {Promise<ApiResponse<WorkoutCategoryResponse>>} 按月根据category分组的训练记录
+ */
+export const getWorkoutsGroupByMonthCategory = (params: {
+  page: number;
+  pageSize: number;
+  date?: string;
+  projectId?: string;
+}): Promise<ApiResponse<WorkoutCategoryResponse>> => {
+  return http.get('/api/workout/group-by-month-category', { params });
+};
+
+/**
+ * 获取按年根据category分组的训练记录
+ *
+ * @param {object} params - 查询参数
+ * @param {number} params.page - 页码
+ * @param {number} params.pageSize - 每页数量
+ * @param {string} [params.date] - 日期
+ * @param {string} [params.projectId] - 项目ID
+ * @returns {Promise<ApiResponse<WorkoutCategoryResponse>>} 按年根据category分组的训练记录
+ */
+export const getWorkoutsGroupByYearCategory = (params: {
+  page: number;
+  pageSize: number;
+  date?: string;
+  projectId?: string;
+}): Promise<ApiResponse<WorkoutCategoryResponse>> => {
+  return http.get('/api/workout/group-by-year-category', { params });
 };

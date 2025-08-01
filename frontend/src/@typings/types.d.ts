@@ -163,3 +163,25 @@ export interface WorkoutWeekResponse {
   pageSize: number;
   hasMore: boolean;
 }
+
+// 按category分组的训练统计类型
+export interface WorkoutCategoryStats {
+  category: string;
+  categoryName: string;
+  totalDays: number;
+  totalGroups: number;
+  totalReps: number;
+}
+
+// 按category分组的训练记录响应类型
+export interface WorkoutCategoryResponse {
+  data: Array<{
+    period: string;
+    periodTotalDays: number;
+    stats: WorkoutCategoryStats[];
+  }>;
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}

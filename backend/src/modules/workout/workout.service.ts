@@ -1,3 +1,4 @@
+import { CATEGORY_OPTIONS } from '@fit-note/shared-utils/dict.options';
 import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
@@ -698,5 +699,236 @@ export class WorkoutService {
       userId
     }).sort({ date: -1 }).exec();
     return result;
+  }
+
+  /**
+   * 按周根据category分组获取训练记录
+   * @param {QueryWorkoutDto} query - 查询参数
+   * @returns {Promise<{ data: Array<{ period: string; periodTotalDays: number; stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }> }>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按周根据category分组的训练记录
+   */
+  async findAllGroupByWeekCategory(query: QueryWorkoutDto): Promise<{
+    data: Array<{
+      period: string;
+      periodTotalDays: number;
+      stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }>;
+    }>;
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  }> {
+    return this.findAllGroupByPeriodCategory(query, {
+      dateFormat: 'YYYY-MM-DD',
+      periodsToShow: 12,
+      periodUnit: 'week'
+    });
+  }
+
+  /**
+   * 按月根据category分组获取训练记录
+   * @param {QueryWorkoutDto} query - 查询参数
+   * @returns {Promise<{ data: Array<{ period: string; periodTotalDays: number; stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }> }>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按月根据category分组的训练记录
+   */
+  async findAllGroupByMonthCategory(query: QueryWorkoutDto): Promise<{
+    data: Array<{
+      period: string;
+      periodTotalDays: number;
+      stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }>;
+    }>;
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  }> {
+    return this.findAllGroupByPeriodCategory(query, {
+      dateFormat: 'YYYY-MM',
+      periodsToShow: 12,
+      periodUnit: 'month'
+    });
+  }
+
+  /**
+   * 按年根据category分组获取训练记录
+   * @param {QueryWorkoutDto} query - 查询参数
+   * @returns {Promise<{ data: Array<{ period: string; periodTotalDays: number; stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }> }>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按年根据category分组的训练记录
+   */
+  async findAllGroupByYearCategory(query: QueryWorkoutDto): Promise<{
+    data: Array<{
+      period: string;
+      periodTotalDays: number;
+      stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }>;
+    }>;
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  }> {
+    return this.findAllGroupByPeriodCategory(query, {
+      dateFormat: 'YYYY',
+      periodsToShow: 5,
+      periodUnit: 'year'
+    });
+  }
+
+  /**
+   * 按时间周期根据category分组获取训练记录的通用方法
+   * @param {QueryWorkoutDto} query - 查询参数
+   * @param {Object} options - 配置选项
+   * @param {string} options.dateFormat - 日期格式
+   * @param {number} options.periodsToShow - 显示的周期数量
+   * @param {'week' | 'month' | 'year'} options.periodUnit - 周期单位
+   * @returns {Promise<{ data: Array<{ period: string; periodTotalDays: number; stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }> }>; total: number; page: number; pageSize: number; hasMore: boolean }>} 按时间周期根据category分组的训练记录
+   */
+  private async findAllGroupByPeriodCategory(
+    query: QueryWorkoutDto,
+    options: {
+      dateFormat: string;
+      periodsToShow: number;
+      periodUnit: 'week' | 'month' | 'year';
+    }
+  ): Promise<{
+    data: Array<{
+      period: string;
+      periodTotalDays: number;
+      stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }>;
+    }>;
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  }> {
+    const { page = 1, pageSize = 10, projectId, userId } = query;
+
+    // 构建查询条件
+    const queryConditions: Record<string, unknown> = { userId };
+    if (projectId) {
+      queryConditions.projectId = projectId;
+    }
+
+    // 获取所有训练记录
+    const workouts = await this.workoutModel
+      .find(queryConditions)
+      .sort({ date: -1 })
+      .exec();
+
+    // 获取项目信息映射
+    const projects = await this.projectService.findAll(userId);
+    const projectMap = new Map<string, { name: string; category: string; seqNo: number }>();
+
+    projects.forEach(project => {
+      const projectId = project.id.toString();
+      projectMap.set(projectId, {
+        name: project.name,
+        category: project.category,
+        seqNo: project.seqNo
+      });
+    });
+
+    // 按时间周期分组
+    const groupedByPeriod: Record<string, Record<string, { workouts: Workout[]; uniqueDates: Set<string> }>> = {};
+
+    workouts.forEach(workout => {
+      let periodKey: string;
+
+      if (options.periodUnit === 'week') {
+        periodKey = dayjs(workout.date).startOf('isoWeek').format(options.dateFormat);
+      } else if (options.periodUnit === 'month') {
+        periodKey = dayjs(workout.date).format('YYYY-MM');
+      } else {
+        periodKey = dayjs(workout.date).format('YYYY');
+      }
+
+      const projectInfo = projectMap.get(workout.projectId.toString());
+      const category = projectInfo?.category || '未知分类';
+
+      if (!groupedByPeriod[periodKey]) {
+        groupedByPeriod[periodKey] = {};
+      }
+
+      if (!groupedByPeriod[periodKey][category]) {
+        groupedByPeriod[periodKey][category] = { workouts: [], uniqueDates: new Set() };
+      }
+
+      groupedByPeriod[periodKey][category].workouts.push(workout);
+      groupedByPeriod[periodKey][category].uniqueDates.add(workout.date);
+    });
+
+    // 计算统计数据
+    const result: Array<{
+      period: string;
+      periodTotalDays: number;
+      stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }>;
+    }> = [];
+
+    Object.keys(groupedByPeriod).forEach(period => {
+      const periodData = groupedByPeriod[period];
+      const allUniqueDates = new Set<string>();
+
+      // 收集该周期内所有唯一日期
+      Object.values(periodData).forEach(categoryData => {
+        categoryData.uniqueDates.forEach(date => allUniqueDates.add(date));
+      });
+
+      const stats: Array<{ category: string; categoryName: string; totalDays: number; totalGroups: number; totalReps: number }> = [];
+
+      Object.keys(periodData).forEach(category => {
+        const categoryData = periodData[category];
+        let totalGroups = 0;
+        let totalReps = 0;
+
+        categoryData.workouts.forEach(workout => {
+          workout.groups.forEach(group => {
+            totalGroups++;
+            totalReps += group.reps;
+          });
+        });
+
+        // 从 CATEGORY_OPTIONS 获取分类名称
+        const categoryOption = CATEGORY_OPTIONS.find(option => option.value === category);
+        const categoryName = categoryOption?.label || category;
+
+        stats.push({
+          category,
+          categoryName,
+          totalDays: categoryData.uniqueDates.size,
+          totalGroups,
+          totalReps
+        });
+      });
+
+      // 按分类名称排序
+      stats.sort((a, b) => a.categoryName.localeCompare(b.categoryName));
+
+      result.push({
+        period,
+        periodTotalDays: allUniqueDates.size,
+        stats
+      });
+    });
+
+    // 按周期排序（最新的在前）
+    result.sort((a, b) => {
+      if (options.periodUnit === 'week') {
+        return dayjs(b.period, 'YYYY-MM-DD').valueOf() - dayjs(a.period, 'YYYY-MM-DD').valueOf();
+      } else if (options.periodUnit === 'month') {
+        return dayjs(b.period, 'YYYY-MM').valueOf() - dayjs(a.period, 'YYYY-MM').valueOf();
+      } else {
+        return dayjs(b.period, 'YYYY').valueOf() - dayjs(a.period, 'YYYY').valueOf();
+      }
+    });
+
+    // 分页处理
+    const total = result.length;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedData = result.slice(startIndex, endIndex);
+
+    return {
+      data: paginatedData,
+      total,
+      page,
+      pageSize,
+      hasMore: endIndex < total
+    };
   }
 }

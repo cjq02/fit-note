@@ -1,9 +1,19 @@
-import type { ApiResponse, WorkoutStats, WorkoutWeekResponse } from '@/@typings/types.d.ts';
+import type {
+  ApiResponse,
+  WorkoutStats,
+  WorkoutWeekResponse,
+  WorkoutCategoryResponse,
+  WorkoutWeekStats,
+  WorkoutCategoryStats,
+} from '@/@typings/types.d.ts';
 import {
   getWorkoutsGroupByWeek,
   getWorkoutStats,
   getWorkoutsGroupByMonth,
   getWorkoutsGroupByYear,
+  getWorkoutsGroupByWeekCategory,
+  getWorkoutsGroupByMonthCategory,
+  getWorkoutsGroupByYearCategory,
 } from '@/api/workout.api';
 import TrophyIcon from '@/assets/svg/trophy.svg';
 import { useQuery } from '@tanstack/react-query';
@@ -18,7 +28,7 @@ import {
 } from 'antd-mobile-icons';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WorkoutPeriodGroup } from '../workout/components/WorkoutPeriodGroup';
+import { WorkoutPeriodGroup, WorkoutCategoryGroup } from '../workout/components/WorkoutPeriodGroup';
 
 /** 解决adm-card-header-title宽度问题 */
 if (typeof window !== 'undefined') {
@@ -47,8 +57,9 @@ const formatStatNumber = (value: number | undefined) => {
 export const Home = () => {
   const navigate = useNavigate();
   const [groupType, setGroupType] = useState<'week' | 'month' | 'year'>('week');
+  const [categoryType, setCategoryType] = useState<'project' | 'category'>('project');
 
-  // 获取所有时间维度的训练记录
+  // 获取所有时间维度的训练记录（按项目分组）
   const { data: weekWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
     queryKey: ['workouts', 'recent', 'week'],
     queryFn: () => getWorkoutsGroupByWeek({ page: 1, pageSize: 2 }),
@@ -64,12 +75,35 @@ export const Home = () => {
     queryFn: () => getWorkoutsGroupByYear({ page: 1, pageSize: 2 }),
   });
 
-  // 根据当前选择的时间维度获取对应的数据
-  const recentWorkouts = {
-    week: weekWorkouts,
-    month: monthWorkouts,
-    year: yearWorkouts,
-  }[groupType];
+  // 获取所有时间维度的训练记录（按分类分组）
+  const { data: weekWorkoutsCategory } = useQuery<ApiResponse<WorkoutCategoryResponse>>({
+    queryKey: ['workouts', 'recent', 'week', 'category'],
+    queryFn: () => getWorkoutsGroupByWeekCategory({ page: 1, pageSize: 2 }),
+  });
+
+  const { data: monthWorkoutsCategory } = useQuery<ApiResponse<WorkoutCategoryResponse>>({
+    queryKey: ['workouts', 'recent', 'month', 'category'],
+    queryFn: () => getWorkoutsGroupByMonthCategory({ page: 1, pageSize: 2 }),
+  });
+
+  const { data: yearWorkoutsCategory } = useQuery<ApiResponse<WorkoutCategoryResponse>>({
+    queryKey: ['workouts', 'recent', 'year', 'category'],
+    queryFn: () => getWorkoutsGroupByYearCategory({ page: 1, pageSize: 2 }),
+  });
+
+  // 根据当前选择的时间维度和分组类型获取对应的数据
+  const recentWorkouts =
+    categoryType === 'project'
+      ? {
+          week: weekWorkouts,
+          month: monthWorkouts,
+          year: yearWorkouts,
+        }[groupType]
+      : {
+          week: weekWorkoutsCategory,
+          month: monthWorkoutsCategory,
+          year: yearWorkoutsCategory,
+        }[groupType];
 
   // 获取训练统计信息
   const { data: workoutStats } = useQuery<ApiResponse<WorkoutStats>>({
@@ -212,19 +246,27 @@ export const Home = () => {
         {/* 最近训练 */}
         <Card
           title={
-            <div className="flex justify-between items-center w-full">
+            <div className="flex flex-col gap-2 w-full">
               <div>
                 <span className="text-base font-medium">最近训练</span>
               </div>
-              <div>
+              <div className="flex justify-end items-center gap-4">
+                <Tabs
+                  activeKey={categoryType}
+                  onChange={key => setCategoryType(key as 'project' | 'category')}
+                  className="!w-auto [&_.adm-tabs-tab]:text-sm [&_.adm-tabs-tab]:px-2 [&_.adm-tabs-tab]:font-normal [&_.adm-tabs-header]:!border-none [&_.adm-tabs-tab-active]:!text-[var(--adm-color-primary)] [&_.adm-tabs-tab-active]:!font-medium"
+                >
+                  <Tabs.Tab title="类别" key="category" />
+                  <Tabs.Tab title="项目" key="project" />
+                </Tabs>
                 <Tabs
                   activeKey={groupType}
                   onChange={key => setGroupType(key as 'week' | 'month' | 'year')}
                   className="!w-auto [&_.adm-tabs-tab]:text-sm [&_.adm-tabs-tab]:px-2 [&_.adm-tabs-tab]:font-normal [&_.adm-tabs-header]:!border-none [&_.adm-tabs-tab-active]:!text-[var(--adm-color-primary)] [&_.adm-tabs-tab-active]:!font-medium"
                 >
-                  <Tabs.Tab title="按周" key="week" />
-                  <Tabs.Tab title="按月" key="month" />
-                  <Tabs.Tab title="按年" key="year" />
+                  <Tabs.Tab title="周" key="week" />
+                  <Tabs.Tab title="月" key="month" />
+                  <Tabs.Tab title="年" key="year" />
                 </Tabs>
               </div>
             </div>
@@ -259,15 +301,27 @@ export const Home = () => {
                   return undefined;
                 };
 
-                return (
-                  <WorkoutPeriodGroup
-                    key={item.period}
-                    periodKey={item.period}
-                    projects={item.stats}
-                    periodTotalDays={item.periodTotalDays}
-                    customTitle={getCustomTitle()}
-                  />
-                );
+                if (categoryType === 'project') {
+                  return (
+                    <WorkoutPeriodGroup
+                      key={item.period}
+                      periodKey={item.period}
+                      projects={item.stats as WorkoutWeekStats[]}
+                      periodTotalDays={item.periodTotalDays}
+                      customTitle={getCustomTitle()}
+                    />
+                  );
+                } else {
+                  return (
+                    <WorkoutCategoryGroup
+                      key={item.period}
+                      periodKey={item.period}
+                      categories={item.stats as WorkoutCategoryStats[]}
+                      periodTotalDays={item.periodTotalDays}
+                      customTitle={getCustomTitle()}
+                    />
+                  );
+                }
               })}
           </Space>
         </Card>

@@ -8,14 +8,17 @@
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
     "./dict.options": {
       "import": "./dist/dict.options.mjs",
+      "require": "./dist/dict.options.js",
       "types": "./dist/dict.options.d.ts"
     },
     "./date.utils": {
       "import": "./dist/date.utils.mjs",
+      "require": "./dist/date.utils.js",
       "types": "./dist/date.utils.d.ts"
     }
   },
