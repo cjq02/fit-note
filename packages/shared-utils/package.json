@@ -7,19 +7,19 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./dict.options": {
+      "types": "./dist/dict.options.d.ts",
       "import": "./dist/dict.options.mjs",
-      "require": "./dist/dict.options.js",
-      "types": "./dist/dict.options.d.ts"
+      "require": "./dist/dict.options.js"
     },
     "./date.utils": {
+      "types": "./dist/date.utils.d.ts",
       "import": "./dist/date.utils.mjs",
-      "require": "./dist/date.utils.js",
-      "types": "./dist/date.utils.d.ts"
+      "require": "./dist/date.utils.js"
     }
   },
   "files": [
