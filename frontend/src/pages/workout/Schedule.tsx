@@ -206,11 +206,11 @@ export const Schedule = () => {
                     {date.getDate()}
                   </div>
                   <div
-                    className={`text-[10px] mt-1 w-8 text-center h-3 flex items-center justify-center overflow-hidden whitespace-nowrap ${
+                    className={`text-[10px] mt-1 w-10 text-center h-3 flex items-center justify-center overflow-hidden whitespace-nowrap ${
                       isSelected ? 'text-white' : 'text-gray-600'
                     }`}
                   >
-                    {displayContent}
+                    <div className="justify-start w-full">{displayContent}</div>
                   </div>
                 </div>
               );
