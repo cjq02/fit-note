@@ -154,7 +154,11 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
               <div className="flex gap-6 text-sm">
                 <div className="flex items-center gap-2 text-gray-600">
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    className={`flex items-center justify-center transition-all duration-200 ${
+                      project.totalGroups.toString().length <= 2
+                        ? 'w-8 h-8 rounded-full'
+                        : 'px-3 py-1 rounded-full'
+                    }`}
                     style={{ background: groupColorLight }}
                   >
                     <span style={{ color: groupColor, fontWeight: 600 }}>
@@ -165,7 +169,11 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
                 </div>
                 <div className="flex items-center gap-2 text-gray-600">
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    className={`flex items-center justify-center transition-all duration-200 ${
+                      project.totalReps.toString().length <= 2
+                        ? 'w-8 h-8 rounded-full'
+                        : 'px-3 py-1 rounded-full'
+                    }`}
                     style={{ background: groupColorLight }}
                   >
                     <span style={{ color: groupColor, fontWeight: 600 }}>{project.totalReps}</span>
@@ -184,7 +192,7 @@ export const WorkoutPeriodGroup: React.FC<WorkoutPeriodGroupProps> = ({
 /**
  * 训练分类分组组件
  *
- * @param {Object} props - 组件属性
+ * @param {object} props - 组件属性
  * @param {string} props.periodKey - 时间键值（周/月/年的开始日期）
  * @param {WorkoutCategoryStats[]} props.categories - 该时间段的训练分类统计信息
  * @param {number} [props.periodTotalDays] - 该时间段的总训练天数
@@ -302,7 +310,7 @@ export const WorkoutCategoryGroup: React.FC<{
             >
               <div className="flex justify-between items-center mb-3">
                 <span className="text-base font-medium text-gray-800 tracking-wide">
-                  {category.categoryName}
+                  {category.categoryName}｜{category.category}
                 </span>
                 <span
                   className="text-sm px-3 py-1 rounded-full font-medium"
@@ -317,7 +325,11 @@ export const WorkoutCategoryGroup: React.FC<{
               <div className="flex gap-6 text-sm">
                 <div className="flex items-center gap-2 text-gray-600">
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    className={`flex items-center justify-center transition-all duration-200 ${
+                      category.totalGroups.toString().length <= 2
+                        ? 'w-8 h-8 rounded-full'
+                        : 'px-3 py-1 rounded-full'
+                    }`}
                     style={{ background: groupColorLight }}
                   >
                     <span style={{ color: groupColor, fontWeight: 600 }}>
@@ -328,7 +340,11 @@ export const WorkoutCategoryGroup: React.FC<{
                 </div>
                 <div className="flex items-center gap-2 text-gray-600">
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    className={`flex items-center justify-center transition-all duration-200 ${
+                      category.totalReps.toString().length <= 2
+                        ? 'w-8 h-8 rounded-full'
+                        : 'px-3 py-1 rounded-full'
+                    }`}
                     style={{ background: groupColorLight }}
                   >
                     <span style={{ color: groupColor, fontWeight: 600 }}>{category.totalReps}</span>

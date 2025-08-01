@@ -29,6 +29,7 @@ import {
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WorkoutPeriodGroup, WorkoutCategoryGroup } from '../workout/components/WorkoutPeriodGroup';
+import './home.css';
 
 /** 解决adm-card-header-title宽度问题 */
 if (typeof window !== 'undefined') {
@@ -57,7 +58,7 @@ const formatStatNumber = (value: number | undefined) => {
 export const Home = () => {
   const navigate = useNavigate();
   const [groupType, setGroupType] = useState<'week' | 'month' | 'year'>('week');
-  const [categoryType, setCategoryType] = useState<'project' | 'category'>('project');
+  const [categoryType, setCategoryType] = useState<'project' | 'category'>('category');
 
   // 获取所有时间维度的训练记录（按项目分组）
   const { data: weekWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
@@ -246,32 +247,63 @@ export const Home = () => {
         {/* 最近训练 */}
         <Card
           title={
-            <div className="flex flex-col gap-2 w-full">
-              <div>
-                <span className="text-base font-medium">最近训练</span>
+            <div className="flex flex-col gap-4 w-full">
+              <div className="flex items-center">
+                <div className="relative">
+                  <div className="w-2 h-6 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full mr-4"></div>
+                </div>
+                <span className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                  最近训练
+                </span>
               </div>
-              <div className="flex justify-end items-center gap-4">
-                <Tabs
-                  activeKey={categoryType}
-                  onChange={key => setCategoryType(key as 'project' | 'category')}
-                  className="!w-auto [&_.adm-tabs-tab]:text-sm [&_.adm-tabs-tab]:px-2 [&_.adm-tabs-tab]:font-normal [&_.adm-tabs-header]:!border-none [&_.adm-tabs-tab-active]:!text-[var(--adm-color-primary)] [&_.adm-tabs-tab-active]:!font-medium"
-                >
-                  <Tabs.Tab title="类别" key="category" />
-                  <Tabs.Tab title="项目" key="project" />
-                </Tabs>
-                <Tabs
-                  activeKey={groupType}
-                  onChange={key => setGroupType(key as 'week' | 'month' | 'year')}
-                  className="!w-auto [&_.adm-tabs-tab]:text-sm [&_.adm-tabs-tab]:px-2 [&_.adm-tabs-tab]:font-normal [&_.adm-tabs-header]:!border-none [&_.adm-tabs-tab-active]:!text-[var(--adm-color-primary)] [&_.adm-tabs-tab-active]:!font-medium"
-                >
-                  <Tabs.Tab title="周" key="week" />
-                  <Tabs.Tab title="月" key="month" />
-                  <Tabs.Tab title="年" key="year" />
-                </Tabs>
+              <div className="flex justify-between items-center gap-2 w-full">
+                <div className="relative flex-1 max-w-[160px]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur-sm"></div>
+                  <div className="relative flex items-center bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-lg border border-white/50">
+                    <Tabs
+                      activeKey={categoryType}
+                      onChange={key => setCategoryType(key as 'project' | 'category')}
+                      className="!w-full [&_.adm-tabs-header]:!border-none [&_.adm-tabs-tab-line]:!hidden"
+                    >
+                      <Tabs.Tab
+                        title={<span className="custom-tab-text category-tab">类别</span>}
+                        key="category"
+                      />
+                      <Tabs.Tab
+                        title={<span className="custom-tab-text category-tab">项目</span>}
+                        key="project"
+                      />
+                    </Tabs>
+                  </div>
+                </div>
+                <div className="w-px h-6 bg-gradient-to-b from-transparent via-gray-300 to-transparent"></div>
+                <div className="relative flex-1 max-w-[160px]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-teal-500/20 rounded-xl blur-sm"></div>
+                  <div className="relative flex items-center bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-lg border border-white/50">
+                    <Tabs
+                      activeKey={groupType}
+                      onChange={key => setGroupType(key as 'week' | 'month' | 'year')}
+                      className="!w-full [&_.adm-tabs-header]:!border-none [&_.adm-tabs-tab-line]:!hidden"
+                    >
+                      <Tabs.Tab
+                        title={<span className="custom-tab-text time-tab">周</span>}
+                        key="week"
+                      />
+                      <Tabs.Tab
+                        title={<span className="custom-tab-text time-tab">月</span>}
+                        key="month"
+                      />
+                      <Tabs.Tab
+                        title={<span className="custom-tab-text time-tab">年</span>}
+                        key="year"
+                      />
+                    </Tabs>
+                  </div>
+                </div>
               </div>
             </div>
           }
-          className="mb-4"
+          className="mb-4 shadow-2xl border-0 bg-gradient-to-br from-white via-gray-50/50 to-white backdrop-blur-sm"
         >
           <Space direction="vertical" block>
             {recentWorkouts?.data?.data &&
