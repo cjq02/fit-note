@@ -1,84 +1,89 @@
-import React from 'react';
-import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { faker } from '@faker-js/faker';
+import React, { useEffect, useState } from 'react';
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from 'chart.js';
+import { getStatsGroupByMonthCategory } from '@/api/stats.api';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-const labels = [
-  '2024-06-01',
-  '2024-06-02',
-  '2024-06-03',
-  '2024-06-04',
-  '2024-06-05',
-  '2024-06-06',
-  '2024-06-07',
-];
-
-const data = {
-  labels,
-  datasets: [
-    {
-      label: '训练天数',
-      data: [2, 1, 3, 0, 2, 1, 4],
-      fill: true,
-      backgroundColor: 'rgba(24,144,255,0.2)',
-      borderColor: '#1890FF',
-      tension: 0.4,
-      pointBackgroundColor: '#1890FF',
-      pointBorderColor: '#1890FF',
-    },
-  ],
-};
-
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      display: false,
-    },
-    title: {
-      display: true,
-      text: '训练天数趋势',
-      font: { size: 18 },
-    },
-    tooltip: {
-      mode: 'index' as const,
-      intersect: false,
-    },
-  },
-  scales: {
-    x: {
-      title: { display: true, text: '日期' },
-      ticks: { maxRotation: 45, minRotation: 0 },
-    },
-    y: {
-      title: { display: true, text: '天数' },
-      beginAtZero: true,
-      suggestedMax: 5,
-    },
-  },
-};
+ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 /**
  * 统计页面组件
  *
  * @returns {JSX.Element} 统计页面
  */
-const Stats: React.FC = () => (
-  <div style={{ padding: 16 }}>
-    <Line data={data} options={options} style={{ maxHeight: 320 }} />
-    <div>随机名字: {faker.person.fullName()}</div>
-  </div>
-);
+const Stats: React.FC = () => {
+  const [data, setData] = useState<any[]>([]);
+
+  useEffect(() => {
+    getStatsGroupByMonthCategory({ page: 1, pageSize: 12 }).then(res => {
+      setData(res.data?.data || []);
+    });
+  }, []);
+
+  return (
+    <div
+      style={{
+        padding: 16,
+        height: '100vh',
+        overflowY: 'auto',
+        boxSizing: 'border-box',
+        background: '#fff',
+      }}
+    >
+      {data.length === 0 && <div>暂无数据</div>}
+      {data.map(month => {
+        if (!month.stats || month.stats.length === 0) return null;
+        // 使用 categoryName 作为标签
+        const labels = month.stats.map((item: any) => item.categoryName);
+        const values = month.stats.map((item: any) => item.totalReps);
+        // 额外保存组数和天数用于 tooltip
+        const extraInfo = month.stats.map((item: any) => ({
+          totalGroups: item.totalGroups,
+          totalDays: item.totalDays,
+          totalReps: item.totalReps,
+        }));
+        return (
+          <div key={month.period} style={{ marginBottom: 32 }}>
+            <h3>{month.period}</h3>
+            <Pie
+              data={{
+                labels,
+                datasets: [
+                  {
+                    data: values,
+                    backgroundColor: [
+                      '#1890FF',
+                      '#13C2C2',
+                      '#52C41A',
+                      '#FAAD14',
+                      '#F5222D',
+                      '#722ED1',
+                      '#EB2F96',
+                    ],
+                  },
+                ],
+              }}
+              options={{
+                plugins: {
+                  legend: { display: true, position: 'right' },
+                  title: { display: true, text: `${month.period} 各类别训练次数` },
+                  tooltip: {
+                    callbacks: {
+                      label: function (context: any) {
+                        const idx = context.dataIndex;
+                        const info = extraInfo[idx];
+                        return `${context.label}: ${info.totalReps} 次，${info.totalGroups || 0} 组，${info.totalDays || 0} 天`;
+                      },
+                    },
+                  },
+                },
+              }}
+              style={{ maxWidth: 400, margin: '0 auto' }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 export default Stats;

@@ -26,8 +26,11 @@ import { useNavigate } from 'react-router-dom';
 
 import type { Project } from '@/@typings/types.d.ts';
 import { deleteProject, getProjects } from '@/api/project.api';
-import { CATEGORY_OPTIONS, EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/dict.options';
-import { generateColorFromCategory } from '@/utils/color.utils';
+import {
+  CATEGORY_OPTIONS,
+  EQUIPMENT_OPTIONS,
+  generateColorFromCategory,
+} from '@fit-note/shared-utils/dict.options';
 import { WorkoutHistoryDrawer } from '../workout/components/WorkoutHistoryDrawer';
 
 /**

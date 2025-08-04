@@ -44,16 +44,27 @@ export const EQUIPMENT_OPTIONS = [
 
 /**
  * 项目类别选项
- * @type {{ label: string; value: string }[]}
+ * @type {{ label: string; value: string; color: string; seqNo: number }[]}
  */
 export const CATEGORY_OPTIONS = [
-  { label: '胸', value: 'Chest', seqNo: 1 },
-  { label: '背', value: 'Back', seqNo: 2 },
-  { label: '肩', value: 'Shoulders', seqNo: 3 },
-  { label: '臂', value: 'Arms', seqNo: 4 },
-  { label: '腿', value: 'Legs', seqNo: 5 },
-  { label: '臀', value: 'Glutes', seqNo: 6 },
-  { label: '腹', value: 'Abs', seqNo: 7 },
-  { label: '有氧', value: 'Cardio', seqNo: 8 },
-  { label: '核心', value: 'Core', seqNo: 9 },
+  { label: '胸', value: 'Chest', color: '#FF7043', seqNo: 1 },
+  { label: '背', value: 'Back', color: '#29B6F6', seqNo: 2 },
+  { label: '肩', value: 'Shoulders', color: '#AB47BC', seqNo: 3 },
+  { label: '臂', value: 'Arms', color: '#FFC107', seqNo: 4 },
+  { label: '腿', value: 'Legs', color: '#66BB6A', seqNo: 5 },
+  { label: '臀', value: 'Glutes', color: '#FFB347', seqNo: 6 },
+  { label: '腹', value: 'Abs', color: '#EF5350', seqNo: 7 },
+  { label: '有氧', value: 'Cardio', color: '#26C6DA', seqNo: 8 },
+  { label: '核心', value: 'Core', color: '#8D6E63', seqNo: 9 },
 ];
+
+/**
+ * 根据类别字符串生成一个固定的颜色
+ *
+ * @param {string} category - 类别字符串
+ * @returns {string} 生成的颜色值，格式为 #RRGGBB
+ */
+export const generateColorFromCategory = (category: string): string => {
+  const categoryOption = CATEGORY_OPTIONS.find(option => option.value === category);
+  return categoryOption?.color || '#B0BEC5'; // 默认浅蓝灰
+};

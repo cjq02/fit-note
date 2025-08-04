@@ -28,24 +28,3 @@ export const generateColorFromDate = (dateStr: string): string => {
   const colorIndex = dateNum % COLOR_PALETTE.length;
   return COLOR_PALETTE[colorIndex];
 };
-
-/**
- * 根据类别字符串生成一个固定的颜色
- *
- * @param {string} category - 类别字符串
- * @returns {string} 生成的颜色值，格式为 #RRGGBB
- */
-export const generateColorFromCategory = (category: string): string => {
-  const CATEGORY_COLOR_MAP: Record<string, string> = {
-    Chest: '#FF7043', // 橘红
-    Back: '#29B6F6', // 亮天蓝
-    Shoulders: '#AB47BC', // 紫罗兰
-    Arms: '#FFC107', // 金黄
-    Legs: '#66BB6A', // 草绿
-    Glutes: '#FFB347', // 亮橙
-    Abs: '#EF5350', // 鲜红
-    Cardio: '#26C6DA', // 青蓝
-    Core: '#8D6E63', // 深棕
-  };
-  return CATEGORY_COLOR_MAP[category] || '#B0BEC5'; // 默认浅蓝灰
-};
