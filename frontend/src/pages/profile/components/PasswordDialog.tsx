@@ -77,7 +77,7 @@ export const PasswordDialog: FC<PasswordDialogProps> = ({
       closeOnAction={false}
       actions={[
         [
-          { key: 'cancel', text: '取消' },
+          { key: 'cancel', text: '取消', onClick: onClose },
           { key: 'ok', text: loading ? '处理中...' : '确定', onClick: handleSubmit },
         ],
       ]}
