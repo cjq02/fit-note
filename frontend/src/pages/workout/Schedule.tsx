@@ -124,18 +124,6 @@ export const Schedule = () => {
     }
   };
 
-  // 渲染日历标签
-  const renderLabel = (date: Date) => {
-    const dateStr = dayjs(date).format('YYYY-MM-DD');
-    const hasWorkout = workoutData[dateStr]?.length > 0;
-
-    return hasWorkout ? (
-      <div className="absolute bottom-0 left-0 right-0 flex justify-center">
-        <div className="h-1 w-1 rounded-full bg-[var(--adm-color-primary)]" />
-      </div>
-    ) : null;
-  };
-
   return (
     <div className="page-container bg-[var(--adm-color-background)]">
       <div className="p-2">

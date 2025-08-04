@@ -4,7 +4,8 @@
 }
 
 .adm-calendar-cell {
-  margin-top: 8px !important;
+  height: 100% !important;
+  margin-bottom: 0 !important;
 }
 
 .adm-calendar-cell.adm-calendar-cell-selected.adm-calendar-cell.adm-calendar-cell-selected {
