@@ -83,7 +83,6 @@ const Stats: React.FC = () => {
 
         return (
           <div key={month.period} style={{ marginBottom: 32 }}>
-            <h3>{month.period}</h3>
             <ReactECharts
               option={option}
               style={{ height: '400px', width: '100%' }}
