@@ -1,20 +1,20 @@
 import type {
   ApiResponse,
   WorkoutStats,
-  WorkoutWeekResponse,
-  WorkoutCategoryResponse,
-  WorkoutWeekStats,
-  WorkoutCategoryStats,
+  StatsPeriodResponse,
+  StatsCategoryResponse,
+  StatsPeriodData,
+  StatsCategoryData,
 } from '@/@typings/types.d.ts';
 import {
-  getWorkoutsGroupByWeek,
+  getStatsGroupByWeek,
+  getStatsGroupByMonth,
+  getStatsGroupByYear,
+  getStatsGroupByWeekCategory,
+  getStatsGroupByMonthCategory,
+  getStatsGroupByYearCategory,
   getWorkoutStats,
-  getWorkoutsGroupByMonth,
-  getWorkoutsGroupByYear,
-  getWorkoutsGroupByWeekCategory,
-  getWorkoutsGroupByMonthCategory,
-  getWorkoutsGroupByYearCategory,
-} from '@/api/workout.api';
+} from '@/api/stats.api';
 import TrophyIcon from '@/assets/svg/trophy.svg';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Grid, Space, Tabs } from 'antd-mobile';
@@ -61,35 +61,35 @@ export const Home = () => {
   const [categoryType, setCategoryType] = useState<'project' | 'category'>('category');
 
   // 获取所有时间维度的训练记录（按项目分组）
-  const { data: weekWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
+  const { data: weekWorkouts } = useQuery<ApiResponse<StatsPeriodResponse>>({
     queryKey: ['workouts', 'recent', 'week'],
-    queryFn: () => getWorkoutsGroupByWeek({ page: 1, pageSize: 2 }),
+    queryFn: () => getStatsGroupByWeek({ page: 1, pageSize: 2 }),
   });
 
-  const { data: monthWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
+  const { data: monthWorkouts } = useQuery<ApiResponse<StatsPeriodResponse>>({
     queryKey: ['workouts', 'recent', 'month'],
-    queryFn: () => getWorkoutsGroupByMonth({ page: 1, pageSize: 2 }),
+    queryFn: () => getStatsGroupByMonth({ page: 1, pageSize: 2 }),
   });
 
-  const { data: yearWorkouts } = useQuery<ApiResponse<WorkoutWeekResponse>>({
+  const { data: yearWorkouts } = useQuery<ApiResponse<StatsPeriodResponse>>({
     queryKey: ['workouts', 'recent', 'year'],
-    queryFn: () => getWorkoutsGroupByYear({ page: 1, pageSize: 2 }),
+    queryFn: () => getStatsGroupByYear({ page: 1, pageSize: 2 }),
   });
 
   // 获取所有时间维度的训练记录（按分类分组）
-  const { data: weekWorkoutsCategory } = useQuery<ApiResponse<WorkoutCategoryResponse>>({
+  const { data: weekWorkoutsCategory } = useQuery<ApiResponse<StatsCategoryResponse>>({
     queryKey: ['workouts', 'recent', 'week', 'category'],
-    queryFn: () => getWorkoutsGroupByWeekCategory({ page: 1, pageSize: 2 }),
+    queryFn: () => getStatsGroupByWeekCategory({ page: 1, pageSize: 2 }),
   });
 
-  const { data: monthWorkoutsCategory } = useQuery<ApiResponse<WorkoutCategoryResponse>>({
+  const { data: monthWorkoutsCategory } = useQuery<ApiResponse<StatsCategoryResponse>>({
     queryKey: ['workouts', 'recent', 'month', 'category'],
-    queryFn: () => getWorkoutsGroupByMonthCategory({ page: 1, pageSize: 2 }),
+    queryFn: () => getStatsGroupByMonthCategory({ page: 1, pageSize: 2 }),
   });
 
-  const { data: yearWorkoutsCategory } = useQuery<ApiResponse<WorkoutCategoryResponse>>({
+  const { data: yearWorkoutsCategory } = useQuery<ApiResponse<StatsCategoryResponse>>({
     queryKey: ['workouts', 'recent', 'year', 'category'],
-    queryFn: () => getWorkoutsGroupByYearCategory({ page: 1, pageSize: 2 }),
+    queryFn: () => getStatsGroupByYearCategory({ page: 1, pageSize: 2 }),
   });
 
   // 根据当前选择的时间维度和分组类型获取对应的数据
@@ -334,22 +334,24 @@ export const Home = () => {
                 };
 
                 if (categoryType === 'project') {
+                  const periodData = item as StatsPeriodData;
                   return (
                     <WorkoutPeriodGroup
-                      key={item.period}
-                      periodKey={item.period}
-                      projects={item.stats as WorkoutWeekStats[]}
-                      periodTotalDays={item.periodTotalDays}
+                      key={periodData.period}
+                      periodKey={periodData.period}
+                      projects={periodData.stats}
+                      periodTotalDays={periodData.periodTotalDays}
                       customTitle={getCustomTitle()}
                     />
                   );
                 } else {
+                  const categoryData = item as StatsCategoryData;
                   return (
                     <WorkoutCategoryGroup
-                      key={item.period}
-                      periodKey={item.period}
-                      categories={item.stats as WorkoutCategoryStats[]}
-                      periodTotalDays={item.periodTotalDays}
+                      key={categoryData.period}
+                      periodKey={categoryData.period}
+                      categories={categoryData.stats}
+                      periodTotalDays={categoryData.periodTotalDays}
                       customTitle={getCustomTitle()}
                     />
                   );

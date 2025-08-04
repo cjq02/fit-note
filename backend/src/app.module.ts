@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { mongooseConfig } from './config/mongoose.config';
 import { ProjectModule } from './modules/project/project.module';
+import { StatsModule } from './modules/stats/stats.module';
 import { WorkoutModule } from './modules/workout/workout.module';
 import { AuthModule } from './modules/auth/auth.module';
 
@@ -26,6 +27,7 @@ import { AuthModule } from './modules/auth/auth.module';
         }),
         // 业务模块
         ProjectModule,
+        StatsModule,
         WorkoutModule,
         AuthModule,
     ],

@@ -185,3 +185,43 @@ export interface WorkoutCategoryResponse {
   pageSize: number;
   hasMore: boolean;
 }
+
+// 统计模块相关类型定义
+export interface StatsPeriodData {
+  period: string;
+  periodTotalDays: number;
+  stats: Array<{
+    projectName: string;
+    totalGroups: number;
+    totalReps: number;
+    totalDays: number;
+  }>;
+}
+
+export interface StatsPeriodResponse {
+  data: StatsPeriodData[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
+export interface StatsCategoryData {
+  period: string;
+  periodTotalDays: number;
+  stats: Array<{
+    category: string;
+    categoryName: string;
+    totalDays: number;
+    totalGroups: number;
+    totalReps: number;
+  }>;
+}
+
+export interface StatsCategoryResponse {
+  data: StatsCategoryData[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
