@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from 'chart.js';
+import ReactECharts from 'echarts-for-react';
 import { getStatsGroupByMonthCategory } from '@/api/stats.api';
-
-ChartJS.register(ArcElement, Tooltip, Legend, Title);
+import { generateColorFromCategory } from '@fit-note/shared-utils/dict.options';
 
 /**
  * 统计页面组件
@@ -32,52 +30,64 @@ const Stats: React.FC = () => {
       {data.length === 0 && <div>暂无数据</div>}
       {data.map(month => {
         if (!month.stats || month.stats.length === 0) return null;
-        // 使用 categoryName 作为标签
-        const labels = month.stats.map((item: any) => item.categoryName);
-        const values = month.stats.map((item: any) => item.totalReps);
-        // 额外保存组数和天数用于 tooltip
-        const extraInfo = month.stats.map((item: any) => ({
-          totalGroups: item.totalGroups,
-          totalDays: item.totalDays,
-          totalReps: item.totalReps,
+
+        const pieData = month.stats.map((item: any) => ({
+          name: item.categoryName,
+          value: item.totalReps,
+          itemStyle: {
+            color: generateColorFromCategory(item.category),
+          },
         }));
+
+        const option = {
+          title: {
+            text: `${month.period} 各类别训练次数`,
+            left: 'center',
+            textStyle: {
+              fontSize: 16,
+              fontWeight: 'bold',
+            },
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: function (params: any) {
+              const item = month.stats.find((stat: any) => stat.categoryName === params.name);
+              if (item) {
+                return `${params.name}<br/>次数: ${item.totalReps}<br/>组数: ${item.totalGroups || 0}<br/>天数: ${item.totalDays || 0}`;
+              }
+              return `${params.name}: ${params.value} 次`;
+            },
+          },
+          legend: {
+            orient: 'vertical',
+            right: 10,
+            top: 'center',
+          },
+          series: [
+            {
+              name: '训练次数',
+              type: 'pie',
+              radius: '50%',
+              center: ['40%', '50%'],
+              data: pieData,
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+            },
+          ],
+        };
+
         return (
           <div key={month.period} style={{ marginBottom: 32 }}>
             <h3>{month.period}</h3>
-            <Pie
-              data={{
-                labels,
-                datasets: [
-                  {
-                    data: values,
-                    backgroundColor: [
-                      '#1890FF',
-                      '#13C2C2',
-                      '#52C41A',
-                      '#FAAD14',
-                      '#F5222D',
-                      '#722ED1',
-                      '#EB2F96',
-                    ],
-                  },
-                ],
-              }}
-              options={{
-                plugins: {
-                  legend: { display: true, position: 'right' },
-                  title: { display: true, text: `${month.period} 各类别训练次数` },
-                  tooltip: {
-                    callbacks: {
-                      label: function (context: any) {
-                        const idx = context.dataIndex;
-                        const info = extraInfo[idx];
-                        return `${context.label}: ${info.totalReps} 次，${info.totalGroups || 0} 组，${info.totalDays || 0} 天`;
-                      },
-                    },
-                  },
-                },
-              }}
-              style={{ maxWidth: 400, margin: '0 auto' }}
+            <ReactECharts
+              option={option}
+              style={{ height: '400px', width: '100%' }}
+              opts={{ renderer: 'canvas' }}
             />
           </div>
         );

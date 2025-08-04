@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.0.0",
     "@fit-note/shared-utils": "workspace:*",
     "@tanstack/react-query": "^5.76.2",
     "antd-mobile": "^5.39.0",
@@ -17,13 +18,15 @@
     "axios": "^1.9.0",
     "chart.js": "^4.5.0",
     "dayjs": "^1.11.10",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.2",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.1",
-    "vconsole": "^3.15.1",
-    "@faker-js/faker": "^8.0.0"
+    "uuid": "^9.0.1",
+    "vconsole": "^3.15.1"
   },
   "devDependencies": {
     "@eslint/js": "^8.56.0",
