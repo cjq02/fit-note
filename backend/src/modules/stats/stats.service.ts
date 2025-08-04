@@ -247,20 +247,18 @@ export class StatsService {
   continuousDays: number;
   totalDays: number;
   withoutWorkoutDays: number;
-}> {
+  }> {
     // 获取当前日期
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
+    const now = dayjs();
+    const today = now.format('YYYY-MM-DD');
 
     // 计算本周开始日期（周一为每周第一天）
-    const weekStart = new Date(now);
-    const day = now.getDay() || 7; // 将周日的0转换为7
-    weekStart.setDate(now.getDate() - day + 1); // 减去当前是周几，再加1得到本周一
-    const weekStartStr = weekStart.toISOString().split('T')[0];
+    const weekStart = now.startOf('isoWeek');
+    const weekStartStr = weekStart.format('YYYY-MM-DD');
 
     // 计算本月开始日期
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthStartStr = monthStart.toISOString().split('T')[0];
+    const monthStart = now.startOf('month');
+    const monthStartStr = monthStart.format('YYYY-MM-DD');
 
     // 获取所有训练记录
     const workouts = await this.workoutModel
@@ -286,11 +284,11 @@ export class StatsService {
 
     // 计算连续训练天数
     let continuousDays = 0;
-    let currentDate = new Date(today);
+    let currentDate = dayjs(today);
 
     for (const date of uniqueDates) {
-      const workoutDate = new Date(date);
-      const diffDays = Math.floor((currentDate.getTime() - workoutDate.getTime()) / (1000 * 60 * 60 * 24));
+      const workoutDate = dayjs(date);
+      const diffDays = currentDate.diff(workoutDate, 'day');
 
       if (diffDays === 0 || diffDays === 1) {
         continuousDays++;
@@ -306,9 +304,9 @@ export class StatsService {
     // 计算几天没有训练
     let withoutWorkoutDays = 0;
     if (uniqueDates.length > 0) {
-      const lastWorkoutDate = new Date(uniqueDates[0]);
-      const todayDate = new Date(today);
-      withoutWorkoutDays = Math.floor((todayDate.getTime() - lastWorkoutDate.getTime()) / (1000 * 60 * 60 * 24));
+      const lastWorkoutDate = dayjs(uniqueDates[0]);
+      const todayDate = dayjs(today);
+      withoutWorkoutDays = todayDate.diff(lastWorkoutDate, 'day');
     }
 
     return {
@@ -554,7 +552,7 @@ export class StatsService {
 
     if (options.periodUnit === 'year' && query.date) {
       // 如果是指定年份查询，只初始化该年份
-      const yearKey = new Date(query.date).getFullYear().toString();
+      const yearKey = dayjs(query.date).format('YYYY');
       periodGroups[yearKey] = {};
     } else {
       // 否则初始化多个周期
@@ -631,8 +629,7 @@ export class StatsService {
     let startDate: dayjs.Dayjs;
     if (options.periodUnit === 'year' && query.date) {
       // 如果是指定年份查询
-      const date = new Date(query.date);
-      const year = date.getFullYear();
+      const year = dayjs(query.date).format('YYYY');
       startDate = dayjs(`${year}-01-01`);
     } else {
       // 如果是周或月查询，或者是默认年份查询
@@ -645,7 +642,7 @@ export class StatsService {
 
     // 构建日期范围条件
     if (options.periodUnit === 'year' && query.date) {
-      const year = new Date(query.date).getFullYear();
+      const year = dayjs(query.date).format('YYYY');
       conditions.date = {
         $gte: `${year}-01-01`,
         $lte: `${year}-12-31`
