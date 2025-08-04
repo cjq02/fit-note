@@ -4,18 +4,20 @@
     "description": "健身记录应用",
     "private": true,
     "scripts": {
-        "start": "concurrently \"pnpm run start:backend\" \"pnpm run start:frontend\"",
-        "start:frontend": "cd frontend && pnpm run dev",
+        "start": "powershell -ExecutionPolicy Bypass -File start.ps1",
+        "start:parallel": "concurrently \"pnpm run start:backend\" \"pnpm run start:frontend\"",
         "start:backend": "cd backend && pnpm run start:dev",
+        "start:frontend": "cd frontend && pnpm run dev",
         "install:all": "pnpm install && cd frontend && pnpm install && cd ../backend && pnpm install",
         "build:shared-utils": "pnpm --filter @fit-note/shared-utils build"
     },
     "devDependencies": {
         "@types/node": "^22.15.21",
-        "concurrently": "^8.2.2"
+        "concurrently": "^8.2.2",
+        "wait-on": "^7.2.0"
     },
     "packageManager": "pnpm@10.4.0+sha512.6b849d0787d97f8f4e1f03a9b8ff8f038e79e153d6f11ae539ae7c435ff9e796df6a862c991502695c7f9e8fac8aeafc1ac5a8dab47e36148d183832d886dd52",
     "dependencies": {
-        "dayjs": "^1.11.10"
+        "npm-run-all": "^4.1.5"
     }
 }
