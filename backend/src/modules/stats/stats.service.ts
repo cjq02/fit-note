@@ -47,45 +47,11 @@ export class StatsService {
   pageSize: number;
   hasMore: boolean;
 }> {
-  // 构建查询条件
-    const conditions: Record<string, unknown> = { userId: query.userId };
-    if (query.projectId) {
-      conditions.projectId = query.projectId;
-    }
-
-    // 获取当前日期
-    const now = dayjs();
-    const today = now.format('YYYY-MM-DD');
-
-    // 计算开始日期
-    let startDate: dayjs.Dayjs;
-    if (options.periodUnit === 'year' && query.date) {
-    // 如果是指定年份查询
-      const date = new Date(query.date);
-      const year = date.getFullYear();
-      startDate = dayjs(`${year}-01-01`);
-    } else {
-    // 如果是周或月查询，或者是默认年份查询
-      startDate = options.periodUnit === 'week'
-        ? dayjs(now.startOf('isoWeek')).subtract(options.periodsToShow - 1, 'week')
-        : options.periodUnit === 'month'
-          ? dayjs(now.startOf('month')).subtract(options.periodsToShow - 1, 'month')
-          : dayjs(now.startOf('year')).subtract(options.periodsToShow - 1, 'year');
-    }
-
     // 构建日期范围条件
-    if (options.periodUnit === 'year' && query.date) {
-      const year = new Date(query.date).getFullYear();
-      conditions.date = {
-        $gte: `${year}-01-01`,
-        $lte: `${year}-12-31`
-      };
-    } else {
-      conditions.date = {
-        $gte: startDate.format('YYYY-MM-DD'),
-        $lte: today
-      };
-    }
+    const { conditions, startDate } = this.buildDateRangeConditions(query, {
+      periodUnit: options.periodUnit,
+      periodsToShow: options.periodsToShow
+    });
 
     // 1. 获取所有训练记录
     const workouts = await this.workoutModel
@@ -97,32 +63,18 @@ export class StatsService {
     const { nameMap, seqNoMap } = await this.workoutService.getProjectMaps(workouts, query.userId);
 
     // 3. 按周期和项目分组
-    const periodGroups: Record<string, Record<string, {
-    workouts: Workout[];
-    uniqueDates: Set<string>;
-  }>> = {};
-
-    // 初始化所有周期的记录
-    if (options.periodUnit === 'year' && query.date) {
-    // 如果是指定年份查询，只初始化该年份
-      const yearKey = new Date(query.date).getFullYear().toString();
-      periodGroups[yearKey] = {};
-    } else {
-    // 否则初始化多个周期
-      for (let i = 0; i < options.periodsToShow; i++) {
-        const periodDate = startDate.add(i, options.periodUnit);
-        const periodKey = periodDate.format(options.dateFormat);
-        periodGroups[periodKey] = {};
-      }
-    }
+    const periodGroups = this.initializePeriodGroups(query, {
+      periodUnit: options.periodUnit,
+      periodsToShow: options.periodsToShow,
+      dateFormat: options.dateFormat
+    }, startDate);
 
     // 4. 填充数据
     workouts.forEach(workout => {
-      const periodKey = options.periodUnit === 'week'
-        ? dayjs(workout.date).startOf('isoWeek').format(options.dateFormat)
-        : options.periodUnit === 'year'
-          ? dayjs(workout.date).format('YYYY')
-          : dayjs(workout.date).format(options.dateFormat);
+      const periodKey = this.generatePeriodKey(workout.date, {
+        periodUnit: options.periodUnit,
+        dateFormat: options.dateFormat
+      });
 
       if (periodGroups[periodKey]) {
         const projectId = workout.projectId.toString();
@@ -140,13 +92,9 @@ export class StatsService {
     // 5. 计算统计数据
     const result = this.calculateGroupStats(periodGroups, nameMap, seqNoMap);
 
-    // 6. 计算总数和是否有更多数据
-    const total = Object.keys(result).length;
-    const hasMore = total > query.pageSize;
-
-    // 7. 转换为列表格式，并统计每个周期的训练天数（去重）
+    // 6. 转换为列表格式，并统计每个周期的训练天数（去重）
     let data = Object.entries(result).map(([period, stats]) => {
-    // 统计该周期所有项目的 uniqueDates 的并集
+      // 统计该周期所有项目的 uniqueDates 的并集
       const projectGroups = periodGroups[period] || {};
       const allDatesSet = new Set<string>();
       Object.values(projectGroups).forEach(g => {
@@ -162,13 +110,8 @@ export class StatsService {
     // 按 period 降序排序（年份大的在前面）
     data = data.sort((a, b) => b.period.localeCompare(a.period));
 
-    return {
-      data,
-      total,
-      page: query.page,
-      pageSize: query.pageSize,
-      hasMore,
-    };
+    // 7. 处理分页
+    return this.handlePagination(data, query);
   }
 
   /**
@@ -395,7 +338,7 @@ export class StatsService {
   }> {
     return this.findAllGroupByPeriodCategory(query, {
       dateFormat: 'YYYY-MM-DD',
-      periodsToShow: 12,
+      periodsToShow: query.pageSize,
       periodUnit: 'week'
     });
   }
@@ -418,7 +361,7 @@ export class StatsService {
   }> {
     return this.findAllGroupByPeriodCategory(query, {
       dateFormat: 'YYYY-MM',
-      periodsToShow: 12,
+      periodsToShow: query.pageSize,
       periodUnit: 'month'
     });
   }
@@ -441,7 +384,7 @@ export class StatsService {
   }> {
     return this.findAllGroupByPeriodCategory(query, {
       dateFormat: 'YYYY',
-      periodsToShow: 5,
+      periodsToShow: query.pageSize,
       periodUnit: 'year'
     });
   }
@@ -473,22 +416,20 @@ export class StatsService {
     pageSize: number;
     hasMore: boolean;
   }> {
-    const { page = 1, pageSize = 10, projectId, userId } = query;
-
-    // 构建查询条件
-    const queryConditions: Record<string, unknown> = { userId };
-    if (projectId) {
-      queryConditions.projectId = projectId;
-    }
+    // 构建日期范围条件
+    const { conditions } = this.buildDateRangeConditions(query, {
+      periodUnit: options.periodUnit,
+      periodsToShow: options.periodsToShow
+    });
 
     // 获取所有训练记录
     const workouts = await this.workoutModel
-      .find(queryConditions)
-      .sort({ date: -1 })
+      .find(conditions)
+      .sort({ date: -1, _id: -1 })
       .exec();
 
     // 获取项目信息映射
-    const projects = await this.projectService.findAll(userId);
+    const projects = await this.projectService.findAll(query.userId);
     const projectMap = new Map<string, { name: string; category: string; seqNo: number }>();
 
     projects.forEach(project => {
@@ -501,32 +442,34 @@ export class StatsService {
     });
 
     // 按时间周期分组
-    const groupedByPeriod: Record<string, Record<string, { workouts: Workout[]; uniqueDates: Set<string> }>> = {};
+    const { startDate } = this.buildDateRangeConditions(query, {
+      periodUnit: options.periodUnit,
+      periodsToShow: options.periodsToShow
+    });
+
+    const groupedByPeriod = this.initializePeriodGroups(query, {
+      periodUnit: options.periodUnit,
+      periodsToShow: options.periodsToShow,
+      dateFormat: options.dateFormat
+    }, startDate);
 
     workouts.forEach(workout => {
-      let periodKey: string;
+      const periodKey = this.generatePeriodKey(workout.date, {
+        periodUnit: options.periodUnit,
+        dateFormat: options.dateFormat
+      });
 
-      if (options.periodUnit === 'week') {
-        periodKey = dayjs(workout.date).startOf('isoWeek').format(options.dateFormat);
-      } else if (options.periodUnit === 'month') {
-        periodKey = dayjs(workout.date).format('YYYY-MM');
-      } else {
-        periodKey = dayjs(workout.date).format('YYYY');
+      if (groupedByPeriod[periodKey]) {
+        const projectInfo = projectMap.get(workout.projectId.toString());
+        const category = projectInfo?.category || '未知分类';
+
+        if (!groupedByPeriod[periodKey][category]) {
+          groupedByPeriod[periodKey][category] = { workouts: [], uniqueDates: new Set() };
+        }
+
+        groupedByPeriod[periodKey][category].workouts.push(workout);
+        groupedByPeriod[periodKey][category].uniqueDates.add(workout.date);
       }
-
-      const projectInfo = projectMap.get(workout.projectId.toString());
-      const category = projectInfo?.category || '未知分类';
-
-      if (!groupedByPeriod[periodKey]) {
-        groupedByPeriod[periodKey] = {};
-      }
-
-      if (!groupedByPeriod[periodKey][category]) {
-        groupedByPeriod[periodKey][category] = { workouts: [], uniqueDates: new Set() };
-      }
-
-      groupedByPeriod[periodKey][category].workouts.push(workout);
-      groupedByPeriod[periodKey][category].uniqueDates.add(workout.date);
     });
 
     // 计算统计数据
@@ -559,9 +502,8 @@ export class StatsService {
           });
         });
 
-        // 从 CATEGORY_OPTIONS 获取分类名称
-        const categoryOption = CATEGORY_OPTIONS.find(option => option.value === category);
-        const categoryName = categoryOption?.label || category;
+        // 获取分类名称
+        const categoryName = this.getCategoryName(category);
 
         stats.push({
           category,
@@ -583,21 +525,70 @@ export class StatsService {
     });
 
     // 按周期排序（最新的在前）
-    result.sort((a, b) => {
-      if (options.periodUnit === 'week') {
-        return dayjs(b.period, 'YYYY-MM-DD').valueOf() - dayjs(a.period, 'YYYY-MM-DD').valueOf();
-      } else if (options.periodUnit === 'month') {
-        return dayjs(b.period, 'YYYY-MM').valueOf() - dayjs(a.period, 'YYYY-MM').valueOf();
-      } else {
-        return dayjs(b.period, 'YYYY').valueOf() - dayjs(a.period, 'YYYY').valueOf();
-      }
-    });
+    const sortedResult = this.sortByPeriod(result, { periodUnit: options.periodUnit });
 
     // 分页处理
-    const total = result.length;
+    return this.handlePagination(sortedResult, query);
+  }
+
+  /**
+   * 初始化所有周期的记录
+   * @param {QueryWorkoutDto} query - 查询参数
+   * @param {Object} options - 配置选项
+   * @param {string} options.periodUnit - 周期单位
+   * @param {number} options.periodsToShow - 显示的周期数量
+   * @param {string} options.dateFormat - 日期格式
+   * @param {dayjs.Dayjs} startDate - 开始日期
+   * @returns {Record<string, any>} 初始化的周期记录
+   */
+  private initializePeriodGroups(
+    query: QueryWorkoutDto,
+    options: {
+      periodUnit: 'week' | 'month' | 'year';
+      periodsToShow: number;
+      dateFormat: string;
+    },
+    startDate: dayjs.Dayjs
+  ): Record<string, Record<string, { workouts: Workout[]; uniqueDates: Set<string> }>> {
+    const periodGroups: Record<string, Record<string, { workouts: Workout[]; uniqueDates: Set<string> }>> = {};
+
+    if (options.periodUnit === 'year' && query.date) {
+      // 如果是指定年份查询，只初始化该年份
+      const yearKey = new Date(query.date).getFullYear().toString();
+      periodGroups[yearKey] = {};
+    } else {
+      // 否则初始化多个周期
+      for (let i = 0; i < options.periodsToShow; i++) {
+        const periodDate = startDate.add(i, options.periodUnit);
+        const periodKey = periodDate.format(options.dateFormat);
+        periodGroups[periodKey] = {};
+      }
+    }
+
+    return periodGroups;
+  }
+
+  /**
+   * 处理分页逻辑
+   * @param {Array} data - 数据数组
+   * @param {Object} query - 查询参数
+   * @returns {Object} 分页结果
+   */
+  private handlePagination<T>(
+    data: T[],
+    query: QueryWorkoutDto
+  ): {
+    data: T[];
+    total: number;
+    page: number;
+    pageSize: number;
+    hasMore: boolean;
+  } {
+    const { page = 1, pageSize = 10 } = query;
+    const total = data.length;
     const startIndex = (page - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const paginatedData = result.slice(startIndex, endIndex);
+    const paginatedData = data.slice(startIndex, endIndex);
 
     return {
       data: paginatedData,
@@ -606,6 +597,124 @@ export class StatsService {
       pageSize,
       hasMore: endIndex < total
     };
+  }
+
+  /**
+   * 构建日期范围查询条件
+   * @param {QueryWorkoutDto} query - 查询参数
+   * @param {Object} options - 配置选项
+   * @param {string} options.periodUnit - 周期单位
+   * @param {number} options.periodsToShow - 显示的周期数量
+   * @returns {Object} 包含 conditions 和 startDate 的对象
+   */
+  private buildDateRangeConditions(
+    query: QueryWorkoutDto,
+    options: {
+      periodUnit: 'week' | 'month' | 'year';
+      periodsToShow: number;
+    }
+  ): {
+    conditions: Record<string, unknown>;
+    startDate: dayjs.Dayjs;
+  } {
+    // 构建查询条件
+    const conditions: Record<string, unknown> = { userId: query.userId };
+    if (query.projectId) {
+      conditions.projectId = query.projectId;
+    }
+
+    // 获取当前日期
+    const now = dayjs();
+    const today = now.format('YYYY-MM-DD');
+
+    // 计算开始日期
+    let startDate: dayjs.Dayjs;
+    if (options.periodUnit === 'year' && query.date) {
+      // 如果是指定年份查询
+      const date = new Date(query.date);
+      const year = date.getFullYear();
+      startDate = dayjs(`${year}-01-01`);
+    } else {
+      // 如果是周或月查询，或者是默认年份查询
+      startDate = options.periodUnit === 'week'
+        ? dayjs(now.startOf('isoWeek')).subtract(options.periodsToShow - 1, 'week')
+        : options.periodUnit === 'month'
+          ? dayjs(now.startOf('month')).subtract(options.periodsToShow - 1, 'month')
+          : dayjs(now.startOf('year')).subtract(options.periodsToShow - 1, 'year');
+    }
+
+    // 构建日期范围条件
+    if (options.periodUnit === 'year' && query.date) {
+      const year = new Date(query.date).getFullYear();
+      conditions.date = {
+        $gte: `${year}-01-01`,
+        $lte: `${year}-12-31`
+      };
+    } else {
+      conditions.date = {
+        $gte: startDate.format('YYYY-MM-DD'),
+        $lte: today
+      };
+    }
+
+    return { conditions, startDate };
+  }
+
+  /**
+   * 生成周期键
+   * @param {string} date - 日期字符串
+   * @param {Object} options - 配置选项
+   * @param {string} options.periodUnit - 周期单位
+   * @param {string} options.dateFormat - 日期格式
+   * @returns {string} 周期键
+   */
+  private generatePeriodKey(
+    date: string,
+    options: {
+      periodUnit: 'week' | 'month' | 'year';
+      dateFormat: string;
+    }
+  ): string {
+    if (options.periodUnit === 'week') {
+      return dayjs(date).startOf('isoWeek').format('YYYY-MM-DD');
+    } else if (options.periodUnit === 'month') {
+      return dayjs(date).format('YYYY-MM');
+    } else {
+      return dayjs(date).format('YYYY');
+    }
+  }
+
+  /**
+   * 获取分类名称
+   * @param {string} category - 分类值
+   * @returns {string} 分类名称
+   */
+  private getCategoryName(category: string): string {
+    const categoryOption = CATEGORY_OPTIONS.find(option => option.value === category);
+    return categoryOption?.label || category;
+  }
+
+  /**
+   * 按周期排序（最新的在前）
+   * @param {Array} data - 数据数组
+   * @param {Object} options - 配置选项
+   * @param {string} options.periodUnit - 周期单位
+   */
+  private sortByPeriod<T extends { period: string }>(
+    data: T[],
+    options: {
+      periodUnit: 'week' | 'month' | 'year';
+    }
+  ): T[] {
+    return data.sort((a, b) => {
+      if (options.periodUnit === 'week') {
+        return dayjs(b.period, 'YYYY-MM-DD').valueOf() - dayjs(a.period, 'YYYY-MM-DD').valueOf();
+      } else if (options.periodUnit === 'month') {
+        return dayjs(b.period, 'YYYY-MM').valueOf() - dayjs(a.period, 'YYYY-MM').valueOf();
+      } else {
+        return dayjs(b.period, 'YYYY').valueOf() - dayjs(a.period, 'YYYY').valueOf();
+      }
+    });
   }
 
   /**
