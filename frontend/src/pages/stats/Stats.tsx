@@ -44,10 +44,11 @@ const Stats: React.FC = () => {
         padding: 16,
         boxSizing: 'border-box',
         background: '#fff',
+        position: 'relative',
       }}
     >
       <LoadingOverlay visible={loading} text="正在加载统计数据...">
-        <div>
+        <div style={{ minHeight: '100%' }}>
           {data.length === 0 ? (
             <div>暂无数据</div>
           ) : (
