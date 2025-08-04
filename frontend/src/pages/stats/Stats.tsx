@@ -59,16 +59,16 @@ const Stats: React.FC = () => {
             },
           },
           legend: {
-            orient: 'vertical',
-            right: 10,
-            top: 'center',
+            orient: 'horizontal',
+            bottom: 10,
+            left: 'center',
           },
           series: [
             {
               name: '训练次数',
               type: 'pie',
               radius: '50%',
-              center: ['40%', '50%'],
+              center: ['50%', '45%'],
               data: pieData,
               emphasis: {
                 itemStyle: {

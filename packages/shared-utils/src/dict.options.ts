@@ -51,7 +51,7 @@ export const CATEGORY_OPTIONS = [
   { label: '背', value: 'Back', color: '#29B6F6', seqNo: 2 },
   { label: '肩', value: 'Shoulders', color: '#AB47BC', seqNo: 3 },
   { label: '臂', value: 'Arms', color: '#FFC107', seqNo: 4 },
-  { label: '腿', value: 'Legs', color: '#FFC0CB', seqNo: 5 },
+  { label: '腿', value: 'Legs', color: '#00C5CD', seqNo: 5 },
   { label: '臀', value: 'Glutes', color: '#FFB347', seqNo: 6 },
   { label: '腹', value: 'Abs', color: '#66BB6A', seqNo: 7 },
   { label: '有氧', value: 'Cardio', color: '#26C6DA', seqNo: 8 },
