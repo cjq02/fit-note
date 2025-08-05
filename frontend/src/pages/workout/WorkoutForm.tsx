@@ -28,7 +28,7 @@ declare global {
 }
 
 // 休息时间提示音阈值（秒）
-const REST_TIME_SOUND_THRESHOLD = 5;
+const REST_TIME_SOUND_THRESHOLD = 30;
 
 /**
  * 训练记录表单
@@ -63,17 +63,24 @@ export const WorkoutForm = () => {
 
   // 音频相关状态
   const hasPlayedSoundRef = useRef<boolean>(false);
+  const soundIntervalRef = useRef<number | null>(null);
 
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
 
   /**
-   * 播放提示音
+   * 播放单次提示音
    */
-  const playNotificationSound = () => {
+  const playSingleNotificationSound = async () => {
     try {
       // 创建音频上下文
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+      // 如果音频上下文被暂停，需要恢复
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -100,6 +107,32 @@ export const WorkoutForm = () => {
       };
     } catch (error) {
       console.warn('无法播放提示音:', error);
+    }
+  };
+
+  /**
+   * 开始间隔播放提示音
+   */
+  const startIntervalNotificationSound = () => {
+    // 如果已经在播放，先停止
+    stopIntervalNotificationSound();
+
+    // 立即播放一次
+    playSingleNotificationSound();
+
+    // 设置间隔播放
+    soundIntervalRef.current = window.setInterval(() => {
+      playSingleNotificationSound();
+    }, 1000); // 每秒播放一次
+  };
+
+  /**
+   * 停止间隔提示音
+   */
+  const stopIntervalNotificationSound = () => {
+    if (soundIntervalRef.current) {
+      window.clearInterval(soundIntervalRef.current);
+      soundIntervalRef.current = null;
     }
   };
 
@@ -300,7 +333,8 @@ export const WorkoutForm = () => {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
       setIsPaused(true);
-      // 重置提示音状态
+      // 停止提示音并重置状态
+      stopIntervalNotificationSound();
       hasPlayedSoundRef.current = false;
     } else {
       // 如果已暂停或未开始，则继续计时
@@ -326,7 +360,7 @@ export const WorkoutForm = () => {
 
           // 检查是否超过阈值且未播放过提示音
           if (newTime >= REST_TIME_SOUND_THRESHOLD && !hasPlayedSoundRef.current) {
-            playNotificationSound();
+            startIntervalNotificationSound();
             hasPlayedSoundRef.current = true;
           }
 
@@ -346,7 +380,8 @@ export const WorkoutForm = () => {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
       setIsPaused(false);
-      // 重置提示音状态
+      // 停止提示音并重置状态
+      stopIntervalNotificationSound();
       hasPlayedSoundRef.current = false;
     }
 
@@ -460,7 +495,8 @@ export const WorkoutForm = () => {
       if (timerRef.current) {
         window.clearInterval(timerRef.current);
       }
-      // 重置提示音状态
+      // 停止提示音并重置状态
+      stopIntervalNotificationSound();
       hasPlayedSoundRef.current = false;
     };
   }, []);
@@ -1089,7 +1125,8 @@ export const WorkoutForm = () => {
                               window.clearInterval(timerRef.current);
                               timerRef.current = null;
                               setIsPaused(false);
-                              // 重置提示音状态
+                              // 停止提示音并重置状态
+                              stopIntervalNotificationSound();
                               hasPlayedSoundRef.current = false;
                             }
                           },
