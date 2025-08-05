@@ -27,6 +27,9 @@ declare global {
   }
 }
 
+// 休息时间提示音阈值（秒）
+const REST_TIME_SOUND_THRESHOLD = 5;
+
 /**
  * 训练记录表单
  *
@@ -58,8 +61,47 @@ export const WorkoutForm = () => {
   const [historyVisible, setHistoryVisible] = useState(false);
   const [projectDescription, setProjectDescription] = useState<string>('');
 
+  // 音频相关状态
+  const hasPlayedSoundRef = useRef<boolean>(false);
+
   // 计算三个月前的日期作为最小值
   const oneMonthAgo = dayjs().subtract(1, 'month').toDate();
+
+  /**
+   * 播放提示音
+   */
+  const playNotificationSound = () => {
+    try {
+      // 创建音频上下文
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      // 连接音频节点
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // 设置音频参数
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // 800Hz 频率
+      oscillator.type = 'sine';
+
+      // 设置音量渐变
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+      // 播放音频
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+
+      // 播放完成后清理
+      oscillator.onended = () => {
+        audioContext.close();
+      };
+    } catch (error) {
+      console.warn('无法播放提示音:', error);
+    }
+  };
 
   // 获取训练记录详情（通过ID）
   const { data: workoutData } = useQuery<ApiResponse<Workout>, Error>({
@@ -258,14 +300,19 @@ export const WorkoutForm = () => {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
       setIsPaused(true);
+      // 重置提示音状态
+      hasPlayedSoundRef.current = false;
     } else {
       // 如果已暂停或未开始，则继续计时
       setIsPaused(false);
-      // 如果是第一次开始计时，重置时间
+      // 如果是第一次开始计时，重置时间和提示音状态
       if (!groups[idx].restTime) {
         setRestTime(0);
+        hasPlayedSoundRef.current = false;
       } else {
         setRestTime(groups[idx].restTime);
+        // 如果当前时间已经超过阈值，重置提示音状态
+        hasPlayedSoundRef.current = groups[idx].restTime >= REST_TIME_SOUND_THRESHOLD;
       }
       timerRef.current = window.setInterval(() => {
         setRestTime(prev => {
@@ -276,6 +323,13 @@ export const WorkoutForm = () => {
             newGroups[idx] = { ...newGroups[idx], restTime: newTime };
             return newGroups;
           });
+
+          // 检查是否超过阈值且未播放过提示音
+          if (newTime >= REST_TIME_SOUND_THRESHOLD && !hasPlayedSoundRef.current) {
+            playNotificationSound();
+            hasPlayedSoundRef.current = true;
+          }
+
           return newTime;
         });
       }, 1000);
@@ -292,6 +346,8 @@ export const WorkoutForm = () => {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
       setIsPaused(false);
+      // 重置提示音状态
+      hasPlayedSoundRef.current = false;
     }
 
     const newSeqNo = groups.length + 1;
@@ -404,6 +460,8 @@ export const WorkoutForm = () => {
       if (timerRef.current) {
         window.clearInterval(timerRef.current);
       }
+      // 重置提示音状态
+      hasPlayedSoundRef.current = false;
     };
   }, []);
 
@@ -1031,6 +1089,8 @@ export const WorkoutForm = () => {
                               window.clearInterval(timerRef.current);
                               timerRef.current = null;
                               setIsPaused(false);
+                              // 重置提示音状态
+                              hasPlayedSoundRef.current = false;
                             }
                           },
                         });
