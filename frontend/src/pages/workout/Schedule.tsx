@@ -124,6 +124,16 @@ export const Schedule = () => {
     return categoryText ? `${countText}${categoryText}` : countText;
   };
 
+  // 根据项目数量获取背景色和文字颜色（红色系）
+  const getBackgroundColor = (workoutCount: number) => {
+    if (workoutCount === 0) return { bg: '', text: '' };
+    if (workoutCount <= 2) return { bg: 'bg-red-100', text: 'text-red-800' };
+    if (workoutCount <= 4) return { bg: 'bg-red-200', text: 'text-red-800' };
+    if (workoutCount <= 6) return { bg: 'bg-red-300', text: 'text-red-900' };
+    if (workoutCount <= 8) return { bg: 'bg-red-400', text: 'text-white' };
+    return { bg: 'bg-red-500', text: 'text-white' };
+  };
+
   return (
     <div className="page-container bg-[var(--adm-color-background)]">
       <div className="p-2">
@@ -174,16 +184,16 @@ export const Schedule = () => {
                   }`}
                 >
                   <div
-                    className={`flex h-5 w-9 items-center justify-center rounded-full text-xs font-medium -mt-1 ${
+                    className={`flex h-5 w-10 items-center justify-center rounded-full text-xs font-medium -mt-1 ${
                       hasWorkout && !isSelected ? 'bg-orange-500 text-white' : ''
                     } ${isSelected ? 'text-white' : ''}`}
                   >
                     {date.getDate()}
                   </div>
                   <div
-                    className={`text-[10px] font-thin mt-1 w-11 text-center h-3 flex items-center justify-center overflow-hidden ${
+                    className={`text-[10px] font-thin mt-1 w-11 text-center h-3 flex items-center justify-center overflow-hidden rounded ${
                       isSelected ? 'text-white' : 'text-gray-600'
-                    }`}
+                    } ${hasWorkout && !isSelected ? `${getBackgroundColor(workoutCount).bg} ${getBackgroundColor(workoutCount).text}` : ''}`}
                   >
                     <div className="justify-start w-full whitespace-nowrap">{displayContent}</div>
                   </div>
