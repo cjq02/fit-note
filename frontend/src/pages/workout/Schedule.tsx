@@ -191,7 +191,7 @@ export const Schedule = () => {
                     {date.getDate()}
                   </div>
                   <div
-                    className={`text-[10px] font-thin mt-1 w-11 text-center h-3 flex items-center justify-center overflow-hidden rounded ${
+                    className={`text-[10px] mt-1 w-11 text-center h-4 flex items-center justify-center overflow-hidden rounded ${
                       isSelected ? 'text-white' : 'text-gray-600'
                     } ${hasWorkout && !isSelected ? `${getBackgroundColor(workoutCount).bg} ${getBackgroundColor(workoutCount).text}` : ''}`}
                   >
