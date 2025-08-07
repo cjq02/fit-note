@@ -119,8 +119,8 @@ export const Schedule = () => {
     const categoryLabels = categories.filter(cat => cat).map(cat => getCategoryLabel(cat));
 
     // 组合显示：项目数 + 项目类别
-    const countText = `${workoutCount}'`;
-    const categoryText = categoryLabels.length > 0 ? categoryLabels.join('|') : '';
+    const countText = `${workoutCount}`;
+    const categoryText = categoryLabels.length > 0 ? categoryLabels.slice(0, 3).join('|') : '';
     return categoryText ? `${countText}${categoryText}` : countText;
   };
 
