@@ -3,6 +3,14 @@
   line-height: 8px !important;
 }
 
+.adm-calendar-mark {
+  padding: 0 !important;
+}
+
+.adm-calendar-cells {
+  padding: 4px 0 !important;
+}
+
 .adm-calendar-cell {
   height: 100% !important;
   margin-bottom: 0 !important;

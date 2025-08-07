@@ -1,7 +1,7 @@
 import type { Workout, Project } from '@/@typings/types.d.ts';
 import { getWorkoutsByYearMonth } from '@/api/workout.api';
 import { getProjects } from '@/api/project.api';
-import { Calendar, Card, List, Picker, Tabs } from 'antd-mobile';
+import { Calendar, Card, List, Picker } from 'antd-mobile';
 import type { PickerValue } from 'antd-mobile/es/components/picker';
 import { useEffect, useState } from 'react';
 import { WorkoutDayGroup } from './components/WorkoutDayGroup';
@@ -29,8 +29,6 @@ export const Schedule = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   // 加载状态
   const [loading, setLoading] = useState(false);
-  // 显示模式：'count' | 'category'
-  const [displayMode, setDisplayMode] = useState<'count' | 'category'>('count');
 
   // 生成年份选项
   const yearColumns = Array.from({ length: 5 }, (_, i) => {
@@ -111,17 +109,19 @@ export const Schedule = () => {
     const dateStr = dayjs(date).format('YYYY-MM-DD');
     const workouts = workoutData[dateStr] || [];
 
-    if (displayMode === 'count') {
-      return workouts.length > 0 ? `${workouts.length}项` : '';
-    } else {
-      // 项目类别模式
-      if (workouts.length === 0) return '';
+    if (workouts.length === 0) return '';
 
-      // 获取所有不重复的项目类别
-      const categories = [...new Set(workouts.map(w => getProjectCategory(w.projectName)))];
-      const categoryLabels = categories.filter(cat => cat).map(cat => getCategoryLabel(cat));
-      return categoryLabels.join('|');
-    }
+    // 获取项目数
+    const workoutCount = workouts.length;
+
+    // 获取所有不重复的项目类别
+    const categories = [...new Set(workouts.map(w => getProjectCategory(w.projectName)))];
+    const categoryLabels = categories.filter(cat => cat).map(cat => getCategoryLabel(cat));
+
+    // 组合显示：项目数 + 项目类别
+    const countText = `${workoutCount}'`;
+    const categoryText = categoryLabels.length > 0 ? categoryLabels.join('|') : '';
+    return categoryText ? `${countText}${categoryText}` : countText;
   };
 
   return (
@@ -144,19 +144,6 @@ export const Schedule = () => {
               </div>
             )}
           </Picker>
-        </Card>
-
-        {/* 显示模式选择器 */}
-        <Card className="mb-2">
-          <div className="[&_.adm-tabs-header]:h-8 [&_.adm-tabs-header]:border-b-0">
-            <Tabs
-              activeKey={displayMode}
-              onChange={key => setDisplayMode(key as 'count' | 'category')}
-            >
-              <Tabs.Tab title="项目数" key="count" />
-              <Tabs.Tab title="项目类别" key="category" />
-            </Tabs>
-          </div>
         </Card>
 
         {/* 日历 */}
@@ -187,18 +174,18 @@ export const Schedule = () => {
                   }`}
                 >
                   <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium -mt-1 ${
+                    className={`flex h-5 w-9 items-center justify-center rounded-full text-xs font-medium -mt-1 ${
                       hasWorkout && !isSelected ? 'bg-orange-500 text-white' : ''
                     } ${isSelected ? 'text-white' : ''}`}
                   >
                     {date.getDate()}
                   </div>
                   <div
-                    className={`text-[10px] mt-1 w-10 text-center h-3 flex items-center justify-center overflow-hidden whitespace-nowrap ${
+                    className={`text-[10px] font-thin mt-1 w-11 text-center h-3 flex items-center justify-center overflow-hidden ${
                       isSelected ? 'text-white' : 'text-gray-600'
                     }`}
                   >
-                    <div className="justify-start w-full">{displayContent}</div>
+                    <div className="justify-start w-full whitespace-nowrap">{displayContent}</div>
                   </div>
                 </div>
               );
