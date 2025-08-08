@@ -128,10 +128,10 @@ export const Schedule = () => {
   const getBackgroundColor = (workoutCount: number) => {
     if (workoutCount === 0) return { bg: '', text: '' };
     if (workoutCount <= 1) return { bg: 'bg-red-100', text: 'text-red-1000' };
-    if (workoutCount <= 3) return { bg: 'bg-red-200', text: 'text-red-900' };
-    if (workoutCount <= 5) return { bg: 'bg-red-400', text: 'text-red-50' };
-    if (workoutCount <= 7) return { bg: 'bg-red-500', text: 'text-white' };
-    return { bg: 'bg-red-600', text: 'text-white' };
+    if (workoutCount <= 3) return { bg: 'bg-red-300', text: 'text-red-900' };
+    if (workoutCount <= 5) return { bg: 'bg-red-500', text: 'text-red-50' };
+    if (workoutCount <= 7) return { bg: 'bg-red-700', text: 'text-white' };
+    return { bg: 'bg-red-800', text: 'text-white' };
   };
 
   return (
@@ -147,7 +147,7 @@ export const Schedule = () => {
               setSelectedYearMonth({ year, month });
             }}
           >
-            {(items, { open }) => (
+            {(_, { open }) => (
               <div className="flex items-center justify-between p-2" onClick={open}>
                 <span>选择年月</span>
                 <span>{`${selectedYearMonth.year}年${selectedYearMonth.month}月`}</span>
@@ -180,12 +180,12 @@ export const Schedule = () => {
               return (
                 <div
                   className={`relative flex h-full w-full flex-col items-center justify-center rounded-lg p-1 ${
-                    isSelected ? 'bg-[var(--adm-color-primary)]' : ''
+                    isSelected ? 'bg-purple-600' : ''
                   }`}
                 >
                   <div
                     className={`flex h-5 w-10 items-center justify-center rounded-full text-xs font-medium -mt-1 ${
-                      hasWorkout && !isSelected ? 'bg-orange-500 text-white' : ''
+                      hasWorkout && !isSelected ? 'border-[2px] border-orange-500' : ''
                     } ${isSelected ? 'text-white' : ''}`}
                   >
                     {date.getDate()}
