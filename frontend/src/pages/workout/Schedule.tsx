@@ -157,7 +157,7 @@ export const Schedule = () => {
         </Card>
 
         {/* 日历 */}
-        <Card className="mb-2">
+        <Card className="mb-2 calendar-card">
           <Calendar
             selectionMode="single"
             value={selectedDate}
