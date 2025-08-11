@@ -127,10 +127,13 @@ export const Schedule = () => {
   // 根据项目数量获取背景色和文字颜色（红色系）
   const getBackgroundColor = (workoutCount: number) => {
     if (workoutCount === 0) return { bg: '', text: '' };
-    if (workoutCount <= 1) return { bg: 'bg-red-100', text: 'text-red-1000' };
-    if (workoutCount <= 3) return { bg: 'bg-red-300', text: 'text-red-900' };
-    if (workoutCount <= 5) return { bg: 'bg-red-500', text: 'text-red-50' };
-    if (workoutCount <= 7) return { bg: 'bg-red-700', text: 'text-white' };
+    if (workoutCount === 1) return { bg: 'bg-red-100', text: 'text-red-1000' };
+    if (workoutCount === 2) return { bg: 'bg-red-200', text: 'text-red-900' };
+    if (workoutCount === 3) return { bg: 'bg-red-300', text: 'text-red-700' };
+    if (workoutCount === 4) return { bg: 'bg-red-400', text: 'text-red-50' };
+    if (workoutCount === 5) return { bg: 'bg-red-500', text: 'text-white' };
+    if (workoutCount === 6) return { bg: 'bg-red-600', text: 'text-white' };
+    if (workoutCount === 7) return { bg: 'bg-red-700', text: 'text-white' };
     return { bg: 'bg-red-800', text: 'text-white' };
   };
 
