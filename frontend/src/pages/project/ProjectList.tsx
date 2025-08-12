@@ -167,6 +167,9 @@ export const ProjectList = (): React.ReactElement => {
     { title: '今天', key: 'today' },
     { title: '昨天', key: 'yesterday' },
     { title: '前天', key: 'beforeYesterday' },
+    { title: '3天前', key: 'threeDaysAgo' },
+    { title: '4天前', key: 'fourDaysAgo' },
+    { title: '5天前', key: 'fiveDaysAgo' },
     { title: '更早', key: 'earlier' },
   ];
 
@@ -179,7 +182,10 @@ export const ProjectList = (): React.ReactElement => {
     if (filter === 'today') return diffDays === 0;
     if (filter === 'yesterday') return diffDays === 1;
     if (filter === 'beforeYesterday') return diffDays === 2;
-    if (filter === 'earlier') return diffDays > 2;
+    if (filter === 'threeDaysAgo') return diffDays === 3;
+    if (filter === 'fourDaysAgo') return diffDays === 4;
+    if (filter === 'fiveDaysAgo') return diffDays === 5;
+    if (filter === 'earlier') return diffDays > 5;
     return true;
   };
 
@@ -394,10 +400,10 @@ export const ProjectList = (): React.ReactElement => {
       className="page-container bg-gradient-to-b from-gray-100 to-gray-200"
       style={{ overflow: 'hidden' }}
     >
-      {/* 顶部训练日期筛选 Tabs */}
+      {/* 顶部训练日期筛选：前几个可横向滚动，"更早"固定在最右侧 */}
       <div className="w-full px-2 pt-2 pb-2">
         <div
-          className="w-full rounded-xl shadow bg-white"
+          className="w-full rounded-xl shadow bg-white relative"
           style={{
             padding: '2px 8px',
             minHeight: 36,
@@ -405,48 +411,83 @@ export const ProjectList = (): React.ReactElement => {
             background: '#fff',
           }}
         >
-          <Tabs
-            activeKey={workoutDateFilter}
-            onChange={key => setWorkoutDateFilter(key)}
-            stretch
-            className="custom-tabs w-full"
-            style={
-              {
-                '--active-line-height': '6px',
-                '--active-line-border-radius': '6px',
-                '--active-title-color': '#2563eb',
-                '--active-line-color': '#2563eb',
-                '--title-font-size': '16px',
-                borderBottom: 'none',
-              } as any
-            }
-          >
-            {WORKOUT_DATE_FILTERS.map(opt => (
-              <Tabs.Tab
-                title={
-                  <span
+          {(() => {
+            const filtersWithoutEarlier = WORKOUT_DATE_FILTERS.filter(f => f.key !== 'earlier');
+            const earlier = WORKOUT_DATE_FILTERS.find(f => f.key === 'earlier');
+            return (
+              <>
+                {/* 左侧：可横向滚动的 Tabs（不包含“更早”）*/}
+                <div style={{ paddingRight: 48 }}>
+                  <Tabs
+                    activeKey={workoutDateFilter === 'earlier' ? undefined : workoutDateFilter}
+                    onChange={key => setWorkoutDateFilter(key)}
+                    className="custom-tabs w-full"
+                    style={
+                      {
+                        '--active-line-height': '6px',
+                        '--active-line-border-radius': '6px',
+                        '--active-title-color': '#2563eb',
+                        '--active-line-color': '#2563eb',
+                        '--title-font-size': '16px',
+                        borderBottom: 'none',
+                      } as any
+                    }
+                  >
+                    {filtersWithoutEarlier.map(opt => (
+                      <Tabs.Tab
+                        title={
+                          <span
+                            className={
+                              workoutDateFilter === opt.key
+                                ? 'font-bold text-blue-700 drop-shadow-sm'
+                                : 'text-gray-500'
+                            }
+                            style={{
+                              display: 'inline-block',
+                              width: '100%',
+                              textAlign: 'center',
+                              padding: '4px 0',
+                              borderRadius: '10px 10px 0 0',
+                              fontSize: 15,
+                              transition: 'color 0.2s',
+                            }}
+                          >
+                            {opt.title}
+                          </span>
+                        }
+                        key={opt.key}
+                      />
+                    ))}
+                  </Tabs>
+                </div>
+                {/* 右侧：固定的“更早”按钮 */}
+                <div
+                  className="absolute top-0 right-0 h-full flex items-end"
+                  style={{ padding: '0 2px 0 4px' }}
+                >
+                  <button
+                    onClick={() => setWorkoutDateFilter('earlier')}
                     className={
-                      workoutDateFilter === opt.key
+                      workoutDateFilter === 'earlier'
                         ? 'font-bold text-blue-700 drop-shadow-sm'
                         : 'text-gray-500'
                     }
                     style={{
-                      display: 'inline-block',
-                      width: '100%',
+                      height: '100%',
+                      minWidth: 56,
                       textAlign: 'center',
-                      padding: '4px 0',
+                      padding: '2px 6px',
                       borderRadius: '10px 10px 0 0',
-                      fontSize: 15,
-                      transition: 'color 0.2s',
+                      fontSize: 14,
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    {opt.title}
-                  </span>
-                }
-                key={opt.key}
-              />
-            ))}
-          </Tabs>
+                    {earlier?.title || '更早'}
+                  </button>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
       <PullToRefresh onRefresh={handleRefresh}>
