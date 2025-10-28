@@ -1,6 +1,6 @@
 // 增强版用户数据复制脚本 - 自动检测userId格式
 const SOURCE_USERNAME = 'cjq';
-const TARGET_USERNAME = 'demo';
+const TARGET_USER_ID = '6836ff9a7f5f9b2d0e326bc9'; // demo用户的userId
 
 // 集合引用
 const usersCol = db.getCollection('users');
@@ -9,21 +9,16 @@ const workoutsCol = db.getCollection('workouts');
 
 print('=== 开始复制用户数据 ===');
 
-// 查找源用户和目标用户
+// 查找源用户
 const sourceUser = usersCol.findOne({ username: SOURCE_USERNAME });
-const targetUser = usersCol.findOne({ username: TARGET_USERNAME });
 
 if (!sourceUser) {
   print(`错误: 未找到源用户 ${SOURCE_USERNAME}`);
   quit(1);
 }
-if (!targetUser) {
-  print(`错误: 未找到目标用户 ${TARGET_USERNAME}`);
-  quit(1);
-}
 
 print(`源用户: ${SOURCE_USERNAME} (ID: ${sourceUser._id})`);
-print(`目标用户: ${TARGET_USERNAME} (ID: ${targetUser._id})`);
+print(`目标用户ID: ${TARGET_USER_ID}`);
 
 // 检测userId存储格式 - 尝试多种可能的格式
 const possibleSourceUserIds = [
@@ -34,10 +29,8 @@ const possibleSourceUserIds = [
 ];
 
 const possibleTargetUserIds = [
-  TARGET_USERNAME,                    // 用户名
-  targetUser._id,                     // ObjectId
-  String(targetUser._id),             // ObjectId字符串
-  targetUser._id.toString()           // ObjectId toString
+  TARGET_USER_ID,                     // 已知的ObjectId字符串
+  ObjectId(TARGET_USER_ID)            // ObjectId对象
 ];
 
 print('检测源用户数据格式...');
@@ -68,19 +61,8 @@ if (sourceProjects.length === 0 && sourceWorkouts.length === 0) {
   quit(0);
 }
 
-// 确定目标userId格式
-let targetUserId = TARGET_USERNAME; // 默认使用用户名
-
-// 如果目标用户已有数据，沿用其格式
-for (const userId of possibleTargetUserIds) {
-  const existing = projectsCol.findOne({ userId: userId });
-  if (existing) {
-    targetUserId = userId;
-    print(`目标用户已有数据，沿用格式: ${userId} (类型: ${typeof userId})`);
-    break;
-  }
-}
-
+// 使用已知的目标用户ID
+const targetUserId = TARGET_USER_ID;
 print(`目标userId格式: ${targetUserId} (类型: ${typeof targetUserId})`);
 
 // 复制项目
