@@ -1,6 +1,6 @@
 // 专门复制训练项目的脚本
 const SOURCE_USERNAME = 'cjq';
-const TARGET_USER_ID = '6836ff9a7f5f9b2d0e326bc9'; // demo用户的userId
+const TARGET_USERNAME = 'demo'; // 目标用户名
 
 // 集合引用
 const usersCol = db.getCollection('users');
@@ -8,16 +8,21 @@ const projectsCol = db.getCollection('projects');
 
 print('=== 复制训练项目 ===');
 
-// 查找源用户
+// 查找源用户和目标用户
 const sourceUser = usersCol.findOne({ username: SOURCE_USERNAME });
+const targetUser = usersCol.findOne({ username: TARGET_USERNAME });
 
 if (!sourceUser) {
   print(`错误: 未找到源用户 ${SOURCE_USERNAME}`);
   quit(1);
 }
+if (!targetUser) {
+  print(`错误: 未找到目标用户 ${TARGET_USERNAME}`);
+  quit(1);
+}
 
 print(`源用户: ${SOURCE_USERNAME} (ID: ${sourceUser._id})`);
-print(`目标用户ID: ${TARGET_USER_ID}`);
+print(`目标用户: ${TARGET_USERNAME} (ID: ${targetUser._id})`);
 
 // 检测userId存储格式
 const possibleSourceUserIds = [
@@ -27,8 +32,30 @@ const possibleSourceUserIds = [
   sourceUser._id.toString()            // ObjectId toString
 ];
 
-// 目标用户ID格式（已知是ObjectId字符串）
-const targetUserId = TARGET_USER_ID;
+// 目标用户ID格式 - 尝试多种可能的格式
+const possibleTargetUserIds = [
+  TARGET_USERNAME,                    // 用户名
+  targetUser._id,                     // ObjectId
+  String(targetUser._id),             // ObjectId字符串
+  targetUser._id.toString()            // ObjectId toString
+];
+
+// 检测目标用户的实际userId格式
+let targetUserId = null;
+for (const userId of possibleTargetUserIds) {
+  const existing = projectsCol.findOne({ userId: userId });
+  if (existing) {
+    targetUserId = userId;
+    print(`目标用户已有项目，userId格式: ${userId} (类型: ${typeof userId})`);
+    break;
+  }
+}
+
+// 如果目标用户没有项目，使用用户名作为默认格式
+if (!targetUserId) {
+  targetUserId = TARGET_USERNAME;
+  print(`目标用户无现有项目，使用默认格式: ${targetUserId}`);
+}
 
 print('\n检测源用户项目数据...');
 
@@ -120,7 +147,7 @@ print(`  - 总计处理: ${projectsCopied + projectsSkipped}`);
 // 验证结果
 print('\n=== 验证结果 ===');
 const targetProjects = projectsCol.find({ userId: targetUserId }).toArray();
-print(`目标用户 "${TARGET_USER_ID}" 现在有 ${targetProjects.length} 个项目:`);
+print(`目标用户 "${TARGET_USERNAME}" 现在有 ${targetProjects.length} 个项目:`);
 targetProjects.forEach(p => print(`  - ${p.name} (${p.category})`));
 
 print('\n项目复制完成！');
