@@ -47,9 +47,11 @@ const selectedCategories = categories.slice(0, 3);
 print(`使用类别: ${selectedCategories.join(', ')}`);
 
 // 生成10月份的训练数据
-const year = 2024;
+const year = 2025;
 const month = 10; // 10月
-const daysInMonth = 31;
+// 动态计算10月份的天数
+const daysInMonth = new Date(year, month, 0).getDate();
+print(`${year}年${month}月有 ${daysInMonth} 天`);
 
 // 获取今天的日期
 const today = new Date();
