@@ -51,12 +51,6 @@ for (const userId of possibleTargetUserIds) {
   }
 }
 
-// 如果目标用户没有项目，使用用户名作为默认格式
-if (!targetUserId) {
-  targetUserId = TARGET_USERNAME;
-  print(`目标用户无现有项目，使用默认格式: ${targetUserId}`);
-}
-
 print('\n检测源用户项目数据...');
 
 // 查找源用户的项目数据
