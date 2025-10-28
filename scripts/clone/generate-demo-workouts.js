@@ -8,6 +8,9 @@ const workoutsCol = db.getCollection('workouts');
 
 print('=== 生成 demo 用户 10 月份模拟 workout 数据 ===');
 
+// 先删除之前生成的 10 月份数据
+print('删除之前生成的 10 月份数据...');
+
 // 查找目标用户
 const targetUser = usersCol.findOne({ username: TARGET_USERNAME });
 
@@ -18,6 +21,13 @@ if (!targetUser) {
 
 const targetUserId = String(targetUser._id);
 print(`目标用户: ${TARGET_USERNAME} (ID: ${targetUserId})`);
+
+// 删除之前生成的 10 月份数据
+const deleteResult = workoutsCol.deleteMany({
+  userId: targetUserId,
+  date: { $regex: /^2024-10-/ } // 10 月份的数据
+});
+print(`删除了 ${deleteResult.deletedCount} 条旧数据`);
 
 // 获取目标用户的项目
 const userProjects = projectsCol.find({ userId: targetUserId }).toArray();
@@ -82,6 +92,7 @@ let totalWorkouts = 0;
 
 trainingDays.forEach(day => {
   const trainingDate = new Date(year, month - 1, day);
+  const dateString = trainingDate.toISOString().split('T')[0]; // 格式化为 YYYY-MM-DD
   
   // 每天2到7个项目
   const seed = day * 13 + month * 7 + year;
@@ -135,10 +146,17 @@ trainingDays.forEach(day => {
       const repsRandom = (repsSeed % 233280) / 233280;
       const reps = Math.floor(repsRandom * 11) + 5;
       
+      // 生成休息时间 (30-60秒)
+      const restSeed = (repsSeed + g * 13) * 9301 + 49297;
+      const restRandom = (restSeed % 233280) / 233280;
+      const restTime = Math.floor(restRandom * 31) + 30; // 30-60秒
+      
       groups.push({
-        weight: weight,
         reps: reps,
-        rest: 60 + Math.floor(repsRandom * 120) // 60-180秒休息
+        weight: weight,
+        seqNo: g + 1,
+        restTime: g === groupCount - 1 ? 0 : restTime, // 最后一组休息时间为0
+        _id: new ObjectId()
       });
     }
     
@@ -149,15 +167,15 @@ trainingDays.forEach(day => {
     
     const workout = {
       userId: targetUserId,
-      date: trainingDate,
+      date: dateString,
       projectId: project._id,
       projectName: project.name,
       unit: project.defaultUnit || 'kg',
       groups: groups,
       trainingTime: trainingTime,
-      remark: `模拟训练数据 - ${project.category || '未分类'}`,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      __v: 0
     };
     
     workoutsToInsert.push(workout);
