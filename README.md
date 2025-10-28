@@ -1,4 +1,4 @@
-# Fit-Note 健身记录应用
+  # Fit-Note 健身记录应用
 
 一个基于 React + NestJS + MongoDB 的健身记录应用，帮助用户追踪和管理他们的健身训练。
 

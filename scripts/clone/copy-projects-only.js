@@ -41,7 +41,7 @@ const possibleTargetUserIds = [
 ];
 
 // 检测目标用户的实际userId格式
-let targetUserId = null;
+let targetUserId = targetUser._id;
 for (const userId of possibleTargetUserIds) {
   const existing = projectsCol.findOne({ userId: userId });
   if (existing) {
