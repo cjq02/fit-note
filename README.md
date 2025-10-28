@@ -102,6 +102,115 @@ pnpm start:dev
 前端将在 http://localhost:5173 运行
 后端 API 将在 http://localhost:3000 运行
 
+## 工作区与包管理（pnpm workspace）
+
+本项目使用 pnpm 工作区管理多包（monorepo）。工作区定义见 `pnpm-workspace.yaml`，包含：
+
+- `frontend`：前端应用（Vite + React）
+- `backend`：后端服务（NestJS）
+- `packages/shared-utils`：共享工具包（由 tsup 打包，提供 `@fit-note/shared-utils` 包）
+
+约定与规范：
+
+- 包管理使用 pnpm（根、子项目保持一致版本）
+- 统一使用 2 空格缩进、LF 行尾
+- 日期处理统一使用 dayjs
+- 所有方法添加方法注释
+
+## 构建 shared-utils 与常见问题
+
+前端会直接从共享包导入子路径：
+
+```ts
+import { UNIT_OPTIONS, EQUIPMENT_OPTIONS } from '@fit-note/shared-utils/dict.options';
+```
+
+共享包通过 `tsup` 产物输出到 `packages/shared-utils/dist`，并在 `package.json` 中通过 `exports` 暴露子路径：
+
+```json
+{
+  "name": "@fit-note/shared-utils",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./dict.options": {
+      "types": "./dist/dict.options.d.ts",
+      "import": "./dist/dict.options.mjs",
+      "require": "./dist/dict.options.js"
+    }
+  }
+}
+```
+
+首次启动或拉取项目后，若未构建 shared-utils，Vite 可能报错：
+
+> The following dependencies are imported but could not be resolved: @fit-note/shared-utils/dict.options
+
+解决方式：
+
+1) 在工作区根目录构建共享包
+
+```bash
+pnpm --filter @fit-note/shared-utils build
+```
+
+或使用根脚本：
+
+```bash
+pnpm build:shared-utils
+```
+
+2) 再启动前端：
+
+```bash
+cd frontend
+pnpm dev
+```
+
+提示（Windows PowerShell）：如果你在 PowerShell 中执行多个命令，不要使用 `&&`，请分两行依次执行。
+
+## 开发与启动命令
+
+在根目录使用并行启动（需要先确保 MongoDB 已启动）：
+
+```bash
+# 启动数据库（可选：如果本地未运行 MongoDB）
+docker-compose up -d
+
+# 根目录并行启动前后端
+pnpm start:parallel
+```
+
+也可以分别进入子项目启动：
+
+```bash
+# 前端
+cd frontend
+pnpm dev
+
+# 后端
+cd ../backend
+pnpm start:dev
+```
+
+常用工作流：
+
+- 修改了 `packages/shared-utils` 源码后：先 `pnpm --filter @fit-note/shared-utils build`，再刷新前端页面
+- 修改了前端依赖或配置：在 `frontend` 目录重新安装或重启 dev server
+- 生产环境一键部署：参考下文部署章节与 `deploy.sh`
+
+## 故障排查（FAQ）
+
+- 问：Vite 提示无法解析 `@fit-note/shared-utils/dict.options`？
+  - 答：缺少共享包产物。执行 `pnpm build:shared-utils` 或 `pnpm --filter @fit-note/shared-utils build` 后再试。
+- 问：PowerShell 中执行 `cd packages/shared-utils && pnpm build` 报错？
+  - 答：PowerShell 不支持 `&&` 串联。请分两行执行：`cd packages/shared-utils` 回车，然后 `pnpm build`。
+- 问：前端类型报错找不到共享类型？
+  - 答：确认 `frontend/package.json` 依赖里存在 `"@fit-note/shared-utils": "workspace:*"`，并确保已构建 shared-utils。
+
 ## API 文档
 
 ### 训练记录 API
