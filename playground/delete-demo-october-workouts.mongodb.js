@@ -21,14 +21,14 @@ print('\n=== 查询 10 月份数据 ===');
 
 // 尝试不同的查询方式
 const queries = [
-  { userId: String(demoUser._id), date: { $gte: new Date('2024-10-01'), $lt: new Date('2024-11-01') } },
   { userId: String(demoUser._id), date: { $regex: /^2024-10-/ } },
-  { userId: demoUser._id, date: { $gte: new Date('2024-10-01'), $lt: new Date('2024-11-01') } },
+  { userId: String(demoUser._id), date: { $gte: "2024-10-01", $lt: "2024-11-01" } },
   { userId: demoUser._id, date: { $regex: /^2024-10-/ } },
+  { userId: demoUser._id, date: { $gte: "2024-10-01", $lt: "2024-11-01" } },
   { userId: String(demoUser._id), date: { $regex: /10-/ } },
   { userId: demoUser._id, date: { $regex: /10-/ } },
-  { date: { $gte: new Date('2024-10-01'), $lt: new Date('2024-11-01') } },
   { date: { $regex: /^2024-10-/ } },
+  { date: { $gte: "2024-10-01", $lt: "2024-11-01" } },
   { date: { $regex: /10-/ } }
 ];
 
@@ -84,10 +84,10 @@ print('\n=== 执行删除 ===');
 
 // 基于观察到的数据格式，使用最直接的删除方法
 const deleteQueries = [
-  { userId: "6836ff9a7f5f9b2d0e326bc9", date: { $gte: new Date('2024-10-01'), $lt: new Date('2024-11-01') } },
   { userId: "6836ff9a7f5f9b2d0e326bc9", date: { $regex: /^2024-10-/ } },
-  { userId: String(demoUser._id), date: { $gte: new Date('2024-10-01'), $lt: new Date('2024-11-01') } },
-  { userId: String(demoUser._id), date: { $regex: /^2024-10-/ } }
+  { userId: "6836ff9a7f5f9b2d0e326bc9", date: { $gte: "2024-10-01", $lt: "2024-11-01" } },
+  { userId: String(demoUser._id), date: { $regex: /^2024-10-/ } },
+  { userId: String(demoUser._id), date: { $gte: "2024-10-01", $lt: "2024-11-01" } }
 ];
 
 let totalDeleted = 0;
@@ -111,7 +111,7 @@ if (totalDeleted === 0) {
 
 // 验证删除结果
 print('\n=== 验证删除结果 ===');
-const remainingData = workoutsCol.find({ userId: "6836ff9a7f5f9b2d0e326bc9", date: { $gte: new Date('2024-10-01'), $lt: new Date('2024-11-01') } }).toArray();
+const remainingData = workoutsCol.find({ userId: "6836ff9a7f5f9b2d0e326bc9", date: { $regex: /^2024-10-/ } }).toArray();
 print(`剩余数据: ${remainingData.length} 条`);
 
 if (remainingData.length === 0) {

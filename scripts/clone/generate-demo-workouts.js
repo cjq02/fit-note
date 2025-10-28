@@ -158,7 +158,7 @@ trainingDays.forEach(day => {
     const workout = {
       userId: targetUserId,
       date: dateString,
-      projectId: project._id,
+      projectId: project._id.toString(),
       projectName: project.name,
       unit: project.defaultUnit || 'kg',
       groups: groups,
