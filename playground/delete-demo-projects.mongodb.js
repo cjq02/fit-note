@@ -1,11 +1,8 @@
 // MongoDB Playground
 use("fit-note");
 
-// demo 用户的 userId（ObjectId 字符串形式）
-const TARGET_USER_ID = null;
-
-// 若你的库里 userId 存的是 ObjectId，请改用这一行：
-// const TARGET_USER_ID = ObjectId("6836ff9a7f5f9b2d0e326bc9");
+// demo 用户的 userId（ObjectId 类型）
+const TARGET_USER_ID = ObjectId("6836ff9a7f5f9b2d0e326bc9");
 
 // 删除前统计
 const before = db.projects.countDocuments({ userId: TARGET_USER_ID });

@@ -9,11 +9,14 @@ use('fit-note');
 db.getCollection('projects')
   .find(
     {
+      userId: {
+        "$oid": "6836ff9a7f5f9b2d0e326bc9"
+      }
       /*
       * Filter
       * fieldA: value or expression
       */
-      userId: 'demo'
+      // userId: '6836ff9a7f5f9b2d0e326bc9'
     },
     {
       /*
@@ -24,6 +27,7 @@ db.getCollection('projects')
     }
   )
   .sort({
+    updatedAt: -1
     /*
     * fieldA: 1 // ascending
     * fieldB: -1 // descending

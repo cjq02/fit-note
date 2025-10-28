@@ -40,16 +40,9 @@ const possibleTargetUserIds = [
   targetUser._id.toString()            // ObjectId toString
 ];
 
-// 检测目标用户的实际userId格式
-let targetUserId = targetUser._id;
-for (const userId of possibleTargetUserIds) {
-  const existing = projectsCol.findOne({ userId: userId });
-  if (existing) {
-    targetUserId = userId;
-    print(`目标用户已有项目，userId格式: ${userId} (类型: ${typeof userId})`);
-    break;
-  }
-}
+// 始终使用字符串格式的ObjectId作为userId
+const targetUserId = String(targetUser._id);
+print(`目标用户userId格式: ${targetUserId} (类型: ${typeof targetUserId})`);
 
 print('\n检测源用户项目数据...');
 
@@ -118,7 +111,7 @@ for (const project of sourceProjects) {
     defaultUnit: project.defaultUnit || 'kg',
     defaultWeight: project.defaultWeight || 0,
     equipments: project.equipments || [],
-    createdAt: project.createdAt || new Date(),
+    createdAt: new Date(),
     updatedAt: new Date()
   };
   
