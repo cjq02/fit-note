@@ -8,9 +8,6 @@ const workoutsCol = db.getCollection('workouts');
 
 print('=== 生成 demo 用户 10 月份模拟 workout 数据 ===');
 
-// 先删除之前生成的 10 月份数据
-print('删除之前生成的 10 月份数据...');
-
 // 查找目标用户
 const targetUser = usersCol.findOne({ username: TARGET_USERNAME });
 
@@ -21,13 +18,6 @@ if (!targetUser) {
 
 const targetUserId = String(targetUser._id);
 print(`目标用户: ${TARGET_USERNAME} (ID: ${targetUserId})`);
-
-// 删除之前生成的 10 月份数据
-const deleteResult = workoutsCol.deleteMany({
-  userId: targetUserId,
-  date: { $regex: /^2024-10-/ } // 10 月份的数据
-});
-print(`删除了 ${deleteResult.deletedCount} 条旧数据`);
 
 // 获取目标用户的项目
 const userProjects = projectsCol.find({ userId: targetUserId }).toArray();

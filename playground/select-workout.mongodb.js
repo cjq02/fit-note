@@ -16,8 +16,8 @@ db.getCollection('workouts')
       * Filter
       * fieldA: value or expression
       */
-      userId: '6833e12eec0b3d761cd9cacf'
-    // userId: '6836ff9a7f5f9b2d0e326bc9'
+    //   userId: '6833e12eec0b3d761cd9cacf'
+    userId: '6836ff9a7f5f9b2d0e326bc9'
   },
     {
       /*
