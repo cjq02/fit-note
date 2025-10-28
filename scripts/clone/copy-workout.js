@@ -70,7 +70,7 @@ if (sourceProjects.length === 0 && sourceWorkouts.length === 0) {
 }
 
 // 使用目标用户的ID
-const targetUserId = targetUser._id;
+const targetUserId = String(targetUser._id);
 print(`目标userId格式: ${targetUserId} (类型: ${typeof targetUserId})`);
 
 // 建立项目映射关系（源项目ID -> 目标项目ID）
