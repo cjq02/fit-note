@@ -1,12 +1,39 @@
-// 生成 demo 用户 10 月份模拟 workout 数据
+// 生成 demo 用户模拟 workout 数据
+// 使用方法：
+// 在脚本开头定义 YEAR 和 MONTH 变量
+// 例如：const YEAR = 2024; const MONTH = 12;
 const TARGET_USERNAME = 'demo';
+
+// 检查必需参数
+if (typeof YEAR === 'undefined' || typeof MONTH === 'undefined') {
+  print('错误: 必须定义 YEAR 和 MONTH 参数');
+  print('使用方法:');
+  print('  const YEAR = 2025;');
+  print('  const MONTH = 10;');
+  print('  load("generate-demo-workouts.js");');
+  quit(1);
+}
+
+// 验证参数有效性
+if (YEAR < 2000 || YEAR > 2100) {
+  print(`错误: 年份 ${YEAR} 超出有效范围 (2000-2100)`);
+  quit(1);
+}
+
+if (MONTH < 1 || MONTH > 12) {
+  print(`错误: 月份 ${MONTH} 超出有效范围 (1-12)`);
+  quit(1);
+}
+
+const year = YEAR;
+const month = MONTH;
 
 // 集合引用
 const usersCol = db.getCollection('users');
 const projectsCol = db.getCollection('projects');
 const workoutsCol = db.getCollection('workouts');
 
-print('=== 生成 demo 用户 10 月份模拟 workout 数据 ===');
+print(`=== 生成 demo 用户 ${year}年${month}月模拟 workout 数据 ===`);
 
 // 查找目标用户
 const targetUser = usersCol.findOne({ username: TARGET_USERNAME });
@@ -46,10 +73,8 @@ print(`项目类别: ${categories.join(', ')}`);
 const selectedCategories = categories.slice(0, 3);
 print(`使用类别: ${selectedCategories.join(', ')}`);
 
-// 生成10月份的训练数据
-const year = 2025;
-const month = 10; // 10月
-// 动态计算10月份的天数
+// 生成指定年月的训练数据
+// 动态计算指定月份的天数
 const daysInMonth = new Date(year, month, 0).getDate();
 print(`${year}年${month}月有 ${daysInMonth} 天`);
 
@@ -60,7 +85,7 @@ const todayDate = today.getDate();
 // 确保不生成大于今天的数据
 const maxDay = Math.min(daysInMonth, todayDate);
 
-print(`生成 10月1日 到 10月${maxDay}日 的训练数据`);
+print(`生成 ${month}月1日 到 ${month}月${maxDay}日 的训练数据`);
 
 // 生成训练日期：7天中有4天训练
 const trainingDays = [];
@@ -115,7 +140,7 @@ trainingDays.forEach(day => {
     }
   }
   
-  print(`10月${day}日: ${selectedProjects.length} 个项目 (${selectedProjects.map(p => p.name).join(', ')})`);
+  print(`${month}月${day}日: ${selectedProjects.length} 个项目 (${selectedProjects.map(p => p.name).join(', ')})`);
   
   // 为每个项目生成训练记录
   selectedProjects.forEach(project => {
