@@ -90,18 +90,48 @@ const maxDay = Math.min(daysInMonth, todayDate);
 
 print(`生成 ${month}月1日 到 ${month}月${maxDay}日 的训练数据`);
 
-// 生成训练日期：7天中有4天训练
+// 生成训练日期：更随机的训练安排
 const trainingDays = [];
-for (let day = 1; day <= maxDay; day++) {
-  // 使用日期作为种子，确保每天的训练安排是固定的
-  const seed = day * 7 + month * 31 + year;
-  const random = (seed * 9301 + 49297) % 233280 / 233280;
+const totalDays = maxDay;
+const targetTrainingDays = Math.floor(totalDays * 0.57); // 约57%的天数训练
+
+// 使用更复杂的随机算法生成训练日期
+const allDays = Array.from({length: totalDays}, (_, i) => i + 1);
+const selectedDays = new Set();
+
+// 确保不会连续训练太多天（最多连续3天）
+let consecutiveDays = 0;
+const maxConsecutive = 3;
+
+while (selectedDays.size < targetTrainingDays) {
+  const randomIndex = Math.floor(Math.random() * allDays.length);
+  const day = allDays[randomIndex];
   
-  // 7天中有4天训练，即约57%的概率
-  if (random < 0.57) {
-    trainingDays.push(day);
+  if (!selectedDays.has(day)) {
+    // 检查是否会造成连续训练过多
+    const prevDay = day - 1;
+    const nextDay = day + 1;
+    const hasPrev = selectedDays.has(prevDay);
+    const hasNext = selectedDays.has(nextDay);
+    
+    if (hasPrev && hasNext) {
+      // 如果前后都有训练，跳过这一天
+      continue;
+    }
+    
+    selectedDays.add(day);
+    consecutiveDays = hasPrev ? consecutiveDays + 1 : 1;
+    
+    if (consecutiveDays > maxConsecutive) {
+      // 如果连续训练太多天，移除最后一天
+      const lastDay = Array.from(selectedDays).pop();
+      selectedDays.delete(lastDay);
+      consecutiveDays--;
+    }
   }
 }
+
+trainingDays.push(...Array.from(selectedDays).sort((a, b) => a - b));
 
 print(`训练天数: ${trainingDays.length} 天`);
 print(`训练日期: ${trainingDays.join(', ')}`);
@@ -180,10 +210,31 @@ trainingDays.forEach(day => {
       });
     }
     
-    // 生成训练时间 (20-90分钟)
-    const timeSeed = (day * 29 + project._id.toString().charCodeAt(1)) * 9301 + 49297;
+    // 生成训练时间 (15-120分钟) - 每个项目都有不同的时间
+    const projectIndex = selectedProjects.indexOf(project);
+    const timeSeed = (day * 31 + project._id.toString().charCodeAt(1) + projectIndex * 17 + Math.floor(Math.random() * 1000)) * 9301 + 49297;
     const timeRandom = (timeSeed % 233280) / 233280;
-    const trainingTime = Math.floor(timeRandom * 70) + 20;
+    
+    // 根据项目类型调整时间范围
+    const category = project.category || '未分类';
+    let minTime = 15;
+    let maxTime = 120;
+    
+    if (category === 'Cardio') {
+      minTime = 20;
+      maxTime = 60;
+    } else if (category === 'Abs' || category === 'Core') {
+      minTime = 15;
+      maxTime = 45;
+    } else if (category === 'Arms' || category === 'Shoulders') {
+      minTime = 20;
+      maxTime = 60;
+    } else if (category === 'Chest' || category === 'Back' || category === 'Legs') {
+      minTime = 30;
+      maxTime = 90;
+    }
+    
+    const trainingTime = Math.floor(timeRandom * (maxTime - minTime)) + minTime;
     
     const workout = {
       userId: targetUserId,

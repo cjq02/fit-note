@@ -1,7 +1,13 @@
-// 删除 demo 用户 10 月份的 workout 数据
+// 删除 demo 用户指定年月的 workout 数据
 // 先查询再删除
+// 使用方法：
+// const YEAR = 2025;
+// const MONTH = 10;
 
-print('=== 删除 demo 用户 10 月份 workout 数据 ===');
+const year = 2025;
+const month = 9;
+
+print(`=== 删除 demo 用户 ${year}年${month}月 workout 数据 ===`);
 
 // 集合引用
 const usersCol = db.getCollection('users');
@@ -16,20 +22,27 @@ if (!demoUser) {
 
 print(`demo 用户 ID: ${demoUser._id} (类型: ${typeof demoUser._id})`);
 
-// 查询 10 月份的数据
-print('\n=== 查询 10 月份数据 ===');
+// 查询指定年月的数据
+print(`\n=== 查询 ${year}年${month}月数据 ===`);
+
+// 生成查询条件
+const monthStr = month.toString().padStart(2, '0');
+const nextMonth = month === 12 ? 1 : month + 1;
+const nextYear = month === 12 ? year + 1 : year;
+const nextMonthStr = nextMonth.toString().padStart(2, '0');
+const nextYearStr = nextYear.toString();
 
 // 尝试不同的查询方式
 const queries = [
-  { userId: String(demoUser._id), date: { $regex: /^2025-10-/ } },
-  { userId: String(demoUser._id), date: { $gte: "2025-10-01", $lt: "2025-11-01" } },
-  { userId: demoUser._id, date: { $regex: /^2025-10-/ } },
-  { userId: demoUser._id, date: { $gte: "2025-10-01", $lt: "2025-11-01" } },
-  { userId: String(demoUser._id), date: { $regex: /10-/ } },
-  { userId: demoUser._id, date: { $regex: /10-/ } },
-  { date: { $regex: /^2025-10-/ } },
-  { date: { $gte: "2025-10-01", $lt: "2025-11-01" } },
-  { date: { $regex: /10-/ } }
+  { userId: String(demoUser._id), date: { $regex: new RegExp(`^${year}-${monthStr}-`) } },
+  { userId: String(demoUser._id), date: { $gte: `${year}-${monthStr}-01`, $lt: `${nextYearStr}-${nextMonthStr}-01` } },
+  { userId: demoUser._id, date: { $regex: new RegExp(`^${year}-${monthStr}-`) } },
+  { userId: demoUser._id, date: { $gte: `${year}-${monthStr}-01`, $lt: `${nextYearStr}-${nextMonthStr}-01` } },
+  { userId: String(demoUser._id), date: { $regex: new RegExp(`${monthStr}-`) } },
+  { userId: demoUser._id, date: { $regex: new RegExp(`${monthStr}-`) } },
+  { date: { $regex: new RegExp(`^${year}-${monthStr}-`) } },
+  { date: { $gte: `${year}-${monthStr}-01`, $lt: `${nextYearStr}-${nextMonthStr}-01` } },
+  { date: { $regex: new RegExp(`${monthStr}-`) } }
 ];
 
 let foundData = [];
@@ -53,7 +66,7 @@ for (const query of queries) {
 }
 
 if (foundData.length === 0) {
-  print('\n没有找到 10 月份的数据');
+  print(`\n没有找到 ${year}年${month}月的数据`);
   quit(0);
 }
 
