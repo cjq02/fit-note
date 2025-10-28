@@ -42,6 +42,9 @@ cat > "$TEMP_SCRIPT" << EOF
 const YEAR = ${YEAR};
 const MONTH = ${MONTH};
 
+// 调试信息
+print('临时脚本参数: YEAR=' + YEAR + ', MONTH=' + MONTH);
+
 // 加载主脚本
 load('/tmp/generate-demo-workouts.js');
 EOF
@@ -50,7 +53,7 @@ echo "创建临时脚本: $TEMP_SCRIPT"
 
 # 将脚本复制到容器
 docker cp "$TEMP_SCRIPT" fit-note-mongodb:/tmp/temp-script.js
-docker cp "scripts/clone/generate-demo-workouts.js" fit-note-mongodb:/tmp/generate-demo-workouts.js
+docker cp "./generate-demo-workouts.js" fit-note-mongodb:/tmp/generate-demo-workouts.js
 
 # 执行脚本
 echo "执行生成脚本..."

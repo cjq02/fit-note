@@ -28,6 +28,9 @@ if (MONTH < 1 || MONTH > 12) {
 const year = YEAR;
 const month = MONTH;
 
+// 调试信息
+print(`调试: 接收到的参数 - YEAR: ${year}, MONTH: ${month}`);
+
 // 集合引用
 const usersCol = db.getCollection('users');
 const projectsCol = db.getCollection('projects');
